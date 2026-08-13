@@ -6,7 +6,7 @@ import { formatLong } from '../lib/date'
 import { exerciseName } from '../lib/exercises'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { sessionSetCount, sessionVolume, round1 } from '../lib/stats'
-import type { DaySchedule, Plan, PlanDay, Session } from '../lib/types'
+import type { DaySchedule, Session, Workout } from '../lib/types'
 
 interface DaySessionSheetProps {
   date: string
@@ -16,21 +16,20 @@ interface DaySessionSheetProps {
 
 /** Détail en lecture d'un jour, ouvert depuis le calendrier : entraînement prévu, puis séances déjà journalisées. */
 export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProps) {
-  const { t, lang, plans, schedules, exerciseById, deleteSession } = useApp()
+  const { t, lang, workouts, schedules, exerciseById, deleteSession } = useApp()
   const [expanded, setExpanded] = useState<string | null>(null)
 
   const planned = schedulesForDate(schedules, date)
     .map((schedule) => {
-      const plan = plans.find((p) => p.id === schedule.planId)
-      const day = plan?.days.find((d) => d.id === schedule.dayId)
-      return plan && day ? { schedule, plan, day } : null
+      const workout = workouts.find((w) => w.id === schedule.workoutId)
+      return workout ? { schedule, workout } : null
     })
-    .filter((entry): entry is { schedule: DaySchedule; plan: Plan; day: PlanDay } => entry !== null)
+    .filter((entry): entry is { schedule: DaySchedule; workout: Workout } => entry !== null)
 
   return (
     <Sheet title={formatLong(date, lang)} onClose={onClose}>
       <div className="stack">
-        {planned.map(({ schedule, plan, day }) => {
+        {planned.map(({ schedule, workout }) => {
           const isOpen = expanded === schedule.id
           return (
             <div className="card" key={schedule.id}>
@@ -39,10 +38,9 @@ export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProp
                   <span className="letter-badge" style={{ background: LETTER_COLOR[schedule.letter] }}>
                     {schedule.letter}
                   </span>
-                  <span className="name">{day.name}</span>
+                  <span className="name">{workout.name}</span>
                 </span>
               </div>
-              <span className="days-sub">{plan.name}</span>
 
               <div className="disclosure">
                 <button
@@ -55,10 +53,10 @@ export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProp
                 </button>
                 {isOpen ? (
                   <div className="disclosure-body">
-                    {day.exercises.length === 0 ? (
-                      <p className="empty">{t('day.noExercises')}</p>
+                    {workout.exercises.length === 0 ? (
+                      <p className="empty">{t('workout.noExercises')}</p>
                     ) : (
-                      day.exercises.map((entry) => {
+                      workout.exercises.map((entry) => {
                         const info = exerciseById(entry.exerciseId)
                         return (
                           <div className="plan-exercise-row" key={entry.id} style={{ padding: '10px 0' }}>
@@ -86,7 +84,7 @@ export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProp
           sessions.map((session) => (
             <div className="card" key={session.id}>
               <div className="plan-card-head">
-                <span className="name">{session.dayName ?? t('day.session.freeSession')}</span>
+                <span className="name">{session.workoutName ?? t('day.session.freeSession')}</span>
                 <button
                   type="button"
                   className="icon-btn danger"

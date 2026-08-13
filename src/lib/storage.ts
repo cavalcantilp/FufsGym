@@ -33,7 +33,7 @@ export function clearAll(): void {
 }
 
 export const STORAGE_KEYS = {
-  plans: 'plans',
+  workouts: 'workouts',
   schedules: 'schedules',
   sessions: 'sessions',
   customExercises: 'customExercises',

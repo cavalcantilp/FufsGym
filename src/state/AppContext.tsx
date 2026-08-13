@@ -15,13 +15,12 @@ import type {
   DaySchedule,
   Exercise,
   Lang,
-  Plan,
-  PlanDay,
   PlanExercise,
   Session,
   SessionExercise,
   SetLog,
   Units,
+  Workout,
 } from '../lib/types'
 
 function newId(): string {
@@ -47,28 +46,24 @@ interface AppState {
   removeCustomExercise: (id: string) => void
   exerciseById: (id: string) => Exercise | undefined
 
-  plans: Plan[]
-  addPlan: (name: string) => Plan
-  renamePlan: (id: string, name: string) => void
-  removePlan: (id: string) => void
-  addDay: (planId: string, name: string) => PlanDay
-  renameDay: (planId: string, dayId: string, name: string) => void
-  removeDay: (planId: string, dayId: string) => void
-  addPlanExercise: (planId: string, dayId: string, entry: Omit<PlanExercise, 'id'>) => void
-  updatePlanExercise: (planId: string, dayId: string, entryId: string, patch: Partial<PlanExercise>) => void
-  removePlanExercise: (planId: string, dayId: string, entryId: string) => void
+  workouts: Workout[]
+  addWorkout: (name: string) => Workout
+  renameWorkout: (id: string, name: string) => void
+  removeWorkout: (id: string) => void
+  addExercise: (workoutId: string, entry: Omit<PlanExercise, 'id'>) => void
+  updateExercise: (workoutId: string, entryId: string, patch: Partial<PlanExercise>) => void
+  removeExercise: (workoutId: string, entryId: string) => void
 
   schedules: DaySchedule[]
-  schedulesForPlan: (planId: string) => DaySchedule[]
-  scheduleForDay: (dayId: string) => DaySchedule | undefined
-  /** Crée la programmation d'un jour avec la prochaine lettre libre ; `null` si les dix sont déjà prises. */
-  addSchedule: (planId: string, dayId: string) => DaySchedule | null
+  scheduleForWorkout: (workoutId: string) => DaySchedule | undefined
+  /** Crée la programmation d'un entraînement avec la prochaine lettre libre ; `null` si les dix sont déjà prises. */
+  addSchedule: (workoutId: string) => DaySchedule | null
   updateSchedule: (id: string, patch: Partial<Pick<DaySchedule, 'weekdays' | 'startDate' | 'endDate'>>) => void
   removeSchedule: (id: string) => void
 
   sessions: Session[]
   sessionsFor: (date: string) => Session[]
-  startSession: (date: string, day?: { planId: string; day: PlanDay } | null) => Session
+  startSession: (date: string, workout?: Workout | null) => Session
   addSessionExercise: (sessionId: string, exerciseId: string) => void
   removeSessionExercise: (sessionId: string, sessionExerciseId: string) => void
   addSet: (sessionId: string, sessionExerciseId: string, set?: Partial<SetLog>) => void
@@ -92,7 +87,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [customExercises, setCustomExercises] = useState<Exercise[]>(() =>
     load(STORAGE_KEYS.customExercises, []),
   )
-  const [plans, setPlans] = useState<Plan[]>(() => load(STORAGE_KEYS.plans, []))
+  const [workouts, setWorkouts] = useState<Workout[]>(() => load(STORAGE_KEYS.workouts, []))
   const [schedules, setSchedules] = useState<DaySchedule[]>(() => load(STORAGE_KEYS.schedules, []))
   const [sessions, setSessions] = useState<Session[]>(() => load(STORAGE_KEYS.sessions, []))
 
@@ -100,7 +95,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => save(STORAGE_KEYS.units, units), [units])
   useEffect(() => save(STORAGE_KEYS.onboarded, onboarded), [onboarded])
   useEffect(() => save(STORAGE_KEYS.customExercises, customExercises), [customExercises])
-  useEffect(() => save(STORAGE_KEYS.plans, plans), [plans])
+  useEffect(() => save(STORAGE_KEYS.workouts, workouts), [workouts])
   useEffect(() => save(STORAGE_KEYS.schedules, schedules), [schedules])
   useEffect(() => save(STORAGE_KEYS.sessions, sessions), [sessions])
 
@@ -137,109 +132,60 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCustomExercises((current) => current.filter((e) => e.id !== id))
   }, [])
 
-  const addPlan = useCallback((name: string) => {
-    const plan: Plan = { id: newId(), name, days: [], createdAt: new Date().toISOString() }
-    setPlans((current) => [...current, plan])
-    return plan
+  const addWorkout = useCallback((name: string) => {
+    const workout: Workout = { id: newId(), name, exercises: [], createdAt: new Date().toISOString() }
+    setWorkouts((current) => [...current, workout])
+    return workout
   }, [])
 
-  const renamePlan = useCallback((id: string, name: string) => {
-    setPlans((current) => current.map((p) => (p.id === id ? { ...p, name } : p)))
+  const renameWorkout = useCallback((id: string, name: string) => {
+    setWorkouts((current) => current.map((w) => (w.id === id ? { ...w, name } : w)))
   }, [])
 
-  const removePlan = useCallback((id: string) => {
-    setPlans((current) => current.filter((p) => p.id !== id))
-    setSchedules((current) => current.filter((s) => s.planId !== id))
+  const removeWorkout = useCallback((id: string) => {
+    setWorkouts((current) => current.filter((w) => w.id !== id))
+    setSchedules((current) => current.filter((s) => s.workoutId !== id))
   }, [])
 
-  const addDay = useCallback((planId: string, name: string) => {
-    const day: PlanDay = { id: newId(), name, exercises: [] }
-    setPlans((current) => current.map((p) => (p.id === planId ? { ...p, days: [...p.days, day] } : p)))
-    return day
-  }, [])
-
-  const renameDay = useCallback((planId: string, dayId: string, name: string) => {
-    setPlans((current) =>
-      current.map((p) =>
-        p.id !== planId
-          ? p
-          : { ...p, days: p.days.map((d) => (d.id === dayId ? { ...d, name } : d)) },
+  const addExercise = useCallback((workoutId: string, entry: Omit<PlanExercise, 'id'>) => {
+    setWorkouts((current) =>
+      current.map((w) =>
+        w.id !== workoutId ? w : { ...w, exercises: [...w.exercises, { ...entry, id: newId() }] },
       ),
     )
   }, [])
 
-  const removeDay = useCallback((planId: string, dayId: string) => {
-    setPlans((current) =>
-      current.map((p) => (p.id !== planId ? p : { ...p, days: p.days.filter((d) => d.id !== dayId) })),
-    )
-    setSchedules((current) => current.filter((s) => s.dayId !== dayId))
-  }, [])
-
-  const addPlanExercise = useCallback((planId: string, dayId: string, entry: Omit<PlanExercise, 'id'>) => {
-    setPlans((current) =>
-      current.map((p) =>
-        p.id !== planId
-          ? p
-          : {
-              ...p,
-              days: p.days.map((d) =>
-                d.id !== dayId ? d : { ...d, exercises: [...d.exercises, { ...entry, id: newId() }] },
-              ),
-            },
-      ),
-    )
-  }, [])
-
-  const updatePlanExercise = useCallback(
-    (planId: string, dayId: string, entryId: string, patch: Partial<PlanExercise>) => {
-      setPlans((current) =>
-        current.map((p) =>
-          p.id !== planId
-            ? p
-            : {
-                ...p,
-                days: p.days.map((d) =>
-                  d.id !== dayId
-                    ? d
-                    : { ...d, exercises: d.exercises.map((e) => (e.id === entryId ? { ...e, ...patch } : e)) },
-                ),
-              },
+  const updateExercise = useCallback(
+    (workoutId: string, entryId: string, patch: Partial<PlanExercise>) => {
+      setWorkouts((current) =>
+        current.map((w) =>
+          w.id !== workoutId
+            ? w
+            : { ...w, exercises: w.exercises.map((e) => (e.id === entryId ? { ...e, ...patch } : e)) },
         ),
       )
     },
     [],
   )
 
-  const removePlanExercise = useCallback((planId: string, dayId: string, entryId: string) => {
-    setPlans((current) =>
-      current.map((p) =>
-        p.id !== planId
-          ? p
-          : {
-              ...p,
-              days: p.days.map((d) =>
-                d.id !== dayId ? d : { ...d, exercises: d.exercises.filter((e) => e.id !== entryId) },
-              ),
-            },
+  const removeExercise = useCallback((workoutId: string, entryId: string) => {
+    setWorkouts((current) =>
+      current.map((w) =>
+        w.id !== workoutId ? w : { ...w, exercises: w.exercises.filter((e) => e.id !== entryId) },
       ),
     )
   }, [])
 
-  const schedulesForPlan = useCallback(
-    (planId: string) => schedules.filter((s) => s.planId === planId),
-    [schedules],
-  )
-
-  const scheduleForDay = useCallback(
-    (dayId: string) => schedules.find((s) => s.dayId === dayId),
+  const scheduleForWorkout = useCallback(
+    (workoutId: string) => schedules.find((s) => s.workoutId === workoutId),
     [schedules],
   )
 
   const addSchedule = useCallback(
-    (planId: string, dayId: string) => {
+    (workoutId: string) => {
       const letter = nextFreeLetter(schedules)
       if (!letter) return null
-      const created: DaySchedule = { id: newId(), planId, dayId, letter, weekdays: [] }
+      const created: DaySchedule = { id: newId(), workoutId, letter, weekdays: [] }
       setSchedules((current) => [...current, created])
       return created
     },
@@ -259,9 +205,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const sessionsFor = useCallback((date: string) => sessions.filter((s) => s.date === date), [sessions])
 
-  const startSession = useCallback((date: string, day?: { planId: string; day: PlanDay } | null) => {
-    const sessionExercises: SessionExercise[] = day
-      ? day.day.exercises.map((planExercise) => ({
+  const startSession = useCallback((date: string, workout?: Workout | null) => {
+    const sessionExercises: SessionExercise[] = workout
+      ? workout.exercises.map((planExercise) => ({
           id: newId(),
           exerciseId: planExercise.exerciseId,
           sets: Array.from({ length: Math.max(1, planExercise.sets) }, () => emptySet()),
@@ -270,9 +216,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const session: Session = {
       id: newId(),
       date,
-      planId: day?.planId,
-      dayId: day?.day.id,
-      dayName: day?.day.name,
+      workoutId: workout?.id,
+      workoutName: workout?.name,
       exercises: sessionExercises,
       startedAt: new Date().toISOString(),
     }
@@ -378,7 +323,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     clearAll()
     setOnboarded(false)
     setCustomExercises([])
-    setPlans([])
+    setWorkouts([])
     setSchedules([])
     setSessions([])
     setUnits(DEFAULT_UNITS)
@@ -398,19 +343,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addCustomExercise,
       removeCustomExercise,
       exerciseById,
-      plans,
-      addPlan,
-      renamePlan,
-      removePlan,
-      addDay,
-      renameDay,
-      removeDay,
-      addPlanExercise,
-      updatePlanExercise,
-      removePlanExercise,
+      workouts,
+      addWorkout,
+      renameWorkout,
+      removeWorkout,
+      addExercise,
+      updateExercise,
+      removeExercise,
       schedules,
-      schedulesForPlan,
-      scheduleForDay,
+      scheduleForWorkout,
       addSchedule,
       updateSchedule,
       removeSchedule,
@@ -438,19 +379,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addCustomExercise,
       removeCustomExercise,
       exerciseById,
-      plans,
-      addPlan,
-      renamePlan,
-      removePlan,
-      addDay,
-      renameDay,
-      removeDay,
-      addPlanExercise,
-      updatePlanExercise,
-      removePlanExercise,
+      workouts,
+      addWorkout,
+      renameWorkout,
+      removeWorkout,
+      addExercise,
+      updateExercise,
+      removeExercise,
       schedules,
-      schedulesForPlan,
-      scheduleForDay,
+      scheduleForWorkout,
       addSchedule,
       updateSchedule,
       removeSchedule,

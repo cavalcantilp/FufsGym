@@ -21,7 +21,7 @@ export interface Exercise {
   custom?: boolean
 }
 
-/** Ligne d'un jour de programme : l'exercice visé et son objectif (séries × répétitions). */
+/** Ligne d'un entraînement : l'exercice visé et son objectif (séries × répétitions). */
 export interface PlanExercise {
   id: string
   exerciseId: string
@@ -32,16 +32,11 @@ export interface PlanExercise {
   note?: string
 }
 
-export interface PlanDay {
+/** Un entraînement : une liste nommée d'exercices (ex. "Push"). Rien au-dessus — pas de regroupement en "programme". */
+export interface Workout {
   id: string
   name: string
   exercises: PlanExercise[]
-}
-
-export interface Plan {
-  id: string
-  name: string
-  days: PlanDay[]
   createdAt: string
 }
 
@@ -51,14 +46,13 @@ export type Weekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
 export type ScheduleLetter = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'
 
 /**
- * Récurrence hebdomadaire d'un jour de programme : quand il revient (jours de
- * la semaine, bornes de dates facultatives) et sa lettre d'identification sur
- * le calendrier.
+ * Récurrence hebdomadaire d'un entraînement : quand il revient (jours de la
+ * semaine, bornes de dates facultatives) et sa lettre d'identification sur le
+ * calendrier. Un entraînement a au plus une programmation à la fois.
  */
 export interface DaySchedule {
   id: string
-  planId: string
-  dayId: string
+  workoutId: string
   letter: ScheduleLetter
   weekdays: Weekday[]
   /** Date au format YYYY-MM-DD ; illimité si absente. */
@@ -83,10 +77,9 @@ export interface Session {
   id: string
   /** Date au format YYYY-MM-DD. */
   date: string
-  planId?: string
-  dayId?: string
-  /** Libellé figé au moment du lancement : la séance survit à la suppression du programme. */
-  dayName?: string
+  workoutId?: string
+  /** Libellé figé au moment du lancement : la séance survit à la suppression de l'entraînement. */
+  workoutName?: string
   exercises: SessionExercise[]
   startedAt: string
   finishedAt?: string

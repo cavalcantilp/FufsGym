@@ -7,25 +7,24 @@ import { exerciseName } from '../lib/exercises'
 import { todayKey, formatDay } from '../lib/date'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { round1, sessionSetCount, sessionVolume } from '../lib/stats'
-import type { Plan, PlanDay, Session, SessionExercise } from '../lib/types'
+import type { Session, SessionExercise, Workout } from '../lib/types'
 
 interface StartViewProps {
-  onStart: (day?: { planId: string; day: PlanDay } | null) => void
+  onStart: (workout?: Workout | null) => void
 }
 
 function StartView({ onStart }: StartViewProps) {
-  const { t, lang, plans, schedules } = useApp()
+  const { t, lang, workouts, schedules } = useApp()
   const today = todayKey()
 
   const options = useMemo(() => {
     return schedulesForDate(schedules, today)
       .map((schedule) => {
-        const plan = plans.find((p) => p.id === schedule.planId)
-        const day = plan?.days.find((d) => d.id === schedule.dayId)
-        return plan && day ? { schedule, plan, day } : null
+        const workout = workouts.find((w) => w.id === schedule.workoutId)
+        return workout ? { schedule, workout } : null
       })
-      .filter((entry): entry is { schedule: (typeof schedules)[number]; plan: Plan; day: PlanDay } => entry !== null)
-  }, [schedules, plans, today])
+      .filter((entry): entry is { schedule: (typeof schedules)[number]; workout: Workout } => entry !== null)
+  }, [schedules, workouts, today])
 
   return (
     <div className="screen">
@@ -35,20 +34,20 @@ function StartView({ onStart }: StartViewProps) {
       </div>
 
       {options.length ? (
-        options.map(({ schedule, plan, day }) => (
+        options.map(({ schedule, workout }) => (
           <div className="card" key={schedule.id}>
             <div className="plan-card-head">
               <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span className="letter-badge" style={{ background: LETTER_COLOR[schedule.letter] }}>
                   {schedule.letter}
                 </span>
-                <span className="name">{day.name}</span>
+                <span className="name">{workout.name}</span>
               </span>
             </div>
             <p className="hint" style={{ marginTop: 4, marginBottom: 14 }}>
-              {day.exercises.length} {t('unit.exercise')} · {plan.name}
+              {workout.exercises.length} {t('unit.exercise')}
             </p>
-            <button type="button" className="btn" onClick={() => onStart({ planId: plan.id, day })}>
+            <button type="button" className="btn" onClick={() => onStart(workout)}>
               <IconDumbbell size={18} />
               {t('train.startSuggested')}
             </button>
@@ -155,7 +154,7 @@ function ActiveSessionView({ session }: { session: Session }) {
     <div className="screen">
       <div className="form-page-head" style={{ alignItems: 'center' }}>
         <div>
-          <h2>{session.dayName ?? t('train.freeSession')}</h2>
+          <h2>{session.workoutName ?? t('train.freeSession')}</h2>
           <span className="sub">{formatDay(session.date, lang)}</span>
         </div>
       </div>
@@ -237,8 +236,8 @@ export function TrainScreen() {
 
   return (
     <StartView
-      onStart={(day) => {
-        startSession(today, day ?? null)
+      onStart={(workout) => {
+        startSession(today, workout ?? null)
       }}
     />
   )
