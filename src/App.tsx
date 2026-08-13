@@ -13,6 +13,7 @@ import { load, save, STORAGE_KEYS } from './lib/storage'
 import type { Lang, LengthUnit, WeightUnit } from './lib/types'
 
 type Tab = 'calendar' | 'plan' | 'train' | 'progress'
+type NavId = Tab | 'settings'
 
 export function App() {
   const { t, lang, setLang, units, updateUnits, onboarded, resetAll } = useApp()
@@ -32,11 +33,12 @@ export function App() {
 
   if (!onboarded) return <Onboarding />
 
-  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: 'calendar', label: t('nav.calendar'), icon: <IconCalendar /> },
-    { id: 'plan', label: t('nav.plan'), icon: <IconClipboard /> },
-    { id: 'train', label: t('nav.train'), icon: <IconDumbbell size={26} /> },
-    { id: 'progress', label: t('nav.progress'), icon: <IconTrendingUp /> },
+  const tabs: { id: NavId; label: string; icon: React.ReactNode; onSelect: () => void }[] = [
+    { id: 'calendar', label: t('nav.calendar'), icon: <IconCalendar />, onSelect: () => setTab('calendar') },
+    { id: 'plan', label: t('nav.plan'), icon: <IconClipboard />, onSelect: () => setTab('plan') },
+    { id: 'train', label: t('nav.train'), icon: <IconDumbbell size={26} />, onSelect: () => setTab('train') },
+    { id: 'progress', label: t('nav.progress'), icon: <IconTrendingUp />, onSelect: () => setTab('progress') },
+    { id: 'settings', label: t('header.settings'), icon: <IconSettings />, onSelect: () => setSettingsOpen(true) },
   ]
 
   return (
@@ -63,15 +65,6 @@ export function App() {
       {tab === 'train' ? <TrainScreen /> : null}
       {tab === 'progress' ? <ProgressionScreen /> : null}
 
-      <button
-        type="button"
-        className="settings-fab"
-        onClick={() => setSettingsOpen(true)}
-        aria-label={t('header.settings')}
-      >
-        <IconSettings size={18} />
-      </button>
-
       <nav className="tabbar">
         {tabs.map((entry) => (
           <button
@@ -83,7 +76,7 @@ export function App() {
             ]
               .filter(Boolean)
               .join(' ')}
-            onClick={() => setTab(entry.id)}
+            onClick={entry.onSelect}
             aria-current={tab === entry.id ? 'page' : undefined}
           >
             {entry.id === 'train' ? <span className="icon-wrap">{entry.icon}</span> : entry.icon}
