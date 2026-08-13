@@ -350,6 +350,59 @@ select {
   color: var(--accent-ink);
 }
 
+/* ---------- Sélecteur de jours de la semaine ---------- */
+
+.weekday-picker {
+  display: flex;
+  gap: 4px;
+}
+
+.weekday-chip {
+  flex: 1;
+  padding: 9px 2px;
+  border-radius: 9px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--text-sub);
+  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.weekday-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.weekday-chip:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ---------- Badge de lettre (planification récurrente) ---------- */
+
+.letter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #0b1120;
+}
+
+.letter-badge.small {
+  width: 15px;
+  height: 15px;
+  font-size: 0.55rem;
+}
+
 /* ---------- Navigation de jour ---------- */
 
 .day-nav {
@@ -1287,19 +1340,12 @@ select {
   color: var(--accent);
 }
 
-.calendar-day .muscle-dots {
+.calendar-day .day-letters {
   display: flex;
-  gap: 3px;
+  gap: 2px;
   flex-wrap: wrap;
   justify-content: center;
   max-width: 100%;
-}
-
-.calendar-day .muscle-dots span {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  flex: none;
 }
 
 .calendar-day.trained {

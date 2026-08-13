@@ -5,6 +5,7 @@ import { Sheet } from '../components/Sheet'
 import { TextPromptSheet } from '../components/TextPromptSheet'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { PlanExerciseSheet } from '../components/PlanExerciseSheet'
+import { ScheduleScreen } from './ScheduleScreen'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
 import { IconEdit, IconPlus, IconTrash } from '../components/icons'
 import type { Exercise, Plan, PlanDay, PlanExercise } from '../lib/types'
@@ -12,11 +13,10 @@ import type { Exercise, Plan, PlanDay, PlanExercise } from '../lib/types'
 type PendingPick = { dayId: string; exercise: Exercise } | null
 type EditingEntry = { dayId: string; entry: PlanExercise } | null
 
-function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
+function PlanDetail({ plan, onBack, onSchedule }: { plan: Plan; onBack: () => void; onSchedule: () => void }) {
   const {
     t,
-    activePlanId,
-    setActivePlan,
+    schedulesForPlan,
     renamePlan,
     removePlan,
     addDay,
@@ -35,7 +35,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
   const [pendingPick, setPendingPick] = useState<PendingPick>(null)
   const [editingEntry, setEditingEntry] = useState<EditingEntry>(null)
 
-  const isActive = activePlanId === plan.id
+  const hasSchedule = schedulesForPlan(plan.id).length > 0
 
   const nameField = (
     <input
@@ -58,12 +58,8 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
       onBack={onBack}
     >
       <div className="stack">
-        <button
-          type="button"
-          className={isActive ? 'btn secondary' : 'btn'}
-          onClick={() => setActivePlan(isActive ? null : plan.id)}
-        >
-          {isActive ? t('plan.activated') : t('plan.activate')}
+        <button type="button" className={hasSchedule ? 'btn secondary' : 'btn'} onClick={onSchedule}>
+          {hasSchedule ? t('schedule.edit') : t('plan.activate')}
         </button>
 
         {plan.days.map((day) => (
@@ -210,11 +206,23 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
 }
 
 export function PlanificationScreen() {
-  const { t, plans, activePlanId, addPlan } = useApp()
+  const { t, plans, schedules, addPlan } = useApp()
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [schedulingId, setSchedulingId] = useState<string | null>(null)
+
+  const scheduling = plans.find((p) => p.id === schedulingId)
+  if (scheduling) {
+    return <ScheduleScreen plan={scheduling} onBack={() => setSchedulingId(null)} />
+  }
 
   const selected = plans.find((p) => p.id === selectedId)
-  if (selected) return <PlanDetail plan={selected} onBack={() => setSelectedId(null)} />
+  if (selected) {
+    return (
+      <PlanDetail plan={selected} onBack={() => setSelectedId(null)} onSchedule={() => setSchedulingId(selected.id)} />
+    )
+  }
+
+  const planHasSchedule = (planId: string) => schedules.some((s) => s.planId === planId)
 
   return (
     <div className="screen">
@@ -233,12 +241,12 @@ export function PlanificationScreen() {
             <button
               key={plan.id}
               type="button"
-              className={`plan-card${activePlanId === plan.id ? ' active' : ''}`}
+              className={`plan-card${planHasSchedule(plan.id) ? ' active' : ''}`}
               onClick={() => setSelectedId(plan.id)}
             >
               <div className="plan-card-head">
                 <span className="name">{plan.name}</span>
-                {activePlanId === plan.id ? <span className="active-badge">{t('plan.active')}</span> : null}
+                {planHasSchedule(plan.id) ? <span className="active-badge">{t('plan.active')}</span> : null}
               </div>
               <span className="days-sub">
                 {plan.days.length === 0 ? t('plan.noDays') : plan.days.map((day) => day.name).join(' · ')}

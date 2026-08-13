@@ -1,10 +1,12 @@
+import { useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { Sheet } from './Sheet'
-import { IconTrash } from './icons'
+import { IconChevronDown, IconTrash } from './icons'
 import { formatLong } from '../lib/date'
 import { exerciseName } from '../lib/exercises'
+import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { sessionSetCount, sessionVolume, round1 } from '../lib/stats'
-import type { Session } from '../lib/types'
+import type { DaySchedule, Plan, PlanDay, Session } from '../lib/types'
 
 interface DaySessionSheetProps {
   date: string
@@ -12,15 +14,74 @@ interface DaySessionSheetProps {
   onClose: () => void
 }
 
-/** Détail en lecture des séances d'un jour, ouvert depuis le calendrier. */
+/** Détail en lecture d'un jour, ouvert depuis le calendrier : entraînement prévu, puis séances déjà journalisées. */
 export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProps) {
-  const { t, lang, exerciseById, deleteSession } = useApp()
+  const { t, lang, plans, schedules, exerciseById, deleteSession } = useApp()
+  const [expanded, setExpanded] = useState<string | null>(null)
+
+  const planned = schedulesForDate(schedules, date)
+    .map((schedule) => {
+      const plan = plans.find((p) => p.id === schedule.planId)
+      const day = plan?.days.find((d) => d.id === schedule.dayId)
+      return plan && day ? { schedule, plan, day } : null
+    })
+    .filter((entry): entry is { schedule: DaySchedule; plan: Plan; day: PlanDay } => entry !== null)
 
   return (
     <Sheet title={formatLong(date, lang)} onClose={onClose}>
       <div className="stack">
+        {planned.map(({ schedule, plan, day }) => {
+          const isOpen = expanded === schedule.id
+          return (
+            <div className="card" key={schedule.id}>
+              <div className="plan-card-head">
+                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="letter-badge" style={{ background: LETTER_COLOR[schedule.letter] }}>
+                    {schedule.letter}
+                  </span>
+                  <span className="name">{day.name}</span>
+                </span>
+              </div>
+              <span className="days-sub">{plan.name}</span>
+
+              <div className="disclosure">
+                <button
+                  type="button"
+                  className="disclosure-head"
+                  onClick={() => setExpanded(isOpen ? null : schedule.id)}
+                >
+                  {t('day.session.planDetails')}
+                  <IconChevronDown open={isOpen} />
+                </button>
+                {isOpen ? (
+                  <div className="disclosure-body">
+                    {day.exercises.length === 0 ? (
+                      <p className="empty">{t('day.noExercises')}</p>
+                    ) : (
+                      day.exercises.map((entry) => {
+                        const info = exerciseById(entry.exerciseId)
+                        return (
+                          <div className="plan-exercise-row" key={entry.id} style={{ padding: '10px 0' }}>
+                            <span className="info">
+                              <span className="name">{info ? exerciseName(info, t) : ''}</span>
+                              <span className="target">
+                                {entry.sets} × {entry.reps}
+                                {entry.note ? ` · ${entry.note}` : ''}
+                              </span>
+                            </span>
+                          </div>
+                        )
+                      })
+                    )}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          )
+        })}
+
         {sessions.length === 0 ? (
-          <p className="empty">{t('day.session.empty')}</p>
+          planned.length === 0 ? <p className="empty">{t('day.session.empty')}</p> : null
         ) : (
           sessions.map((session) => (
             <div className="card" key={session.id}>

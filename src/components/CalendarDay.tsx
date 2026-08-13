@@ -1,3 +1,8 @@
+interface DayLetter {
+  letter: string
+  color: string
+}
+
 interface CalendarDayProps {
   date: string
   dayNumber: number
@@ -5,8 +10,8 @@ interface CalendarDayProps {
   selected: boolean
   isToday: boolean
   trained: boolean
-  /** Couleurs des groupes musculaires travaillés ce jour-là, une puce par groupe. */
-  muscleDots: string[]
+  /** Lettres des jours de programme planifiés ce jour-là (3 maximum). */
+  letters: DayLetter[]
   onSelect: (date: string) => void
 }
 
@@ -17,7 +22,7 @@ export function CalendarDay({
   selected,
   isToday,
   trained,
-  muscleDots,
+  letters,
   onSelect,
 }: CalendarDayProps) {
   const classes = [
@@ -33,10 +38,12 @@ export function CalendarDay({
   return (
     <button type="button" className={classes} onClick={() => onSelect(date)}>
       <span className="num">{dayNumber}</span>
-      {muscleDots.length ? (
-        <span className="muscle-dots">
-          {muscleDots.map((color, index) => (
-            <span key={index} style={{ background: color }} />
+      {letters.length ? (
+        <span className="day-letters">
+          {letters.map((entry, index) => (
+            <span key={index} className="letter-badge small" style={{ background: entry.color }}>
+              {entry.letter}
+            </span>
           ))}
         </span>
       ) : null}

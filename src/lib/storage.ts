@@ -34,7 +34,7 @@ export function clearAll(): void {
 
 export const STORAGE_KEYS = {
   plans: 'plans',
-  activePlanId: 'activePlanId',
+  schedules: 'schedules',
   sessions: 'sessions',
   customExercises: 'customExercises',
   onboarded: 'onboarded',

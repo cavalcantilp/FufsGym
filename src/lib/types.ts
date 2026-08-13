@@ -45,6 +45,27 @@ export interface Plan {
   createdAt: string
 }
 
+export type Weekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
+
+/** Dix lettres possibles, au total sur l'appli : au-delà, il faut en libérer une avant d'en programmer un nouveau. */
+export type ScheduleLetter = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'
+
+/**
+ * Récurrence hebdomadaire d'un jour de programme : quand il revient (jours de
+ * la semaine, bornes de dates facultatives) et sa lettre d'identification sur
+ * le calendrier.
+ */
+export interface DaySchedule {
+  id: string
+  planId: string
+  dayId: string
+  letter: ScheduleLetter
+  weekdays: Weekday[]
+  /** Date au format YYYY-MM-DD ; illimité si absente. */
+  startDate?: string
+  endDate?: string
+}
+
 export interface SetLog {
   id: string
   weight: number

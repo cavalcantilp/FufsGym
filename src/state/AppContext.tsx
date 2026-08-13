@@ -9,8 +9,10 @@ import {
 } from 'react'
 import { BUILTIN_EXERCISES } from '../lib/exercises'
 import { load, save, clearAll, STORAGE_KEYS } from '../lib/storage'
+import { nextFreeLetter } from '../lib/schedule'
 import { detectLang, TRANSLATIONS, type TranslationKey } from '../i18n/translations'
 import type {
+  DaySchedule,
   Exercise,
   Lang,
   Plan,
@@ -46,8 +48,6 @@ interface AppState {
   exerciseById: (id: string) => Exercise | undefined
 
   plans: Plan[]
-  activePlanId: string | null
-  setActivePlan: (id: string | null) => void
   addPlan: (name: string) => Plan
   renamePlan: (id: string, name: string) => void
   removePlan: (id: string) => void
@@ -57,7 +57,14 @@ interface AppState {
   addPlanExercise: (planId: string, dayId: string, entry: Omit<PlanExercise, 'id'>) => void
   updatePlanExercise: (planId: string, dayId: string, entryId: string, patch: Partial<PlanExercise>) => void
   removePlanExercise: (planId: string, dayId: string, entryId: string) => void
-  nextDayFor: (planId: string) => PlanDay | null
+
+  schedules: DaySchedule[]
+  schedulesForPlan: (planId: string) => DaySchedule[]
+  scheduleForDay: (dayId: string) => DaySchedule | undefined
+  /** Crée la programmation d'un jour avec la prochaine lettre libre ; `null` si les dix sont déjà prises. */
+  addSchedule: (planId: string, dayId: string) => DaySchedule | null
+  updateSchedule: (id: string, patch: Partial<Pick<DaySchedule, 'weekdays' | 'startDate' | 'endDate'>>) => void
+  removeSchedule: (id: string) => void
 
   sessions: Session[]
   sessionsFor: (date: string) => Session[]
@@ -86,9 +93,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     load(STORAGE_KEYS.customExercises, []),
   )
   const [plans, setPlans] = useState<Plan[]>(() => load(STORAGE_KEYS.plans, []))
-  const [activePlanId, setActivePlanId] = useState<string | null>(() =>
-    load(STORAGE_KEYS.activePlanId, null as string | null),
-  )
+  const [schedules, setSchedules] = useState<DaySchedule[]>(() => load(STORAGE_KEYS.schedules, []))
   const [sessions, setSessions] = useState<Session[]>(() => load(STORAGE_KEYS.sessions, []))
 
   useEffect(() => save(STORAGE_KEYS.lang, lang), [lang])
@@ -96,7 +101,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => save(STORAGE_KEYS.onboarded, onboarded), [onboarded])
   useEffect(() => save(STORAGE_KEYS.customExercises, customExercises), [customExercises])
   useEffect(() => save(STORAGE_KEYS.plans, plans), [plans])
-  useEffect(() => save(STORAGE_KEYS.activePlanId, activePlanId), [activePlanId])
+  useEffect(() => save(STORAGE_KEYS.schedules, schedules), [schedules])
   useEffect(() => save(STORAGE_KEYS.sessions, sessions), [sessions])
 
   useEffect(() => {
@@ -144,7 +149,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const removePlan = useCallback((id: string) => {
     setPlans((current) => current.filter((p) => p.id !== id))
-    setActivePlanId((current) => (current === id ? null : current))
+    setSchedules((current) => current.filter((s) => s.planId !== id))
   }, [])
 
   const addDay = useCallback((planId: string, name: string) => {
@@ -169,6 +174,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setPlans((current) =>
       current.map((p) => (p.id !== planId ? p : { ...p, days: p.days.filter((d) => d.id !== dayId) })),
     )
+    setSchedules((current) => current.filter((s) => s.dayId !== dayId))
   }, [])
 
   const addPlanExercise = useCallback((planId: string, dayId: string, entry: Omit<PlanExercise, 'id'>) => {
@@ -221,21 +227,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
     )
   }, [])
 
-  /** Jour suivant à proposer : celui qui suit, dans l'ordre du programme, le dernier jour effectué. */
-  const nextDayFor = useCallback(
-    (planId: string) => {
-      const plan = plans.find((p) => p.id === planId)
-      if (!plan || plan.days.length === 0) return null
-      const lastWithDay = [...sessions]
-        .filter((s) => s.planId === planId && s.finishedAt)
-        .sort((a, b) => b.date.localeCompare(a.date) || b.startedAt.localeCompare(a.startedAt))[0]
-      if (!lastWithDay?.dayId) return plan.days[0]
-      const index = plan.days.findIndex((d) => d.id === lastWithDay.dayId)
-      if (index === -1) return plan.days[0]
-      return plan.days[(index + 1) % plan.days.length]
-    },
-    [plans, sessions],
+  const schedulesForPlan = useCallback(
+    (planId: string) => schedules.filter((s) => s.planId === planId),
+    [schedules],
   )
+
+  const scheduleForDay = useCallback(
+    (dayId: string) => schedules.find((s) => s.dayId === dayId),
+    [schedules],
+  )
+
+  const addSchedule = useCallback(
+    (planId: string, dayId: string) => {
+      const letter = nextFreeLetter(schedules)
+      if (!letter) return null
+      const created: DaySchedule = { id: newId(), planId, dayId, letter, weekdays: [] }
+      setSchedules((current) => [...current, created])
+      return created
+    },
+    [schedules],
+  )
+
+  const updateSchedule = useCallback(
+    (id: string, patch: Partial<Pick<DaySchedule, 'weekdays' | 'startDate' | 'endDate'>>) => {
+      setSchedules((current) => current.map((s) => (s.id === id ? { ...s, ...patch } : s)))
+    },
+    [],
+  )
+
+  const removeSchedule = useCallback((id: string) => {
+    setSchedules((current) => current.filter((s) => s.id !== id))
+  }, [])
 
   const sessionsFor = useCallback((date: string) => sessions.filter((s) => s.date === date), [sessions])
 
@@ -359,7 +381,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setOnboarded(false)
     setCustomExercises([])
     setPlans([])
-    setActivePlanId(null)
+    setSchedules([])
     setSessions([])
     setUnits(DEFAULT_UNITS)
   }, [])
@@ -379,8 +401,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeCustomExercise,
       exerciseById,
       plans,
-      activePlanId,
-      setActivePlan: setActivePlanId,
       addPlan,
       renamePlan,
       removePlan,
@@ -390,7 +410,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addPlanExercise,
       updatePlanExercise,
       removePlanExercise,
-      nextDayFor,
+      schedules,
+      schedulesForPlan,
+      scheduleForDay,
+      addSchedule,
+      updateSchedule,
+      removeSchedule,
       sessions,
       sessionsFor,
       startSession,
@@ -416,7 +441,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeCustomExercise,
       exerciseById,
       plans,
-      activePlanId,
       addPlan,
       renamePlan,
       removePlan,
@@ -426,7 +450,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addPlanExercise,
       updatePlanExercise,
       removePlanExercise,
-      nextDayFor,
+      schedules,
+      schedulesForPlan,
+      scheduleForDay,
+      addSchedule,
+      updateSchedule,
+      removeSchedule,
       sessions,
       sessionsFor,
       startSession,

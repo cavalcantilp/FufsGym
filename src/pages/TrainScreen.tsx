@@ -5,48 +5,58 @@ import { NumberField } from '../components/NumberField'
 import { IconCheck, IconDumbbell, IconPlus, IconTrash } from '../components/icons'
 import { exerciseName } from '../lib/exercises'
 import { todayKey, formatDay } from '../lib/date'
+import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { round1, sessionSetCount, sessionVolume } from '../lib/stats'
-import type { Session, SessionExercise } from '../lib/types'
+import type { Plan, PlanDay, Session, SessionExercise } from '../lib/types'
 
 interface StartViewProps {
-  onStart: (day?: { planId: string; day: import('../lib/types').PlanDay } | null) => void
+  onStart: (day?: { planId: string; day: PlanDay } | null) => void
 }
 
 function StartView({ onStart }: StartViewProps) {
-  const { t, lang, plans, activePlanId, nextDayFor } = useApp()
-  const activePlan = plans.find((p) => p.id === activePlanId)
-  const suggested = activePlan ? nextDayFor(activePlan.id) : null
-  const [pickingDay, setPickingDay] = useState(false)
+  const { t, lang, plans, schedules } = useApp()
+  const today = todayKey()
+
+  const options = useMemo(() => {
+    return schedulesForDate(schedules, today)
+      .map((schedule) => {
+        const plan = plans.find((p) => p.id === schedule.planId)
+        const day = plan?.days.find((d) => d.id === schedule.dayId)
+        return plan && day ? { schedule, plan, day } : null
+      })
+      .filter((entry): entry is { schedule: (typeof schedules)[number]; plan: Plan; day: PlanDay } => entry !== null)
+  }, [schedules, plans, today])
 
   return (
     <div className="screen">
       <div>
         <h2 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{t('train.title')}</h2>
-        <p className="hint" style={{ marginTop: 4 }}>{formatDay(todayKey(), lang)}</p>
+        <p className="hint" style={{ marginTop: 4 }}>{formatDay(today, lang)}</p>
       </div>
 
-      {activePlan && suggested ? (
-        <div className="card">
-          <div className="card-title">{t('train.suggested')}</div>
-          <div className="plan-card-head">
-            <span className="name">{suggested.name}</span>
-          </div>
-          <p className="hint" style={{ marginTop: 4, marginBottom: 14 }}>
-            {suggested.exercises.length} {t('unit.exercise')} · {activePlan.name}
-          </p>
-          <button type="button" className="btn" onClick={() => onStart({ planId: activePlan.id, day: suggested })}>
-            <IconDumbbell size={18} />
-            {t('train.startSuggested')}
-          </button>
-          {activePlan.days.length > 1 ? (
-            <button type="button" className="btn secondary" style={{ marginTop: 10 }} onClick={() => setPickingDay(true)}>
-              {t('train.chooseOtherDay')}
+      {options.length ? (
+        options.map(({ schedule, plan, day }) => (
+          <div className="card" key={schedule.id}>
+            <div className="plan-card-head">
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="letter-badge" style={{ background: LETTER_COLOR[schedule.letter] }}>
+                  {schedule.letter}
+                </span>
+                <span className="name">{day.name}</span>
+              </span>
+            </div>
+            <p className="hint" style={{ marginTop: 4, marginBottom: 14 }}>
+              {day.exercises.length} {t('unit.exercise')} · {plan.name}
+            </p>
+            <button type="button" className="btn" onClick={() => onStart({ planId: plan.id, day })}>
+              <IconDumbbell size={18} />
+              {t('train.startSuggested')}
             </button>
-          ) : null}
-        </div>
+          </div>
+        ))
       ) : (
         <div className="card">
-          <p className="empty">{activePlan ? t('train.noActivePlan') : t('train.noPlanAtAll')}</p>
+          <p className="empty">{t('train.noneToday')}</p>
         </div>
       )}
 
@@ -54,34 +64,6 @@ function StartView({ onStart }: StartViewProps) {
         <IconPlus size={18} />
         {t('train.freeSession')}
       </button>
-
-      {pickingDay && activePlan ? (
-        <div className="sheet-backdrop" role="presentation" onClick={(e) => e.target === e.currentTarget && setPickingDay(false)}>
-          <div className="sheet" role="dialog" aria-modal="true">
-            <div className="sheet-head">
-              <h2>{t('train.chooseDay')}</h2>
-            </div>
-            <div className="stack">
-              {activePlan.days.map((day) => (
-                <button
-                  key={day.id}
-                  type="button"
-                  className="plan-card"
-                  onClick={() => {
-                    setPickingDay(false)
-                    onStart({ planId: activePlan.id, day })
-                  }}
-                >
-                  <div className="plan-card-head">
-                    <span className="name">{day.name}</span>
-                  </div>
-                  <span className="days-sub">{day.exercises.length} {t('unit.exercise')}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   )
 }

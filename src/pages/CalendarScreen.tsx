@@ -3,8 +3,8 @@ import { useApp } from '../state/AppContext'
 import { CalendarDay } from '../components/CalendarDay'
 import { DaySessionSheet } from '../components/DaySessionSheet'
 import { IconChevronLeft, IconChevronRight, IconFlame } from '../components/icons'
-import { MUSCLE_COLOR } from '../lib/exercises'
 import { fromKey, localeOf, toKey, todayKey } from '../lib/date'
+import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { trainingStreak } from '../lib/stats'
 import type { Session } from '../lib/types'
 
@@ -16,7 +16,7 @@ function startOfGrid(year: number, month: number): Date {
 }
 
 export function CalendarScreen() {
-  const { t, lang, sessions, exerciseById } = useApp()
+  const { t, lang, sessions, schedules } = useApp()
   const today = todayKey()
   const [cursor, setCursor] = useState(() => {
     const current = fromKey(today)
@@ -113,14 +113,10 @@ export function CalendarScreen() {
           {days.map((day) => {
             const key = toKey(day)
             const daySessions = sessionsByDate.get(key)
-            const muscles = new Set<string>()
-            daySessions?.forEach((session) =>
-              session.exercises.forEach((exercise) => {
-                if (!exercise.sets.some((set) => set.done)) return
-                const info = exerciseById(exercise.exerciseId)
-                if (info) muscles.add(MUSCLE_COLOR[info.muscle])
-              }),
-            )
+            const letters = schedulesForDate(schedules, key).map((schedule) => ({
+              letter: schedule.letter,
+              color: LETTER_COLOR[schedule.letter],
+            }))
 
             return (
               <CalendarDay
@@ -131,7 +127,7 @@ export function CalendarScreen() {
                 selected={key === opened}
                 isToday={key === today}
                 trained={Boolean(daySessions?.length)}
-                muscleDots={Array.from(muscles)}
+                letters={letters}
                 onSelect={setOpened}
               />
             )
