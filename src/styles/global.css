@@ -1,0 +1,1358 @@
+/* Palette reprise de FitnessFufs (dark slate), accent bleu remplacé par un rouge musculation. */
+:root {
+  --bg: #0f172a;
+  --bg-elevated: #16223c;
+  --card-bg: #1e293b;
+  --accent: #ef4444;
+  --accent-hover: #b91c1c;
+  /* Texte porté par un fond plein accent : le rouge est trop moyen en luminosité
+     pour un texte sombre, contrairement au bleu ciel d'origine. */
+  --accent-ink: #fff5f5;
+  --text-main: #f8fafc;
+  --text-sub: #94a3b8;
+  --input-bg: #334155;
+  --border: #475569;
+  --warning: #f59e0b;
+  --positive: #34d399;
+  --negative: #f87171;
+
+  /* Groupes musculaires : teintes distinctes de l'accent, pour identifier une
+     séance ou un exercice d'un coup d'œil sans dépendre du texte. */
+  --muscle-chest: #fb923c;
+  --muscle-back: #38bdf8;
+  --muscle-legs: #34d399;
+  --muscle-shoulders: #facc15;
+  --muscle-arms: #c084fc;
+  --muscle-core: #2dd4bf;
+  --muscle-cardio: #f472b6;
+
+  --radius: 16px;
+  --radius-lg: 24px;
+  --tabbar-height: 64px;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html,
+body {
+  min-height: 100%;
+  overscroll-behavior-y: none;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+select {
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-sub) 50%),
+    linear-gradient(135deg, var(--text-sub) 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% + 2px), calc(100% - 13px) calc(50% + 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 36px;
+}
+
+/* ---------- Structure ---------- */
+
+.app {
+  max-width: 520px;
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  flex: 1;
+  padding: 16px 16px calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  touch-action: pan-y;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(71, 85, 105, 0.4);
+}
+
+.app-header h1 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.app-header .subtitle {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ---------- En-tête : bouton d'aide / réglages ---------- */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.help-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.help-btn:active {
+  background: rgba(148, 163, 184, 0.15);
+}
+
+/* ---------- Barre d'onglets ---------- */
+
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 520px;
+  margin: 0 auto;
+  height: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: rgba(22, 34, 60, 0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(71, 85, 105, 0.5);
+}
+
+.tabbar button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  transition: color 0.2s ease;
+}
+
+.tabbar button.active {
+  color: var(--accent);
+}
+
+.tabbar svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ---------- Cartes ---------- */
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+
+.card-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+/* ---------- Formulaires ---------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.val-tag {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: var(--accent);
+  color: var(--accent-ink);
+  transition: transform 0.1s ease, background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+  background: var(--accent-hover);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn.secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--border);
+}
+
+.btn.danger {
+  background: transparent;
+  color: var(--negative);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+}
+
+.btn.small {
+  width: auto;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+}
+
+.segmented {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.segmented button {
+  flex: 1;
+  padding: 9px 6px;
+  border-radius: 9px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.segmented button.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ---------- Navigation de jour ---------- */
+
+.day-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.day-nav-center {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.day-nav .label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.day-nav .today-hint {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.day-nav .arrow {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+  flex: none;
+}
+
+.day-nav .arrow:disabled {
+  opacity: 0.3;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stat-row.four {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.stat-row.four .value {
+  font-size: 1rem;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat .label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat .value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+
+.stat .value.accent {
+  color: var(--accent);
+}
+
+.stat .value.down {
+  color: var(--positive);
+}
+
+.stat .value.up {
+  color: var(--negative);
+}
+
+/* ---------- Courbe valeur/temps ---------- */
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+}
+
+.line-chart {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+}
+
+.chart-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+
+.chart-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-delta {
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-sub);
+}
+
+.chart-delta.down {
+  color: var(--negative);
+}
+
+.chart-delta.up {
+  color: var(--positive);
+}
+
+.chart-date {
+  width: 100%;
+  font-size: 0.75rem;
+  color: var(--text-sub);
+}
+
+.chart-ranges {
+  display: flex;
+  gap: 4px;
+}
+
+.chart-range {
+  flex: 1;
+  padding: 5px 4px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  background: var(--input-bg);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.chart-range.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.line-chart .chart {
+  width: 100%;
+  height: auto;
+  flex: 1;
+  touch-action: pan-y;
+}
+
+/* ---------- Divers ---------- */
+
+.notice {
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: var(--warning);
+}
+
+.notice.info {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: var(--accent);
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  line-height: 1.45;
+}
+
+.empty {
+  padding: 14px 16px;
+  font-size: 0.82rem;
+  color: var(--text-sub);
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 16px);
+  transform: translateX(-50%);
+  z-index: 30;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  animation: fade 0.2s ease;
+}
+
+.onboarding {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 28px 18px;
+}
+
+.onboarding .brand {
+  text-align: center;
+}
+
+.onboarding .brand h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-top: 14px;
+}
+
+.onboarding .brand p {
+  color: var(--text-sub);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.onboarding .mark {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto;
+  display: block;
+}
+
+.onboarding .features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.onboarding .feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.onboarding .feature svg {
+  flex: none;
+  color: var(--accent);
+}
+
+.onboarding .feature span {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ---------- Panneau dépliable ---------- */
+
+.disclosure {
+  margin-top: 16px;
+  border-top: 1px solid rgba(71, 85, 105, 0.4);
+}
+
+.disclosure-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 0 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.disclosure-head:active {
+  color: var(--text-main);
+}
+
+.disclosure-body {
+  padding-bottom: 4px;
+  animation: fade 0.15s ease;
+}
+
+/* ---------- Feuille modale ---------- */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(2, 6, 23, 0.7);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  animation: fade 0.15s ease;
+}
+
+.sheet {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 20px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: rise 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sheet-head h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.sheet-head .sub {
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Page de formulaire ---------- */
+
+.form-page-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.form-page-head h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.form-page-head .sub {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--text-sub);
+  flex: none;
+}
+
+.icon-btn:active {
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.icon-btn.danger {
+  color: var(--negative);
+}
+
+.icon-btn.accent {
+  color: var(--accent);
+}
+
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-sub);
+}
+
+.list-head button {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 4px 0;
+}
+
+.list-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: none;
+}
+
+/* ---------- Puces (recherche / filtre) ---------- */
+
+.chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: none;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.search-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+/* ---------- Liste d'exercices (catalogue) ---------- */
+
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  overflow: hidden;
+}
+
+.exercise-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  text-align: left;
+  width: 100%;
+}
+
+.exercise-row + .exercise-row {
+  border-top: 1px solid rgba(71, 85, 105, 0.25);
+}
+
+.exercise-row .muscle-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.exercise-row .info {
+  flex: 1;
+  min-width: 0;
+}
+
+.exercise-row .name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.exercise-row .muscle {
+  font-size: 0.73rem;
+  color: var(--text-sub);
+}
+
+/* Badge de groupe musculaire, texte + puce de couleur. */
+.muscle-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.muscle-tag .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+/* ---------- Planification : programmes et jours ---------- */
+
+.plan-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  width: 100%;
+  transition: transform 0.1s ease, border-color 0.2s ease;
+}
+
+.plan-card:active {
+  transform: scale(0.99);
+}
+
+.plan-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.plan-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.plan-card-head .name {
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.plan-card .days-sub {
+  font-size: 0.78rem;
+  color: var(--text-sub);
+}
+
+.active-badge {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.16);
+  color: var(--accent);
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.day-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.day-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.5);
+}
+
+.day-card-head .name {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.day-card-head .count {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-exercise-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+}
+
+.plan-exercise-row + .plan-exercise-row {
+  border-top: 1px solid rgba(71, 85, 105, 0.25);
+}
+
+.plan-exercise-row .info {
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-exercise-row .name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plan-exercise-row .target {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+.day-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  border-top: 1px solid rgba(71, 85, 105, 0.25);
+}
+
+/* ---------- S'entraîner : séance en cours ---------- */
+
+.session-exercise {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.session-exercise-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.5);
+}
+
+.session-exercise-head .info {
+  min-width: 0;
+}
+
+.session-exercise-head .name {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.session-exercise-head .last {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+.set-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.set-row {
+  display: grid;
+  grid-template-columns: 22px 1fr 1fr 38px 28px;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+}
+
+.set-row + .set-row {
+  border-top: 1px solid rgba(71, 85, 105, 0.25);
+}
+
+.set-row .idx {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-align: center;
+}
+
+.set-row input {
+  padding: 9px 10px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.set-row.done input {
+  opacity: 0.55;
+}
+
+.set-row .done-toggle {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+  flex: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.set-row.done .done-toggle {
+  background: var(--positive);
+  border-color: var(--positive);
+  color: #04231a;
+}
+
+.set-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  border-top: 1px solid rgba(71, 85, 105, 0.25);
+}
+
+.session-summary {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.session-summary .figures {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.figure-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.85rem;
+}
+
+.figure-row .name {
+  color: var(--text-sub);
+  font-weight: 600;
+}
+
+.figure-row .value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rest-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+/* ---------- Progression : records personnels ---------- */
+
+.pr-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  overflow: hidden;
+}
+
+.pr-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+}
+
+.pr-row + .pr-row {
+  border-top: 1px solid rgba(71, 85, 105, 0.25);
+}
+
+.pr-row .info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pr-row .name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pr-row .date {
+  font-size: 0.72rem;
+  color: var(--text-sub);
+}
+
+.pr-row .value {
+  flex: none;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Calendrier ---------- */
+
+.calendar {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--card-bg);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.5);
+}
+
+.calendar-weekdays span {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: rgba(71, 85, 105, 0.3);
+}
+
+.calendar-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 56px;
+  padding: 5px 4px;
+  background: var(--card-bg);
+  text-align: center;
+  overflow: hidden;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.calendar-day .num {
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-day.outside {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.calendar-day.outside .num {
+  color: var(--text-sub);
+  opacity: 0.55;
+}
+
+.calendar-day.today .num {
+  color: var(--accent);
+}
+
+.calendar-day .muscle-dots {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.calendar-day .muscle-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.calendar-day.trained {
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.calendar-day.selected {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.calendar-screen {
+  gap: 12px;
+  padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 12px);
+}
+
+.calendar-screen .calendar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.calendar-screen .calendar-grid {
+  flex: 1;
+}
+
+.calendar-screen .calendar-day {
+  min-height: 0;
+}
+
+.calendar-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.calendar-streaks {
+  display: flex;
+  gap: 10px;
+}
+
+.streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  color: var(--warning);
+}
+
+.streak strong {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-main);
+}
+
+.streak-label {
+  color: var(--text-sub);
+  font-weight: 600;
+}
+
+.today-btn {
+  flex: none;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ---------- Jour de séance (détail depuis le calendrier) ---------- */
+
+.day-session-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  font-size: 0.88rem;
+}
+
+.day-session-card + .day-session-card {
+  border-top: 1px solid rgba(71, 85, 105, 0.25);
+}
