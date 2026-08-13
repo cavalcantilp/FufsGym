@@ -28,7 +28,6 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
     exerciseById,
   } = useApp()
 
-  const [renaming, setRenaming] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [addingDay, setAddingDay] = useState(false)
   const [renamingDay, setRenamingDay] = useState<PlanDay | null>(null)
@@ -38,22 +37,34 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
 
   const isActive = activePlanId === plan.id
 
+  const nameField = (
+    <input
+      type="text"
+      className="plan-name-input"
+      value={plan.name}
+      aria-label={t('plan.newName')}
+      onChange={(event) => renamePlan(plan.id, event.target.value)}
+      onBlur={(event) => {
+        if (!event.target.value.trim()) renamePlan(plan.id, t('plan.new'))
+      }}
+    />
+  )
+
   return (
-    <FormPage title={plan.name} subtitle={`${plan.days.length} ${t('unit.day')}`} onBack={onBack}>
+    <FormPage
+      title={nameField}
+      backLabel={plan.name}
+      subtitle={`${plan.days.length} ${t('unit.day')}`}
+      onBack={onBack}
+    >
       <div className="stack">
-        <div className="grid-2">
-          <button
-            type="button"
-            className={isActive ? 'btn secondary' : 'btn'}
-            onClick={() => setActivePlan(isActive ? null : plan.id)}
-          >
-            {isActive ? t('plan.activated') : t('plan.activate')}
-          </button>
-          <button type="button" className="btn secondary" onClick={() => setRenaming(true)}>
-            <IconEdit size={16} />
-            {t('plan.rename')}
-          </button>
-        </div>
+        <button
+          type="button"
+          className={isActive ? 'btn secondary' : 'btn'}
+          onClick={() => setActivePlan(isActive ? null : plan.id)}
+        >
+          {isActive ? t('plan.activated') : t('plan.activate')}
+        </button>
 
         {plan.days.map((day) => (
           <div className="day-card" key={day.id}>
@@ -128,16 +139,6 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
         </button>
       </div>
 
-      {renaming ? (
-        <TextPromptSheet
-          title={t('plan.renameTitle')}
-          label={t('plan.newName')}
-          initial={plan.name}
-          onConfirm={(name) => renamePlan(plan.id, name)}
-          onClose={() => setRenaming(false)}
-        />
-      ) : null}
-
       {addingDay ? (
         <TextPromptSheet
           title={t('day.new')}
@@ -211,7 +212,6 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
 export function PlanificationScreen() {
   const { t, plans, activePlanId, addPlan } = useApp()
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [creating, setCreating] = useState(false)
 
   const selected = plans.find((p) => p.id === selectedId)
   if (selected) return <PlanDetail plan={selected} onBack={() => setSelectedId(null)} />
@@ -248,20 +248,10 @@ export function PlanificationScreen() {
         </div>
       )}
 
-      <button type="button" className="btn" onClick={() => setCreating(true)}>
+      <button type="button" className="btn" onClick={() => setSelectedId(addPlan(t('plan.new')).id)}>
         <IconPlus size={18} />
         {t('plan.new')}
       </button>
-
-      {creating ? (
-        <TextPromptSheet
-          title={t('plan.new')}
-          label={t('plan.newName')}
-          confirmLabel={t('plan.create')}
-          onConfirm={(name) => setSelectedId(addPlan(name).id)}
-          onClose={() => setCreating(false)}
-        />
-      ) : null}
     </div>
   )
 }

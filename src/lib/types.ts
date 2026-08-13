@@ -4,6 +4,14 @@ export type Equipment = 'barbell' | 'dumbbell' | 'cable' | 'machine' | 'bodyweig
 
 export type Lang = 'fr' | 'pt' | 'es' | 'en' | 'it'
 
+export type WeightUnit = 'kg' | 'lb'
+export type LengthUnit = 'cm' | 'in'
+
+export interface Units {
+  weight: WeightUnit
+  length: LengthUnit
+}
+
 export interface Exercise {
   id: string
   /** Nom par défaut (français) ; utilisé tel quel pour les exercices personnalisés, sinon affiché via sa clé de traduction. */

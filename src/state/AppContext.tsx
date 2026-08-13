@@ -10,16 +10,31 @@ import {
 import { BUILTIN_EXERCISES } from '../lib/exercises'
 import { load, save, clearAll, STORAGE_KEYS } from '../lib/storage'
 import { detectLang, TRANSLATIONS, type TranslationKey } from '../i18n/translations'
-import type { Exercise, Lang, Plan, PlanDay, PlanExercise, Session, SessionExercise, SetLog } from '../lib/types'
+import type {
+  Exercise,
+  Lang,
+  Plan,
+  PlanDay,
+  PlanExercise,
+  Session,
+  SessionExercise,
+  SetLog,
+  Units,
+} from '../lib/types'
 
 function newId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
 }
 
+const DEFAULT_UNITS: Units = { weight: 'kg', length: 'cm' }
+
 interface AppState {
   lang: Lang
   setLang: (lang: Lang) => void
   t: (key: TranslationKey, vars?: Record<string, string | number>) => string
+
+  units: Units
+  updateUnits: (patch: Partial<Units>) => void
 
   onboarded: boolean
   completeOnboarding: () => void
@@ -65,6 +80,7 @@ const emptySet = (): SetLog => ({ id: newId(), weight: 0, reps: 0, done: false }
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => load(STORAGE_KEYS.lang, detectLang()))
+  const [units, setUnits] = useState<Units>(() => ({ ...DEFAULT_UNITS, ...load(STORAGE_KEYS.units, {} as Partial<Units>) }))
   const [onboarded, setOnboarded] = useState<boolean>(() => load(STORAGE_KEYS.onboarded, false))
   const [customExercises, setCustomExercises] = useState<Exercise[]>(() =>
     load(STORAGE_KEYS.customExercises, []),
@@ -76,6 +92,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [sessions, setSessions] = useState<Session[]>(() => load(STORAGE_KEYS.sessions, []))
 
   useEffect(() => save(STORAGE_KEYS.lang, lang), [lang])
+  useEffect(() => save(STORAGE_KEYS.units, units), [units])
   useEffect(() => save(STORAGE_KEYS.onboarded, onboarded), [onboarded])
   useEffect(() => save(STORAGE_KEYS.customExercises, customExercises), [customExercises])
   useEffect(() => save(STORAGE_KEYS.plans, plans), [plans])
@@ -97,6 +114,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     [lang],
   )
+
+  const updateUnits = useCallback((patch: Partial<Units>) => {
+    setUnits((current) => ({ ...current, ...patch }))
+  }, [])
 
   const exercises = useMemo(() => [...customExercises, ...BUILTIN_EXERCISES], [customExercises])
   const exerciseById = useCallback((id: string) => exercises.find((e) => e.id === id), [exercises])
@@ -340,6 +361,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setPlans([])
     setActivePlanId(null)
     setSessions([])
+    setUnits(DEFAULT_UNITS)
   }, [])
 
   const value = useMemo<AppState>(
@@ -347,6 +369,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       lang,
       setLang: setLangState,
       t,
+      units,
+      updateUnits,
       onboarded,
       completeOnboarding: () => setOnboarded(true),
       exercises,
@@ -383,6 +407,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [
       lang,
       t,
+      units,
+      updateUnits,
       onboarded,
       exercises,
       customExercises,
