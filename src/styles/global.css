@@ -15,6 +15,10 @@
   --warning: #f59e0b;
   --positive: #34d399;
   --negative: #f87171;
+  /* Navigation : le rouge reste réservé à l'action principale (S'entraîner) ;
+     les autres onglets passent d'un bleu-gris neutre à un bleu plus vif
+     une fois sélectionnés. */
+  --nav-active: #38bdf8;
 
   /* Groupes musculaires : teintes distinctes de l'accent, pour identifier une
      séance ou un exercice d'un coup d'œil sans dépendre du texte. */
@@ -159,10 +163,21 @@ select {
   font-weight: 700;
   color: var(--text-sub);
   transition: color 0.2s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Anneau visible uniquement à la navigation clavier : au doigt ou à la
+   souris, le rectangle de focus par défaut du navigateur jurait sur le
+   badge rond de l'onglet central. */
+.tabbar button:focus-visible {
+  outline: 2px solid var(--nav-active);
+  outline-offset: 2px;
+  border-radius: 10px;
 }
 
 .tabbar button.active {
-  color: var(--accent);
+  color: var(--nav-active);
 }
 
 .tabbar svg {
