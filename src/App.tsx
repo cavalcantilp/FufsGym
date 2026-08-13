@@ -6,20 +6,15 @@ import { CalendarScreen } from './pages/CalendarScreen'
 import { PlanificationScreen } from './pages/PlanificationScreen'
 import { TrainScreen } from './pages/TrainScreen'
 import { ProgressionScreen } from './pages/ProgressionScreen'
-import { Sheet } from './components/Sheet'
+import { SettingsScreen } from './pages/SettingsScreen'
 import { IconCalendar, IconClipboard, IconDumbbell, IconSettings, IconTrendingUp } from './components/icons'
-import { LANGS } from './i18n/translations'
 import { load, save, STORAGE_KEYS } from './lib/storage'
-import type { Lang, LengthUnit, WeightUnit } from './lib/types'
 
-type Tab = 'calendar' | 'plan' | 'train' | 'progress'
-type NavId = Tab | 'settings'
+type Tab = 'calendar' | 'plan' | 'train' | 'progress' | 'settings'
 
 export function App() {
-  const { t, lang, setLang, units, updateUnits, onboarded, resetAll } = useApp()
+  const { t, onboarded } = useApp()
   const [tab, setTab] = useState<Tab>(() => load(STORAGE_KEYS.ui, { tab: 'train' as Tab }).tab)
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const [confirmReset, setConfirmReset] = useState(false)
 
   const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW()
 
@@ -33,12 +28,12 @@ export function App() {
 
   if (!onboarded) return <Onboarding />
 
-  const tabs: { id: NavId; label: string; icon: React.ReactNode; onSelect: () => void }[] = [
-    { id: 'calendar', label: t('nav.calendar'), icon: <IconCalendar />, onSelect: () => setTab('calendar') },
-    { id: 'plan', label: t('nav.plan'), icon: <IconClipboard />, onSelect: () => setTab('plan') },
-    { id: 'train', label: t('nav.train'), icon: <IconDumbbell size={26} />, onSelect: () => setTab('train') },
-    { id: 'progress', label: t('nav.progress'), icon: <IconTrendingUp />, onSelect: () => setTab('progress') },
-    { id: 'settings', label: t('header.settings'), icon: <IconSettings />, onSelect: () => setSettingsOpen(true) },
+  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    { id: 'calendar', label: t('nav.calendar'), icon: <IconCalendar /> },
+    { id: 'plan', label: t('nav.plan'), icon: <IconClipboard /> },
+    { id: 'train', label: t('nav.train'), icon: <IconDumbbell size={26} /> },
+    { id: 'progress', label: t('nav.progress'), icon: <IconTrendingUp /> },
+    { id: 'settings', label: t('header.settings'), icon: <IconSettings /> },
   ]
 
   return (
@@ -64,6 +59,7 @@ export function App() {
       {tab === 'plan' ? <PlanificationScreen /> : null}
       {tab === 'train' ? <TrainScreen /> : null}
       {tab === 'progress' ? <ProgressionScreen /> : null}
+      {tab === 'settings' ? <SettingsScreen /> : null}
 
       <nav className="tabbar">
         {tabs.map((entry) => (
@@ -76,7 +72,7 @@ export function App() {
             ]
               .filter(Boolean)
               .join(' ')}
-            onClick={entry.onSelect}
+            onClick={() => setTab(entry.id)}
             aria-current={tab === entry.id ? 'page' : undefined}
           >
             {entry.id === 'train' ? <span className="icon-wrap">{entry.icon}</span> : entry.icon}
@@ -84,77 +80,6 @@ export function App() {
           </button>
         ))}
       </nav>
-
-      {settingsOpen ? (
-        <Sheet title={t('settings.title')} onClose={() => setSettingsOpen(false)}>
-          <div className="stack">
-            <div className="field">
-              <label htmlFor="settings-lang">{t('settings.language')}</label>
-              <select
-                id="settings-lang"
-                value={lang}
-                onChange={(event) => setLang(event.target.value as Lang)}
-              >
-                {LANGS.map((entry) => (
-                  <option key={entry.id} value={entry.id}>
-                    {entry.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="card-title" style={{ marginBottom: -6 }}>{t('settings.units')}</div>
-            <div className="grid-2">
-              <div className="field">
-                <label htmlFor="settings-unit-weight">{t('settings.weightUnit')}</label>
-                <select
-                  id="settings-unit-weight"
-                  value={units.weight}
-                  onChange={(event) => updateUnits({ weight: event.target.value as WeightUnit })}
-                >
-                  <option value="kg">kg</option>
-                  <option value="lb">lb</option>
-                </select>
-              </div>
-              <div className="field">
-                <label htmlFor="settings-unit-length">{t('settings.lengthUnit')}</label>
-                <select
-                  id="settings-unit-length"
-                  value={units.length}
-                  onChange={(event) => updateUnits({ length: event.target.value as LengthUnit })}
-                >
-                  <option value="cm">cm</option>
-                  <option value="in">in</option>
-                </select>
-              </div>
-            </div>
-
-            {confirmReset ? (
-              <>
-                <p className="hint">{t('settings.resetWarning')}</p>
-                <button
-                  type="button"
-                  className="btn danger"
-                  onClick={() => {
-                    resetAll()
-                    setConfirmReset(false)
-                    setSettingsOpen(false)
-                  }}
-                >
-                  {t('settings.resetConfirm')}
-                </button>
-                <button type="button" className="btn secondary" onClick={() => setConfirmReset(false)}>
-                  {t('settings.cancel')}
-                </button>
-              </>
-            ) : (
-              <button type="button" className="btn danger" onClick={() => setConfirmReset(true)}>
-                {t('settings.resetAll')}
-              </button>
-            )}
-          </div>
-        </Sheet>
-      ) : null}
     </div>
   )
 }
