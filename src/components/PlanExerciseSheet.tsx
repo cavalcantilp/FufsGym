@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useApp } from '../state/AppContext'
 import { Sheet } from './Sheet'
 import { NumberField } from './NumberField'
+import { exerciseName } from '../lib/exercises'
 import type { Exercise, PlanExercise } from '../lib/types'
 
 interface PlanExerciseSheetProps {
@@ -12,31 +14,44 @@ interface PlanExerciseSheetProps {
 
 /** Objectif d'un exercice au sein d'un jour de programme : séries, répétitions, note. */
 export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: PlanExerciseSheetProps) {
+  const { t } = useApp()
   const [sets, setSets] = useState(initial?.sets ?? 3)
-  const [reps, setReps] = useState(initial?.reps ?? '8-12')
+  const [reps, setReps] = useState(initial?.reps ?? t('planEx.repsPlaceholder'))
   const [note, setNote] = useState(initial?.note ?? '')
 
   const submit = () => {
-    onConfirm({ sets, reps: reps.trim() || '8-12', note: note.trim() || undefined })
+    onConfirm({ sets, reps: reps.trim() || t('planEx.repsPlaceholder'), note: note.trim() || undefined })
     onClose()
   }
 
   return (
-    <Sheet title={exercise.name} subtitle="Objectif pour ce jour" onClose={onClose}>
+    <Sheet title={exerciseName(exercise, t)} subtitle={t('planEx.subtitle')} onClose={onClose}>
       <div className="stack">
         <div className="grid-2">
-          <NumberField id="plan-ex-sets" label="Séries" value={sets} onCommit={setSets} min={1} max={20} />
+          <NumberField id="plan-ex-sets" label={t('planEx.sets')} value={sets} onCommit={setSets} min={1} max={20} />
           <div className="field">
-            <label htmlFor="plan-ex-reps">Répétitions</label>
-            <input id="plan-ex-reps" type="text" value={reps} onChange={(event) => setReps(event.target.value)} placeholder="8-12" />
+            <label htmlFor="plan-ex-reps">{t('planEx.reps')}</label>
+            <input
+              id="plan-ex-reps"
+              type="text"
+              value={reps}
+              onChange={(event) => setReps(event.target.value)}
+              placeholder={t('planEx.repsPlaceholder')}
+            />
           </div>
         </div>
         <div className="field">
-          <label htmlFor="plan-ex-note">Note (facultatif)</label>
-          <input id="plan-ex-note" type="text" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Ex. tempo lent, échec sur la dernière série…" />
+          <label htmlFor="plan-ex-note">{t('planEx.note')}</label>
+          <input
+            id="plan-ex-note"
+            type="text"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder={t('planEx.notePlaceholder')}
+          />
         </div>
         <button type="button" className="btn" onClick={submit}>
-          {initial ? 'Mettre à jour' : "Ajouter à ce jour"}
+          {initial ? t('planEx.update') : t('planEx.add')}
         </button>
       </div>
     </Sheet>

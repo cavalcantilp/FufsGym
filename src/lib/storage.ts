@@ -39,4 +39,5 @@ export const STORAGE_KEYS = {
   customExercises: 'customExercises',
   onboarded: 'onboarded',
   ui: 'ui',
+  lang: 'lang',
 } as const

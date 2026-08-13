@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { Sheet } from './Sheet'
-import { MUSCLE_COLOR, MUSCLE_GROUPS, MUSCLE_LABEL } from '../lib/exercises'
+import { MUSCLE_COLOR, MUSCLE_GROUPS, equipmentLabel, exerciseName, muscleLabel } from '../lib/exercises'
 import { IconPlus } from './icons'
 import type { Exercise, MuscleGroup } from '../lib/types'
 
@@ -13,7 +13,7 @@ interface ExercisePickerProps {
 
 /** Feuille de recherche/sélection d'exercice, avec filtre par groupe musculaire et création rapide. */
 export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) {
-  const { exercises, addCustomExercise } = useApp()
+  const { t, exercises, addCustomExercise } = useApp()
   const [query, setQuery] = useState('')
   const [muscle, setMuscle] = useState<MuscleGroup | 'all'>('all')
   const [creating, setCreating] = useState(false)
@@ -24,9 +24,10 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
     const q = query.trim().toLowerCase()
     return exercises
       .filter((exercise) => muscle === 'all' || exercise.muscle === muscle)
-      .filter((exercise) => !q || exercise.name.toLowerCase().includes(q))
-      .sort((a, b) => a.name.localeCompare(b.name))
-  }, [exercises, muscle, query])
+      .map((exercise) => ({ exercise, label: exerciseName(exercise, t) }))
+      .filter(({ label }) => !q || label.toLowerCase().includes(q))
+      .sort((a, b) => a.label.localeCompare(b.label))
+  }, [exercises, muscle, query, t])
 
   const handleCreate = () => {
     const name = newName.trim()
@@ -40,7 +41,7 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
       <div className="stack">
         <input
           type="text"
-          placeholder="Rechercher un exercice…"
+          placeholder={t('picker.search')}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           autoFocus
@@ -48,7 +49,7 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
 
         <div className="chips">
           <button type="button" className={`chip${muscle === 'all' ? ' active' : ''}`} onClick={() => setMuscle('all')}>
-            Tous
+            {t('picker.all')}
           </button>
           {MUSCLE_GROUPS.map((group) => (
             <button
@@ -57,7 +58,7 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
               className={`chip${muscle === group ? ' active' : ''}`}
               onClick={() => setMuscle(group)}
             >
-              {MUSCLE_LABEL[group]}
+              {muscleLabel(group, t)}
             </button>
           ))}
         </div>
@@ -65,7 +66,7 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
         {creating ? (
           <div className="stack">
             <div className="field">
-              <label htmlFor="new-ex-name">Nom de l'exercice</label>
+              <label htmlFor="new-ex-name">{t('picker.newName')}</label>
               <input
                 id="new-ex-name"
                 type="text"
@@ -75,7 +76,7 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
               />
             </div>
             <div className="field">
-              <label htmlFor="new-ex-muscle">Groupe musculaire</label>
+              <label htmlFor="new-ex-muscle">{t('picker.newMuscle')}</label>
               <select
                 id="new-ex-muscle"
                 value={newMuscle}
@@ -83,43 +84,38 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
               >
                 {MUSCLE_GROUPS.map((group) => (
                   <option key={group} value={group}>
-                    {MUSCLE_LABEL[group]}
+                    {muscleLabel(group, t)}
                   </option>
                 ))}
               </select>
             </div>
             <button type="button" className="btn" onClick={handleCreate} disabled={!newName.trim()}>
-              Ajouter cet exercice
+              {t('picker.addThis')}
             </button>
           </div>
         ) : (
           <>
             <div className="exercise-list">
               {results.length ? (
-                results.map((exercise) => (
-                  <button
-                    key={exercise.id}
-                    type="button"
-                    className="exercise-row"
-                    onClick={() => onPick(exercise)}
-                  >
+                results.map(({ exercise, label }) => (
+                  <button key={exercise.id} type="button" className="exercise-row" onClick={() => onPick(exercise)}>
                     <span className="muscle-dot" style={{ background: MUSCLE_COLOR[exercise.muscle] }} />
                     <span className="info">
-                      <span className="name">{exercise.name}</span>
+                      <span className="name">{label}</span>
                       <span className="muscle">
-                        {MUSCLE_LABEL[exercise.muscle]}
-                        {exercise.equipment ? ` · ${exercise.equipment}` : ''}
+                        {muscleLabel(exercise.muscle, t)}
+                        {exercise.equipment ? ` · ${equipmentLabel(exercise.equipment, t)}` : ''}
                       </span>
                     </span>
                   </button>
                 ))
               ) : (
-                <p className="empty">Aucun exercice trouvé.</p>
+                <p className="empty">{t('picker.empty')}</p>
               )}
             </div>
             <button type="button" className="btn secondary" onClick={() => { setNewName(query); setCreating(true) }}>
               <IconPlus size={18} />
-              Créer un exercice personnalisé
+              {t('picker.createCustom')}
             </button>
           </>
         )}

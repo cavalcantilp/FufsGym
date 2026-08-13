@@ -8,12 +8,14 @@ import { TrainScreen } from './pages/TrainScreen'
 import { ProgressionScreen } from './pages/ProgressionScreen'
 import { Sheet } from './components/Sheet'
 import { IconCalendar, IconClipboard, IconDumbbell, IconSettings, IconTrendingUp } from './components/icons'
+import { LANGS } from './i18n/translations'
 import { load, save, STORAGE_KEYS } from './lib/storage'
+import type { Lang } from './lib/types'
 
 type Tab = 'calendar' | 'plan' | 'train' | 'progress'
 
 export function App() {
-  const { onboarded, resetAll } = useApp()
+  const { t, lang, setLang, onboarded, resetAll } = useApp()
   const [tab, setTab] = useState<Tab>(() => load(STORAGE_KEYS.ui, { tab: 'train' as Tab }).tab)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [confirmReset, setConfirmReset] = useState(false)
@@ -25,27 +27,32 @@ export function App() {
   }, [tab])
 
   useEffect(() => {
-    document.title = 'FufsGym — Musculation'
-  }, [])
+    document.title = `${t('app.name')} — ${t('app.tagline')}`
+  }, [t])
 
   if (!onboarded) return <Onboarding />
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: 'calendar', label: 'Calendrier', icon: <IconCalendar /> },
-    { id: 'plan', label: 'Planification', icon: <IconClipboard /> },
-    { id: 'train', label: "S'entraîner", icon: <IconDumbbell /> },
-    { id: 'progress', label: 'Progression', icon: <IconTrendingUp /> },
+    { id: 'calendar', label: t('nav.calendar'), icon: <IconCalendar /> },
+    { id: 'plan', label: t('nav.plan'), icon: <IconClipboard /> },
+    { id: 'train', label: t('nav.train'), icon: <IconDumbbell /> },
+    { id: 'progress', label: t('nav.progress'), icon: <IconTrendingUp /> },
   ]
 
   return (
     <div className="app">
       <header className="app-header">
         <div>
-          <h1>FufsGym</h1>
-          <span className="subtitle">Musculation</span>
+          <h1>{t('app.name')}</h1>
+          <span className="subtitle">{t('app.tagline')}</span>
         </div>
         <div className="header-actions">
-          <button type="button" className="help-btn" onClick={() => setSettingsOpen(true)} aria-label="Réglages">
+          <button
+            type="button"
+            className="help-btn"
+            onClick={() => setSettingsOpen(true)}
+            aria-label={t('header.settings')}
+          >
             <IconSettings size={16} />
           </button>
         </div>
@@ -59,7 +66,7 @@ export function App() {
             style={{ width: '100%', textAlign: 'left' }}
             onClick={() => void updateServiceWorker(true)}
           >
-            Mise à jour disponible — appuyez pour actualiser
+            {t('pwa.update')}
           </button>
         </div>
       ) : null}
@@ -85,14 +92,26 @@ export function App() {
       </nav>
 
       {settingsOpen ? (
-        <Sheet title="Réglages" onClose={() => setSettingsOpen(false)}>
+        <Sheet title={t('settings.title')} onClose={() => setSettingsOpen(false)}>
           <div className="stack">
+            <div className="field">
+              <label htmlFor="settings-lang">{t('settings.language')}</label>
+              <select
+                id="settings-lang"
+                value={lang}
+                onChange={(event) => setLang(event.target.value as Lang)}
+              >
+                {LANGS.map((entry) => (
+                  <option key={entry.id} value={entry.id}>
+                    {entry.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {confirmReset ? (
               <>
-                <p className="hint">
-                  Cette action supprime définitivement vos programmes, séances et exercices personnalisés, sur cet
-                  appareil.
-                </p>
+                <p className="hint">{t('settings.resetWarning')}</p>
                 <button
                   type="button"
                   className="btn danger"
@@ -102,15 +121,15 @@ export function App() {
                     setSettingsOpen(false)
                   }}
                 >
-                  Confirmer la réinitialisation
+                  {t('settings.resetConfirm')}
                 </button>
                 <button type="button" className="btn secondary" onClick={() => setConfirmReset(false)}>
-                  Annuler
+                  {t('settings.cancel')}
                 </button>
               </>
             ) : (
               <button type="button" className="btn danger" onClick={() => setConfirmReset(true)}>
-                Réinitialiser toutes les données
+                {t('settings.resetAll')}
               </button>
             )}
           </div>

@@ -1,6 +1,8 @@
 import { useId, useMemo, useState } from 'react'
+import { useApp } from '../state/AppContext'
 import { daysBetween, formatDay, formatShort, shiftDay, todayKey } from '../lib/date'
 import { round1 } from '../lib/stats'
+import type { TranslationKey } from '../i18n/translations'
 
 interface LineChartPoint {
   date: string
@@ -21,12 +23,12 @@ export type RangeKey = '1m' | '3m' | '6m' | '1a' | 'all'
 
 const RANGE_DAYS: Record<Exclude<RangeKey, 'all'>, number> = { '1m': 30, '3m': 90, '6m': 182, '1a': 365 }
 export const RANGE_ORDER: RangeKey[] = ['1m', '3m', '6m', '1a', 'all']
-export const RANGE_LABEL: Record<RangeKey, string> = {
-  '1m': '1 M',
-  '3m': '3 M',
-  '6m': '6 M',
-  '1a': '1 A',
-  all: 'Tout',
+export const RANGE_LABEL: Record<RangeKey, TranslationKey> = {
+  '1m': 'chart.range1m',
+  '3m': 'chart.range3m',
+  '6m': 'chart.range6m',
+  '1a': 'chart.range1y',
+  all: 'chart.rangeAll',
 }
 
 const WIDTH = 320
@@ -35,6 +37,7 @@ const PAD = { top: 14, right: 34, bottom: 20, left: 8 }
 
 /** Courbe valeur/temps — 1RM estimé, volume — avec un en-tête façon suivi boursier. */
 export function LineChart({ points: allPoints, unit, color, range, positiveDirection = 'up' }: LineChartProps) {
+  const { t, lang } = useApp()
   const [active, setActive] = useState<number | null>(null)
   const gradientId = useId()
 
@@ -110,7 +113,7 @@ export function LineChart({ points: allPoints, unit, color, range, positiveDirec
             {delta} {unit} {trendArrow}
           </div>
         ) : null}
-        <div className="chart-date">{formatDay(last.date)}</div>
+        <div className="chart-date">{formatDay(last.date, lang)}</div>
       </div>
 
       {model && lastPoint ? (
@@ -182,7 +185,7 @@ export function LineChart({ points: allPoints, unit, color, range, positiveDirec
           ) : null}
 
           <text x={PAD.left} y={HEIGHT - 6} fill="var(--text-sub)" fontSize="9" fontWeight="600">
-            {formatShort(entries[0].date)}
+            {formatShort(entries[0].date, lang)}
           </text>
           <text
             x={WIDTH - PAD.right}
@@ -192,11 +195,11 @@ export function LineChart({ points: allPoints, unit, color, range, positiveDirec
             fontSize="9"
             fontWeight="600"
           >
-            {formatShort((focused ?? lastPoint).entry.date)}
+            {formatShort((focused ?? lastPoint).entry.date, lang)}
           </text>
         </svg>
       ) : (
-        <p className="hint">Pas encore assez de données pour tracer une courbe.</p>
+        <p className="hint">{t('chart.notEnough')}</p>
       )}
     </div>
   )

@@ -9,13 +9,18 @@ import {
 } from 'react'
 import { BUILTIN_EXERCISES } from '../lib/exercises'
 import { load, save, clearAll, STORAGE_KEYS } from '../lib/storage'
-import type { Exercise, Plan, PlanDay, PlanExercise, Session, SessionExercise, SetLog } from '../lib/types'
+import { detectLang, TRANSLATIONS, type TranslationKey } from '../i18n/translations'
+import type { Exercise, Lang, Plan, PlanDay, PlanExercise, Session, SessionExercise, SetLog } from '../lib/types'
 
 function newId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
 }
 
 interface AppState {
+  lang: Lang
+  setLang: (lang: Lang) => void
+  t: (key: TranslationKey, vars?: Record<string, string | number>) => string
+
   onboarded: boolean
   completeOnboarding: () => void
 
@@ -59,6 +64,7 @@ const AppContext = createContext<AppState | null>(null)
 const emptySet = (): SetLog => ({ id: newId(), weight: 0, reps: 0, done: false })
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const [lang, setLangState] = useState<Lang>(() => load(STORAGE_KEYS.lang, detectLang()))
   const [onboarded, setOnboarded] = useState<boolean>(() => load(STORAGE_KEYS.onboarded, false))
   const [customExercises, setCustomExercises] = useState<Exercise[]>(() =>
     load(STORAGE_KEYS.customExercises, []),
@@ -69,11 +75,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
   )
   const [sessions, setSessions] = useState<Session[]>(() => load(STORAGE_KEYS.sessions, []))
 
+  useEffect(() => save(STORAGE_KEYS.lang, lang), [lang])
   useEffect(() => save(STORAGE_KEYS.onboarded, onboarded), [onboarded])
   useEffect(() => save(STORAGE_KEYS.customExercises, customExercises), [customExercises])
   useEffect(() => save(STORAGE_KEYS.plans, plans), [plans])
   useEffect(() => save(STORAGE_KEYS.activePlanId, activePlanId), [activePlanId])
   useEffect(() => save(STORAGE_KEYS.sessions, sessions), [sessions])
+
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
+
+  const t = useCallback(
+    (key: TranslationKey, vars?: Record<string, string | number>) => {
+      const template = TRANSLATIONS[lang][key] ?? TRANSLATIONS.fr[key] ?? key
+      if (!vars) return template
+      return Object.entries(vars).reduce(
+        (text, [name, value]) => text.replaceAll(`{${name}}`, String(value)),
+        template,
+      )
+    },
+    [lang],
+  )
 
   const exercises = useMemo(() => [...customExercises, ...BUILTIN_EXERCISES], [customExercises])
   const exerciseById = useCallback((id: string) => exercises.find((e) => e.id === id), [exercises])
@@ -321,6 +344,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AppState>(
     () => ({
+      lang,
+      setLang: setLangState,
+      t,
       onboarded,
       completeOnboarding: () => setOnboarded(true),
       exercises,
@@ -355,6 +381,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       resetAll,
     }),
     [
+      lang,
+      t,
       onboarded,
       exercises,
       customExercises,

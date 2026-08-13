@@ -5,7 +5,7 @@ import { Sheet } from '../components/Sheet'
 import { TextPromptSheet } from '../components/TextPromptSheet'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { PlanExerciseSheet } from '../components/PlanExerciseSheet'
-import { MUSCLE_COLOR } from '../lib/exercises'
+import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
 import { IconEdit, IconPlus, IconTrash } from '../components/icons'
 import type { Exercise, Plan, PlanDay, PlanExercise } from '../lib/types'
 
@@ -14,6 +14,7 @@ type EditingEntry = { dayId: string; entry: PlanExercise } | null
 
 function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
   const {
+    t,
     activePlanId,
     setActivePlan,
     renamePlan,
@@ -38,7 +39,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
   const isActive = activePlanId === plan.id
 
   return (
-    <FormPage title={plan.name} subtitle={`${plan.days.length} jour${plan.days.length > 1 ? 's' : ''}`} onBack={onBack}>
+    <FormPage title={plan.name} subtitle={`${plan.days.length} ${t('unit.day')}`} onBack={onBack}>
       <div className="stack">
         <div className="grid-2">
           <button
@@ -46,11 +47,11 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
             className={isActive ? 'btn secondary' : 'btn'}
             onClick={() => setActivePlan(isActive ? null : plan.id)}
           >
-            {isActive ? 'Programme actif ✓' : 'Activer ce programme'}
+            {isActive ? t('plan.activated') : t('plan.activate')}
           </button>
           <button type="button" className="btn secondary" onClick={() => setRenaming(true)}>
             <IconEdit size={16} />
-            Renommer
+            {t('plan.rename')}
           </button>
         </div>
 
@@ -59,15 +60,15 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
             <div className="day-card-head">
               <span className="name">{day.name}</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span className="count">{day.exercises.length} exercice{day.exercises.length > 1 ? 's' : ''}</span>
-                <button type="button" className="icon-btn" onClick={() => setRenamingDay(day)} aria-label="Renommer ce jour">
+                <span className="count">{day.exercises.length} {t('unit.exercise')}</span>
+                <button type="button" className="icon-btn" onClick={() => setRenamingDay(day)} aria-label={t('day.renameAria')}>
                   <IconEdit size={15} />
                 </button>
                 <button
                   type="button"
                   className="icon-btn danger"
                   onClick={() => removeDay(plan.id, day.id)}
-                  aria-label="Supprimer ce jour"
+                  aria-label={t('day.deleteAria')}
                 >
                   <IconTrash size={15} />
                 </button>
@@ -75,7 +76,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
             </div>
 
             {day.exercises.length === 0 ? (
-              <p className="empty">Aucun exercice pour ce jour.</p>
+              <p className="empty">{t('day.noExercises')}</p>
             ) : (
               day.exercises.map((entry) => {
                 const info = exerciseById(entry.exerciseId)
@@ -83,7 +84,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
                   <div className="plan-exercise-row" key={entry.id}>
                     <span className="muscle-dot" style={{ background: info ? MUSCLE_COLOR[info.muscle] : 'var(--border)' }} />
                     <span className="info">
-                      <span className="name">{info?.name ?? 'Exercice supprimé'}</span>
+                      <span className="name">{info ? exerciseName(info, t) : ''}</span>
                       <span className="target">
                         {entry.sets} × {entry.reps}
                         {entry.note ? ` · ${entry.note}` : ''}
@@ -93,7 +94,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
                       type="button"
                       className="icon-btn"
                       onClick={() => setEditingEntry({ dayId: day.id, entry })}
-                      aria-label="Modifier"
+                      aria-label={t('day.editAria')}
                     >
                       <IconEdit size={15} />
                     </button>
@@ -101,7 +102,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
                       type="button"
                       className="icon-btn danger"
                       onClick={() => removePlanExercise(plan.id, day.id, entry.id)}
-                      aria-label="Retirer"
+                      aria-label={t('day.removeAria')}
                     >
                       <IconTrash size={15} />
                     </button>
@@ -112,25 +113,25 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
 
             <button type="button" className="day-add" onClick={() => setPickerDayId(day.id)}>
               <IconPlus size={16} />
-              Ajouter un exercice
+              {t('day.addExercise')}
             </button>
           </div>
         ))}
 
         <button type="button" className="btn secondary" onClick={() => setAddingDay(true)}>
           <IconPlus size={18} />
-          Ajouter un jour
+          {t('day.addDay')}
         </button>
 
         <button type="button" className="btn danger" onClick={() => setConfirmDelete(true)}>
-          Supprimer ce programme
+          {t('plan.deleteThis')}
         </button>
       </div>
 
       {renaming ? (
         <TextPromptSheet
-          title="Renommer le programme"
-          label="Nom du programme"
+          title={t('plan.renameTitle')}
+          label={t('plan.newName')}
           initial={plan.name}
           onConfirm={(name) => renamePlan(plan.id, name)}
           onClose={() => setRenaming(false)}
@@ -139,9 +140,9 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
 
       {addingDay ? (
         <TextPromptSheet
-          title="Nouveau jour"
-          label="Nom du jour"
-          confirmLabel="Ajouter"
+          title={t('day.new')}
+          label={t('day.newName')}
+          confirmLabel={t('day.add')}
           onConfirm={(name) => addDay(plan.id, name)}
           onClose={() => setAddingDay(false)}
         />
@@ -149,8 +150,8 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
 
       {renamingDay ? (
         <TextPromptSheet
-          title="Renommer le jour"
-          label="Nom du jour"
+          title={t('day.renameTitle')}
+          label={t('day.newName')}
           initial={renamingDay.name}
           onConfirm={(name) => renameDay(plan.id, renamingDay.id, name)}
           onClose={() => setRenamingDay(null)}
@@ -159,7 +160,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
 
       {pickerDayId ? (
         <ExercisePicker
-          title="Ajouter un exercice"
+          title={t('picker.addTitle')}
           onClose={() => setPickerDayId(null)}
           onPick={(exercise) => {
             setPendingPick({ dayId: pickerDayId, exercise })
@@ -178,7 +179,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
 
       {editingEntry ? (
         <PlanExerciseSheet
-          exercise={exerciseById(editingEntry.entry.exerciseId) ?? { id: '', name: 'Exercice', muscle: 'chest' }}
+          exercise={exerciseById(editingEntry.entry.exerciseId) ?? { id: '', name: t('exercise.unknown'), muscle: 'chest', custom: true }}
           initial={editingEntry.entry}
           onConfirm={(target) => updatePlanExercise(plan.id, editingEntry.dayId, editingEntry.entry.id, target)}
           onClose={() => setEditingEntry(null)}
@@ -186,9 +187,9 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
       ) : null}
 
       {confirmDelete ? (
-        <Sheet title="Supprimer ce programme ?" subtitle={plan.name} onClose={() => setConfirmDelete(false)}>
+        <Sheet title={t('plan.deleteConfirmTitle')} subtitle={plan.name} onClose={() => setConfirmDelete(false)}>
           <div className="stack">
-            <p className="hint">Les jours et objectifs de ce programme seront définitivement supprimés. Les séances déjà enregistrées sont conservées.</p>
+            <p className="hint">{t('plan.deleteConfirmBody')}</p>
             <button
               type="button"
               className="btn danger"
@@ -198,7 +199,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
                 onBack()
               }}
             >
-              Supprimer
+              {t('plan.delete')}
             </button>
           </div>
         </Sheet>
@@ -208,7 +209,7 @@ function PlanDetail({ plan, onBack }: { plan: Plan; onBack: () => void }) {
 }
 
 export function PlanificationScreen() {
-  const { plans, activePlanId, addPlan } = useApp()
+  const { t, plans, activePlanId, addPlan } = useApp()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
 
@@ -218,15 +219,13 @@ export function PlanificationScreen() {
   return (
     <div className="screen">
       <div>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Programmes</h2>
-        <p className="hint" style={{ marginTop: 4 }}>
-          Construisez vos jours d'entraînement : exercices, séries et répétitions visées.
-        </p>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{t('plan.title')}</h2>
+        <p className="hint" style={{ marginTop: 4 }}>{t('plan.subtitle')}</p>
       </div>
 
       {plans.length === 0 ? (
         <div className="card">
-          <p className="empty">Aucun programme pour le moment.</p>
+          <p className="empty">{t('plan.empty')}</p>
         </div>
       ) : (
         <div className="stack">
@@ -239,12 +238,10 @@ export function PlanificationScreen() {
             >
               <div className="plan-card-head">
                 <span className="name">{plan.name}</span>
-                {activePlanId === plan.id ? <span className="active-badge">Actif</span> : null}
+                {activePlanId === plan.id ? <span className="active-badge">{t('plan.active')}</span> : null}
               </div>
               <span className="days-sub">
-                {plan.days.length === 0
-                  ? 'Aucun jour configuré'
-                  : plan.days.map((day) => day.name).join(' · ')}
+                {plan.days.length === 0 ? t('plan.noDays') : plan.days.map((day) => day.name).join(' · ')}
               </span>
             </button>
           ))}
@@ -253,14 +250,14 @@ export function PlanificationScreen() {
 
       <button type="button" className="btn" onClick={() => setCreating(true)}>
         <IconPlus size={18} />
-        Nouveau programme
+        {t('plan.new')}
       </button>
 
       {creating ? (
         <TextPromptSheet
-          title="Nouveau programme"
-          label="Nom du programme"
-          confirmLabel="Créer"
+          title={t('plan.new')}
+          label={t('plan.newName')}
+          confirmLabel={t('plan.create')}
           onConfirm={(name) => setSelectedId(addPlan(name).id)}
           onClose={() => setCreating(false)}
         />

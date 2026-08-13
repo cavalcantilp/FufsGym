@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useApp } from '../state/AppContext'
 import { Sheet } from './Sheet'
 
 interface TextPromptSheetProps {
@@ -11,7 +12,8 @@ interface TextPromptSheetProps {
 }
 
 /** Petite feuille à un seul champ texte : création/renommage de programme ou de jour. */
-export function TextPromptSheet({ title, label, initial = '', confirmLabel = 'Enregistrer', onConfirm, onClose }: TextPromptSheetProps) {
+export function TextPromptSheet({ title, label, initial = '', confirmLabel, onConfirm, onClose }: TextPromptSheetProps) {
+  const { t } = useApp()
   const [value, setValue] = useState(initial)
 
   const submit = () => {
@@ -38,7 +40,7 @@ export function TextPromptSheet({ title, label, initial = '', confirmLabel = 'En
           />
         </div>
         <button type="button" className="btn" onClick={submit} disabled={!value.trim()}>
-          {confirmLabel}
+          {confirmLabel ?? t('prompt.save')}
         </button>
       </div>
     </Sheet>

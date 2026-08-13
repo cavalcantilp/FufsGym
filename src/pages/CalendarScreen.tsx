@@ -4,7 +4,7 @@ import { CalendarDay } from '../components/CalendarDay'
 import { DaySessionSheet } from '../components/DaySessionSheet'
 import { IconChevronLeft, IconChevronRight, IconFlame } from '../components/icons'
 import { MUSCLE_COLOR } from '../lib/exercises'
-import { fromKey, toKey, todayKey } from '../lib/date'
+import { fromKey, localeOf, toKey, todayKey } from '../lib/date'
 import { trainingStreak } from '../lib/stats'
 import type { Session } from '../lib/types'
 
@@ -15,10 +15,8 @@ function startOfGrid(year: number, month: number): Date {
   return first
 }
 
-const WEEKDAY_LABELS = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
-
 export function CalendarScreen() {
-  const { sessions, exerciseById } = useApp()
+  const { t, lang, sessions, exerciseById } = useApp()
   const today = todayKey()
   const [cursor, setCursor] = useState(() => {
     const current = fromKey(today)
@@ -52,10 +50,20 @@ export function CalendarScreen() {
     }
   }, [cursor])
 
-  const monthLabel = new Date(cursor.year, cursor.month, 1).toLocaleDateString('fr-FR', {
+  const locale = localeOf(lang)
+  const monthLabel = new Date(cursor.year, cursor.month, 1).toLocaleDateString(locale, {
     month: 'long',
     year: 'numeric',
   })
+
+  const weekdays = useMemo(() => {
+    const reference = startOfGrid(2024, 0)
+    return Array.from({ length: 7 }, (_, index) => {
+      const day = new Date(reference)
+      day.setDate(reference.getDate() + index)
+      return day.toLocaleDateString(locale, { weekday: 'narrow' })
+    })
+  }, [locale])
 
   const shiftMonth = (delta: number) => {
     setCursor((current) => {
@@ -83,20 +91,20 @@ export function CalendarScreen() {
   return (
     <div className="screen calendar-screen">
       <div className="day-nav">
-        <button type="button" className="arrow" onClick={() => shiftMonth(-1)} aria-label="Mois précédent">
+        <button type="button" className="arrow" onClick={() => shiftMonth(-1)} aria-label={monthLabel}>
           <IconChevronLeft />
         </button>
         <div className="label" style={{ textTransform: 'capitalize' }}>
           {monthLabel}
         </div>
-        <button type="button" className="arrow" onClick={() => shiftMonth(1)} aria-label="Mois suivant">
+        <button type="button" className="arrow" onClick={() => shiftMonth(1)} aria-label={monthLabel}>
           <IconChevronRight />
         </button>
       </div>
 
       <div className="calendar" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div className="calendar-weekdays">
-          {WEEKDAY_LABELS.map((label, index) => (
+          {weekdays.map((label, index) => (
             <span key={index}>{label}</span>
           ))}
         </div>
@@ -132,13 +140,13 @@ export function CalendarScreen() {
       </div>
 
       <div className="calendar-footer">
-        <span className="streak" aria-label={`${streak} jours d'affilée`}>
+        <span className="streak" aria-label={`${streak} ${t('calendar.streak')}`}>
           <IconFlame size={14} />
           <strong>{streak}</strong>
-          <span className="streak-label">jours d'affilée</span>
+          <span className="streak-label">{t('calendar.streak')}</span>
         </span>
         <button type="button" className="today-btn" onClick={() => setOpened(today)}>
-          Aujourd'hui
+          {t('calendar.today')}
         </button>
       </div>
 

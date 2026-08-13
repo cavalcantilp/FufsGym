@@ -1,10 +1,15 @@
 export type MuscleGroup = 'chest' | 'back' | 'legs' | 'shoulders' | 'arms' | 'core' | 'cardio'
 
+export type Equipment = 'barbell' | 'dumbbell' | 'cable' | 'machine' | 'bodyweight' | 'wheel'
+
+export type Lang = 'fr' | 'pt' | 'es' | 'en' | 'it'
+
 export interface Exercise {
   id: string
+  /** Nom par défaut (français) ; utilisé tel quel pour les exercices personnalisés, sinon affiché via sa clé de traduction. */
   name: string
   muscle: MuscleGroup
-  equipment?: string
+  equipment?: Equipment
   custom?: boolean
 }
 

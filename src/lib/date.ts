@@ -1,4 +1,12 @@
-const LOCALE = 'fr-FR'
+import type { Lang } from './types'
+
+const LOCALES: Record<Lang, string> = {
+  fr: 'fr-FR',
+  pt: 'pt-PT',
+  es: 'es-ES',
+  en: 'en-GB',
+  it: 'it-IT',
+}
 
 /** Date locale au format YYYY-MM-DD (pas d'UTC : le calendrier suit le fuseau de l'appareil). */
 export function toKey(date: Date): string {
@@ -27,16 +35,16 @@ export function daysBetween(from: string, to: string): number {
   return Math.round(ms / 86_400_000)
 }
 
-export function formatDay(key: string): string {
-  return fromKey(key).toLocaleDateString(LOCALE, { weekday: 'short', day: 'numeric', month: 'short' })
+export function formatDay(key: string, lang: Lang): string {
+  return fromKey(key).toLocaleDateString(LOCALES[lang], { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
-export function formatShort(key: string): string {
-  return fromKey(key).toLocaleDateString(LOCALE, { day: '2-digit', month: '2-digit' })
+export function formatShort(key: string, lang: Lang): string {
+  return fromKey(key).toLocaleDateString(LOCALES[lang], { day: '2-digit', month: '2-digit' })
 }
 
-export function formatLong(key: string): string {
-  return fromKey(key).toLocaleDateString(LOCALE, {
+export function formatLong(key: string, lang: Lang): string {
+  return fromKey(key).toLocaleDateString(LOCALES[lang], {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -44,4 +52,6 @@ export function formatLong(key: string): string {
   })
 }
 
-export const LOCALE_ID = LOCALE
+export function localeOf(lang: Lang): string {
+  return LOCALES[lang]
+}

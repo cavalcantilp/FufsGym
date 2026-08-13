@@ -3,6 +3,7 @@ import { useApp } from '../state/AppContext'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { NumberField } from '../components/NumberField'
 import { IconCheck, IconDumbbell, IconPlus, IconTrash } from '../components/icons'
+import { exerciseName } from '../lib/exercises'
 import { todayKey, formatDay } from '../lib/date'
 import { round1, sessionSetCount, sessionVolume } from '../lib/stats'
 import type { Session, SessionExercise } from '../lib/types'
@@ -12,7 +13,7 @@ interface StartViewProps {
 }
 
 function StartView({ onStart }: StartViewProps) {
-  const { plans, activePlanId, nextDayFor } = useApp()
+  const { t, lang, plans, activePlanId, nextDayFor } = useApp()
   const activePlan = plans.find((p) => p.id === activePlanId)
   const suggested = activePlan ? nextDayFor(activePlan.id) : null
   const [pickingDay, setPickingDay] = useState(false)
@@ -20,47 +21,45 @@ function StartView({ onStart }: StartViewProps) {
   return (
     <div className="screen">
       <div>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 800 }}>S'entraîner</h2>
-        <p className="hint" style={{ marginTop: 4 }}>{formatDay(todayKey())}</p>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{t('train.title')}</h2>
+        <p className="hint" style={{ marginTop: 4 }}>{formatDay(todayKey(), lang)}</p>
       </div>
 
       {activePlan && suggested ? (
         <div className="card">
-          <div className="card-title">Prochaine séance suggérée</div>
+          <div className="card-title">{t('train.suggested')}</div>
           <div className="plan-card-head">
             <span className="name">{suggested.name}</span>
           </div>
           <p className="hint" style={{ marginTop: 4, marginBottom: 14 }}>
-            {suggested.exercises.length} exercice{suggested.exercises.length > 1 ? 's' : ''} · {activePlan.name}
+            {suggested.exercises.length} {t('unit.exercise')} · {activePlan.name}
           </p>
           <button type="button" className="btn" onClick={() => onStart({ planId: activePlan.id, day: suggested })}>
             <IconDumbbell size={18} />
-            Commencer cette séance
+            {t('train.startSuggested')}
           </button>
           {activePlan.days.length > 1 ? (
             <button type="button" className="btn secondary" style={{ marginTop: 10 }} onClick={() => setPickingDay(true)}>
-              Choisir un autre jour
+              {t('train.chooseOtherDay')}
             </button>
           ) : null}
         </div>
       ) : (
         <div className="card">
-          <p className="empty">
-            {activePlan ? 'Ce programme n\'a pas encore de jour configuré.' : 'Aucun programme actif. Créez-en un dans Planification, ou lancez une séance libre.'}
-          </p>
+          <p className="empty">{activePlan ? t('train.noActivePlan') : t('train.noPlanAtAll')}</p>
         </div>
       )}
 
       <button type="button" className="btn secondary" onClick={() => onStart(null)}>
         <IconPlus size={18} />
-        Séance libre
+        {t('train.freeSession')}
       </button>
 
       {pickingDay && activePlan ? (
         <div className="sheet-backdrop" role="presentation" onClick={(e) => e.target === e.currentTarget && setPickingDay(false)}>
           <div className="sheet" role="dialog" aria-modal="true">
             <div className="sheet-head">
-              <h2>Choisir un jour</h2>
+              <h2>{t('train.chooseDay')}</h2>
             </div>
             <div className="stack">
               {activePlan.days.map((day) => (
@@ -76,7 +75,7 @@ function StartView({ onStart }: StartViewProps) {
                   <div className="plan-card-head">
                     <span className="name">{day.name}</span>
                   </div>
-                  <span className="days-sub">{day.exercises.length} exercice{day.exercises.length > 1 ? 's' : ''}</span>
+                  <span className="days-sub">{day.exercises.length} {t('unit.exercise')}</span>
                 </button>
               ))}
             </div>
@@ -88,7 +87,7 @@ function StartView({ onStart }: StartViewProps) {
 }
 
 function ExerciseCard({ session, sessionExercise }: { session: Session; sessionExercise: SessionExercise }) {
-  const { exerciseById, lastPerformance, addSet, updateSet, removeSet, removeSessionExercise } = useApp()
+  const { t, exerciseById, lastPerformance, addSet, updateSet, removeSet, removeSessionExercise } = useApp()
   const info = exerciseById(sessionExercise.exerciseId)
   const last = useMemo(
     () => lastPerformance(sessionExercise.exerciseId, session.date),
@@ -99,18 +98,18 @@ function ExerciseCard({ session, sessionExercise }: { session: Session; sessionE
     <div className="session-exercise">
       <div className="session-exercise-head">
         <span className="info">
-          <span className="name">{info?.name ?? 'Exercice'}</span>
+          <span className="name">{info ? exerciseName(info, t) : ''}</span>
           {last ? (
-            <span className="last">Dernière fois : {last.map((set) => `${set.weight}kg×${set.reps}`).join(', ')}</span>
+            <span className="last">{t('train.lastTime', { sets: last.map((set) => `${set.weight}kg×${set.reps}`).join(', ') })}</span>
           ) : (
-            <span className="last">Première fois sur cet exercice</span>
+            <span className="last">{t('train.firstTime')}</span>
           )}
         </span>
         <button
           type="button"
           className="icon-btn danger"
           onClick={() => removeSessionExercise(session.id, sessionExercise.id)}
-          aria-label="Retirer cet exercice"
+          aria-label={t('train.removeExerciseAria')}
         >
           <IconTrash size={16} />
         </button>
@@ -138,7 +137,7 @@ function ExerciseCard({ session, sessionExercise }: { session: Session; sessionE
               type="button"
               className="done-toggle"
               onClick={() => updateSet(session.id, sessionExercise.id, set.id, { done: !set.done })}
-              aria-label={set.done ? 'Série validée' : 'Valider la série'}
+              aria-label={set.done ? t('train.doneAria') : t('train.notDoneAria')}
             >
               <IconCheck size={16} />
             </button>
@@ -146,7 +145,7 @@ function ExerciseCard({ session, sessionExercise }: { session: Session; sessionE
               type="button"
               className="icon-btn danger"
               onClick={() => removeSet(session.id, sessionExercise.id, set.id)}
-              aria-label="Supprimer cette série"
+              aria-label={t('train.deleteSetAria')}
             >
               <IconTrash size={15} />
             </button>
@@ -156,14 +155,14 @@ function ExerciseCard({ session, sessionExercise }: { session: Session; sessionE
 
       <button type="button" className="set-add" onClick={() => addSet(session.id, sessionExercise.id)}>
         <IconPlus size={15} />
-        Ajouter une série
+        {t('train.addSet')}
       </button>
     </div>
   )
 }
 
 function ActiveSessionView({ session }: { session: Session }) {
-  const { addSessionExercise, finishSession, deleteSession } = useApp()
+  const { t, lang, addSessionExercise, finishSession, deleteSession } = useApp()
   const [picking, setPicking] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
 
@@ -174,23 +173,23 @@ function ActiveSessionView({ session }: { session: Session }) {
     <div className="screen">
       <div className="form-page-head" style={{ alignItems: 'center' }}>
         <div>
-          <h2>{session.dayName ?? 'Séance libre'}</h2>
-          <span className="sub">{formatDay(session.date)}</span>
+          <h2>{session.dayName ?? t('train.freeSession')}</h2>
+          <span className="sub">{formatDay(session.date, lang)}</span>
         </div>
       </div>
 
       <div className="card">
         <div className="stat-row">
           <div className="stat">
-            <div className="label">Exercices</div>
+            <div className="label">{t('train.exercises')}</div>
             <div className="value">{session.exercises.length}</div>
           </div>
           <div className="stat">
-            <div className="label">Séries faites</div>
+            <div className="label">{t('train.setsDone')}</div>
             <div className="value">{setCount}</div>
           </div>
           <div className="stat">
-            <div className="label">Volume</div>
+            <div className="label">{t('train.volume')}</div>
             <div className="value accent">{volume} kg</div>
           </div>
         </div>
@@ -202,21 +201,21 @@ function ActiveSessionView({ session }: { session: Session }) {
 
       <button type="button" className="btn secondary" onClick={() => setPicking(true)}>
         <IconPlus size={18} />
-        Ajouter un exercice
+        {t('train.addExercise')}
       </button>
 
       <div className="grid-2">
         <button type="button" className="btn danger" onClick={() => setConfirmEnd(true)}>
-          Annuler la séance
+          {t('train.cancelSession')}
         </button>
         <button type="button" className="btn" onClick={() => finishSession(session.id)}>
-          Terminer la séance
+          {t('train.finishSession')}
         </button>
       </div>
 
       {picking ? (
         <ExercisePicker
-          title="Ajouter un exercice"
+          title={t('picker.addTitle')}
           onClose={() => setPicking(false)}
           onPick={(exercise) => {
             addSessionExercise(session.id, exercise.id)
@@ -229,15 +228,15 @@ function ActiveSessionView({ session }: { session: Session }) {
         <div className="sheet-backdrop" role="presentation" onClick={(e) => e.target === e.currentTarget && setConfirmEnd(false)}>
           <div className="sheet" role="dialog" aria-modal="true">
             <div className="sheet-head">
-              <h2>Annuler cette séance ?</h2>
+              <h2>{t('train.cancelConfirmTitle')}</h2>
             </div>
             <div className="stack">
-              <p className="hint">Les séries déjà saisies seront perdues.</p>
+              <p className="hint">{t('train.cancelConfirmBody')}</p>
               <button type="button" className="btn danger" onClick={() => deleteSession(session.id)}>
-                Annuler la séance
+                {t('train.cancelSession')}
               </button>
               <button type="button" className="btn secondary" onClick={() => setConfirmEnd(false)}>
-                Continuer la séance
+                {t('train.continueSession')}
               </button>
             </div>
           </div>
