@@ -91,6 +91,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [schedules, setSchedules] = useState<DaySchedule[]>(() => load(STORAGE_KEYS.schedules, []))
   const [sessions, setSessions] = useState<Session[]>(() => load(STORAGE_KEYS.sessions, []))
 
+  useEffect(() => {
+    setSchedules((current) => {
+      const validIds = new Set(workouts.map((w) => w.id))
+      const filtered = current.filter((s) => validIds.has(s.workoutId))
+      return filtered.length === current.length ? current : filtered
+    })
+  }, [workouts])
+
   useEffect(() => save(STORAGE_KEYS.lang, lang), [lang])
   useEffect(() => save(STORAGE_KEYS.units, units), [units])
   useEffect(() => save(STORAGE_KEYS.onboarded, onboarded), [onboarded])

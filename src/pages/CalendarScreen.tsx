@@ -16,7 +16,7 @@ function startOfGrid(year: number, month: number): Date {
 }
 
 export function CalendarScreen() {
-  const { t, lang, sessions, schedules } = useApp()
+  const { t, lang, sessions, schedules, workouts } = useApp()
   const today = todayKey()
   const [cursor, setCursor] = useState(() => {
     const current = fromKey(today)
@@ -113,10 +113,12 @@ export function CalendarScreen() {
           {days.map((day) => {
             const key = toKey(day)
             const daySessions = sessionsByDate.get(key)
-            const letters = schedulesForDate(schedules, key).map((schedule) => ({
-              letter: schedule.letter,
-              color: LETTER_COLOR[schedule.letter],
-            }))
+            const letters = schedulesForDate(schedules, key)
+              .filter((schedule) => workouts.some((w) => w.id === schedule.workoutId))
+              .map((schedule) => ({
+                letter: schedule.letter,
+                color: LETTER_COLOR[schedule.letter],
+              }))
 
             return (
               <CalendarDay
