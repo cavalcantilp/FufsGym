@@ -118,8 +118,6 @@ select {
   z-index: 5;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
   padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px;
   background: rgba(15, 23, 42, 0.92);
   backdrop-filter: blur(12px);
@@ -132,37 +130,25 @@ select {
   letter-spacing: -0.01em;
 }
 
-.app-header .subtitle {
-  display: block;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-sub);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
+/* ---------- Réglages : bouton flottant bas-droite ---------- */
 
-/* ---------- En-tête : bouton d'aide / réglages ---------- */
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.help-btn {
+.settings-fab {
+  position: fixed;
+  right: calc(env(safe-area-inset-right, 0px) + 14px);
+  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 14px);
+  z-index: 11;
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  flex: none;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
+  background: var(--card-bg);
   border: 1px solid var(--border);
   color: var(--text-sub);
-  font-size: 0.75rem;
-  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(2, 6, 23, 0.5);
 }
 
-.help-btn:active {
+.settings-fab:active {
   background: rgba(148, 163, 184, 0.15);
 }
 
@@ -204,6 +190,40 @@ select {
 .tabbar svg {
   width: 22px;
   height: 22px;
+}
+
+/* Onglet central « S'entraîner » : mis en avant, badge plein surélevé
+   au-dessus de la barre, pour rester le geste le plus visible de l'appli. */
+.tabbar button.primary {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.tabbar button.primary .icon-wrap {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  margin-top: -20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 8px 18px rgba(239, 68, 68, 0.5);
+  border: 3px solid var(--bg);
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.tabbar button.primary:active .icon-wrap {
+  transform: scale(0.94);
+}
+
+.tabbar button.primary.active .icon-wrap {
+  background: var(--accent-hover);
+}
+
+.tabbar button.primary svg {
+  width: 24px;
+  height: 24px;
 }
 
 /* ---------- Cartes ---------- */
@@ -710,6 +730,26 @@ select {
   font-size: 0.78rem;
   color: var(--text-sub);
   font-variant-numeric: tabular-nums;
+}
+
+/* Titre éditable d'une page de formulaire (ex. nom d'un programme) : se
+   fond dans le titre tant qu'on n'y touche pas, se signale par un
+   soulignement seulement au focus. */
+.plan-name-input {
+  width: 100%;
+  padding: 2px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.plan-name-input:focus {
+  border-bottom-color: var(--accent);
+  box-shadow: none;
 }
 
 @keyframes rise {

@@ -10,12 +10,12 @@ import { Sheet } from './components/Sheet'
 import { IconCalendar, IconClipboard, IconDumbbell, IconSettings, IconTrendingUp } from './components/icons'
 import { LANGS } from './i18n/translations'
 import { load, save, STORAGE_KEYS } from './lib/storage'
-import type { Lang } from './lib/types'
+import type { Lang, LengthUnit, WeightUnit } from './lib/types'
 
 type Tab = 'calendar' | 'plan' | 'train' | 'progress'
 
 export function App() {
-  const { t, lang, setLang, onboarded, resetAll } = useApp()
+  const { t, lang, setLang, units, updateUnits, onboarded, resetAll } = useApp()
   const [tab, setTab] = useState<Tab>(() => load(STORAGE_KEYS.ui, { tab: 'train' as Tab }).tab)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [confirmReset, setConfirmReset] = useState(false)
@@ -35,27 +35,14 @@ export function App() {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'calendar', label: t('nav.calendar'), icon: <IconCalendar /> },
     { id: 'plan', label: t('nav.plan'), icon: <IconClipboard /> },
-    { id: 'train', label: t('nav.train'), icon: <IconDumbbell /> },
+    { id: 'train', label: t('nav.train'), icon: <IconDumbbell size={26} /> },
     { id: 'progress', label: t('nav.progress'), icon: <IconTrendingUp /> },
   ]
 
   return (
     <div className="app">
       <header className="app-header">
-        <div>
-          <h1>{t('app.name')}</h1>
-          <span className="subtitle">{t('app.tagline')}</span>
-        </div>
-        <div className="header-actions">
-          <button
-            type="button"
-            className="help-btn"
-            onClick={() => setSettingsOpen(true)}
-            aria-label={t('header.settings')}
-          >
-            <IconSettings size={16} />
-          </button>
-        </div>
+        <h1>{t('app.name')}</h1>
       </header>
 
       {needRefresh ? (
@@ -76,16 +63,30 @@ export function App() {
       {tab === 'train' ? <TrainScreen /> : null}
       {tab === 'progress' ? <ProgressionScreen /> : null}
 
+      <button
+        type="button"
+        className="settings-fab"
+        onClick={() => setSettingsOpen(true)}
+        aria-label={t('header.settings')}
+      >
+        <IconSettings size={18} />
+      </button>
+
       <nav className="tabbar">
         {tabs.map((entry) => (
           <button
             key={entry.id}
             type="button"
-            className={tab === entry.id ? 'active' : ''}
+            className={[
+              tab === entry.id ? 'active' : '',
+              entry.id === 'train' ? 'primary' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
             onClick={() => setTab(entry.id)}
             aria-current={tab === entry.id ? 'page' : undefined}
           >
-            {entry.icon}
+            {entry.id === 'train' ? <span className="icon-wrap">{entry.icon}</span> : entry.icon}
             {entry.label}
           </button>
         ))}
@@ -107,6 +108,32 @@ export function App() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="card-title" style={{ marginBottom: -6 }}>{t('settings.units')}</div>
+            <div className="grid-2">
+              <div className="field">
+                <label htmlFor="settings-unit-weight">{t('settings.weightUnit')}</label>
+                <select
+                  id="settings-unit-weight"
+                  value={units.weight}
+                  onChange={(event) => updateUnits({ weight: event.target.value as WeightUnit })}
+                >
+                  <option value="kg">kg</option>
+                  <option value="lb">lb</option>
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="settings-unit-length">{t('settings.lengthUnit')}</label>
+                <select
+                  id="settings-unit-length"
+                  value={units.length}
+                  onChange={(event) => updateUnits({ length: event.target.value as LengthUnit })}
+                >
+                  <option value="cm">cm</option>
+                  <option value="in">in</option>
+                </select>
+              </div>
             </div>
 
             {confirmReset ? (

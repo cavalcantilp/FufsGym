@@ -6,7 +6,7 @@ const fr = {
   'app.tagline': 'Musculation',
 
   'nav.calendar': 'Calendrier',
-  'nav.plan': 'Planification',
+  'nav.plan': 'Programme',
   'nav.train': "S'entraîner",
   'nav.progress': 'Progression',
 
@@ -19,6 +19,9 @@ const fr = {
     'Cette action supprime définitivement vos programmes, séances et exercices personnalisés, sur cet appareil.',
   'settings.resetConfirm': 'Confirmer la réinitialisation',
   'settings.cancel': 'Annuler',
+  'settings.units': 'Unités',
+  'settings.weightUnit': 'Poids',
+  'settings.lengthUnit': 'Longueur',
 
   'pwa.update': 'Mise à jour disponible — appuyez pour actualiser',
 
@@ -218,7 +221,7 @@ const pt: Dict = {
   'app.tagline': 'Musculação',
 
   'nav.calendar': 'Calendário',
-  'nav.plan': 'Planejamento',
+  'nav.plan': 'Programa',
   'nav.train': 'Treinar',
   'nav.progress': 'Progresso',
 
@@ -231,6 +234,9 @@ const pt: Dict = {
     'Esta ação apaga definitivamente os seus programas, treinos e exercícios personalizados, neste dispositivo.',
   'settings.resetConfirm': 'Confirmar a reposição',
   'settings.cancel': 'Cancelar',
+  'settings.units': 'Unidades',
+  'settings.weightUnit': 'Peso',
+  'settings.lengthUnit': 'Comprimento',
 
   'pwa.update': 'Atualização disponível — toque para atualizar',
 
@@ -427,7 +433,7 @@ const es: Dict = {
   'app.tagline': 'Musculación',
 
   'nav.calendar': 'Calendario',
-  'nav.plan': 'Planificación',
+  'nav.plan': 'Programa',
   'nav.train': 'Entrenar',
   'nav.progress': 'Progreso',
 
@@ -440,6 +446,9 @@ const es: Dict = {
     'Esta acción elimina definitivamente tus programas, entrenamientos y ejercicios personalizados, en este dispositivo.',
   'settings.resetConfirm': 'Confirmar el restablecimiento',
   'settings.cancel': 'Cancelar',
+  'settings.units': 'Unidades',
+  'settings.weightUnit': 'Peso',
+  'settings.lengthUnit': 'Longitud',
 
   'pwa.update': 'Actualización disponible — toca para actualizar',
 
@@ -636,7 +645,7 @@ const en: Dict = {
   'app.tagline': 'Weight training',
 
   'nav.calendar': 'Calendar',
-  'nav.plan': 'Planning',
+  'nav.plan': 'Program',
   'nav.train': 'Train',
   'nav.progress': 'Progress',
 
@@ -649,6 +658,9 @@ const en: Dict = {
     'This permanently deletes your programs, workouts and custom exercises, on this device.',
   'settings.resetConfirm': 'Confirm reset',
   'settings.cancel': 'Cancel',
+  'settings.units': 'Units',
+  'settings.weightUnit': 'Weight',
+  'settings.lengthUnit': 'Length',
 
   'pwa.update': 'Update available — tap to refresh',
 
@@ -845,7 +857,7 @@ const it: Dict = {
   'app.tagline': 'Bodybuilding',
 
   'nav.calendar': 'Calendario',
-  'nav.plan': 'Pianificazione',
+  'nav.plan': 'Programma',
   'nav.train': 'Allenati',
   'nav.progress': 'Progressi',
 
@@ -858,6 +870,9 @@ const it: Dict = {
     'Questa azione elimina definitivamente i tuoi programmi, allenamenti ed esercizi personalizzati, su questo dispositivo.',
   'settings.resetConfirm': 'Conferma il ripristino',
   'settings.cancel': 'Annulla',
+  'settings.units': 'Unità',
+  'settings.weightUnit': 'Peso',
+  'settings.lengthUnit': 'Lunghezza',
 
   'pwa.update': 'Aggiornamento disponibile — tocca per aggiornare',
 

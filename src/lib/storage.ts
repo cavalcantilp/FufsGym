@@ -40,4 +40,5 @@ export const STORAGE_KEYS = {
   onboarded: 'onboarded',
   ui: 'ui',
   lang: 'lang',
+  units: 'units',
 } as const
