@@ -2,13 +2,12 @@ import { useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { FormPage } from '../components/FormPage'
 import { Sheet } from '../components/Sheet'
-import { TextPromptSheet } from '../components/TextPromptSheet'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { PlanExerciseSheet } from '../components/PlanExerciseSheet'
 import { ScheduleScreen } from './ScheduleScreen'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
-import { IconEdit, IconPlus, IconTrash } from '../components/icons'
-import type { Exercise, Plan, PlanDay, PlanExercise } from '../lib/types'
+import { IconCalendarCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
+import type { Exercise, Plan, PlanExercise } from '../lib/types'
 
 type PendingPick = { dayId: string; exercise: Exercise } | null
 type EditingEntry = { dayId: string; entry: PlanExercise } | null
@@ -29,8 +28,6 @@ function PlanDetail({ plan, onBack, onSchedule }: { plan: Plan; onBack: () => vo
   } = useApp()
 
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [addingDay, setAddingDay] = useState(false)
-  const [renamingDay, setRenamingDay] = useState<PlanDay | null>(null)
   const [pickerDayId, setPickerDayId] = useState<string | null>(null)
   const [pendingPick, setPendingPick] = useState<PendingPick>(null)
   const [editingEntry, setEditingEntry] = useState<EditingEntry>(null)
@@ -50,27 +47,34 @@ function PlanDetail({ plan, onBack, onSchedule }: { plan: Plan; onBack: () => vo
     />
   )
 
+  const handleAddDay = () => {
+    const created = addDay(plan.id, t('day.new'))
+    setPickerDayId(created.id)
+  }
+
   return (
     <FormPage
       title={nameField}
       backLabel={plan.name}
-      subtitle={`${plan.days.length} ${t('unit.day')}`}
+      subtitle={`${plan.days.length} ${t('unit.workout')}`}
       onBack={onBack}
     >
       <div className="stack">
-        <button type="button" className={hasSchedule ? 'btn secondary' : 'btn'} onClick={onSchedule}>
-          {hasSchedule ? t('schedule.edit') : t('plan.activate')}
-        </button>
-
         {plan.days.map((day) => (
           <div className="day-card" key={day.id}>
             <div className="day-card-head">
-              <span className="name">{day.name}</span>
+              <input
+                type="text"
+                className="day-name-input"
+                value={day.name}
+                aria-label={t('day.newName')}
+                onChange={(event) => renameDay(plan.id, day.id, event.target.value)}
+                onBlur={(event) => {
+                  if (!event.target.value.trim()) renameDay(plan.id, day.id, t('day.new'))
+                }}
+              />
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span className="count">{day.exercises.length} {t('unit.exercise')}</span>
-                <button type="button" className="icon-btn" onClick={() => setRenamingDay(day)} aria-label={t('day.renameAria')}>
-                  <IconEdit size={15} />
-                </button>
                 <button
                   type="button"
                   className="icon-btn danger"
@@ -125,35 +129,19 @@ function PlanDetail({ plan, onBack, onSchedule }: { plan: Plan; onBack: () => vo
           </div>
         ))}
 
-        <button type="button" className="btn secondary" onClick={() => setAddingDay(true)}>
+        <button type="button" className="btn secondary" onClick={handleAddDay}>
           <IconPlus size={18} />
           {t('day.addDay')}
+        </button>
+
+        <button type="button" className={hasSchedule ? 'btn secondary' : 'btn'} onClick={onSchedule}>
+          {hasSchedule ? t('schedule.edit') : t('plan.activate')}
         </button>
 
         <button type="button" className="btn danger" onClick={() => setConfirmDelete(true)}>
           {t('plan.deleteThis')}
         </button>
       </div>
-
-      {addingDay ? (
-        <TextPromptSheet
-          title={t('day.new')}
-          label={t('day.newName')}
-          confirmLabel={t('day.add')}
-          onConfirm={(name) => addDay(plan.id, name)}
-          onClose={() => setAddingDay(false)}
-        />
-      ) : null}
-
-      {renamingDay ? (
-        <TextPromptSheet
-          title={t('day.renameTitle')}
-          label={t('day.newName')}
-          initial={renamingDay.name}
-          onConfirm={(name) => renameDay(plan.id, renamingDay.id, name)}
-          onClose={() => setRenamingDay(null)}
-        />
-      ) : null}
 
       {pickerDayId ? (
         <ExercisePicker
@@ -238,15 +226,14 @@ export function PlanificationScreen() {
       ) : (
         <div className="stack">
           {plans.map((plan) => (
-            <button
-              key={plan.id}
-              type="button"
-              className={`plan-card${planHasSchedule(plan.id) ? ' active' : ''}`}
-              onClick={() => setSelectedId(plan.id)}
-            >
+            <button key={plan.id} type="button" className="plan-card" onClick={() => setSelectedId(plan.id)}>
               <div className="plan-card-head">
                 <span className="name">{plan.name}</span>
-                {planHasSchedule(plan.id) ? <span className="active-badge">{t('plan.active')}</span> : null}
+                {planHasSchedule(plan.id) ? (
+                  <span className="schedule-indicator" title={t('plan.active')} aria-label={t('plan.active')}>
+                    <IconCalendarCheck size={16} />
+                  </span>
+                ) : null}
               </div>
               <span className="days-sub">
                 {plan.days.length === 0 ? t('plan.noDays') : plan.days.map((day) => day.name).join(' · ')}

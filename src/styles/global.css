@@ -978,11 +978,6 @@ select {
   transform: scale(0.99);
 }
 
-.plan-card.active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
-}
-
 .plan-card-head {
   display: flex;
   align-items: flex-start;
@@ -1000,16 +995,12 @@ select {
   color: var(--text-sub);
 }
 
-.active-badge {
+/* Indicateur discret : un programme planifié se signale par une petite icône,
+   pas par un badge plein — la liste reste calme même avec plusieurs programmes actifs. */
+.schedule-indicator {
   flex: none;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: rgba(239, 68, 68, 0.16);
-  color: var(--accent);
-  font-size: 0.64rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  display: inline-flex;
+  color: var(--positive);
 }
 
 .day-card {
@@ -1037,6 +1028,24 @@ select {
   font-size: 0.75rem;
   color: var(--text-sub);
   font-variant-numeric: tabular-nums;
+}
+
+.day-name-input {
+  flex: 1;
+  min-width: 0;
+  padding: 1px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.day-name-input:focus {
+  border-bottom-color: var(--accent);
+  box-shadow: none;
 }
 
 .plan-exercise-row {

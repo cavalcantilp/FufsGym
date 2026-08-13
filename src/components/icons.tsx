@@ -20,6 +20,16 @@ export function IconCalendar({ size = 22 }: IconProps) {
   )
 }
 
+export function IconCalendarCheck({ size = 22 }: IconProps) {
+  return (
+    <svg {...base(size)} aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 10h18M8 3v4M16 3v4" />
+      <path d="m8.5 14.5 2 2 4.5-4.5" />
+    </svg>
+  )
+}
+
 export function IconClipboard({ size = 22 }: IconProps) {
   return (
     <svg {...base(size)} aria-hidden="true">

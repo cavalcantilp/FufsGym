@@ -51,7 +51,7 @@ interface AppState {
   addPlan: (name: string) => Plan
   renamePlan: (id: string, name: string) => void
   removePlan: (id: string) => void
-  addDay: (planId: string, name: string) => void
+  addDay: (planId: string, name: string) => PlanDay
   renameDay: (planId: string, dayId: string, name: string) => void
   removeDay: (planId: string, dayId: string) => void
   addPlanExercise: (planId: string, dayId: string, entry: Omit<PlanExercise, 'id'>) => void
@@ -153,11 +153,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const addDay = useCallback((planId: string, name: string) => {
-    setPlans((current) =>
-      current.map((p) =>
-        p.id === planId ? { ...p, days: [...p.days, { id: newId(), name, exercises: [] }] } : p,
-      ),
-    )
+    const day: PlanDay = { id: newId(), name, exercises: [] }
+    setPlans((current) => current.map((p) => (p.id === planId ? { ...p, days: [...p.days, day] } : p)))
+    return day
   }, [])
 
   const renameDay = useCallback((planId: string, dayId: string, name: string) => {
