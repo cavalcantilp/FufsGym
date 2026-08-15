@@ -26,11 +26,10 @@ function StartView({ onStart }: StartViewProps) {
       .filter((entry): entry is { schedule: (typeof schedules)[number]; workout: Workout } => entry !== null)
   }, [schedules, workouts, today])
 
-  const otherScheduledWorkouts = useMemo(() => {
+  const otherWorkouts = useMemo(() => {
     const todayIds = new Set(options.map((entry) => entry.workout.id))
-    const scheduledIds = new Set(schedules.map((s) => s.workoutId))
-    return workouts.filter((w) => scheduledIds.has(w.id) && !todayIds.has(w.id))
-  }, [workouts, schedules, options])
+    return workouts.filter((w) => !todayIds.has(w.id))
+  }, [workouts, options])
 
   return (
     <div className="screen">
@@ -70,7 +69,7 @@ function StartView({ onStart }: StartViewProps) {
         {t('train.freeSession')}
       </button>
 
-      {otherScheduledWorkouts.length ? (
+      {otherWorkouts.length ? (
         <div className="card">
           <div className="field">
             <label htmlFor="other-workout-select">{t('train.chooseOtherWorkout')}</label>
@@ -78,14 +77,14 @@ function StartView({ onStart }: StartViewProps) {
               id="other-workout-select"
               defaultValue=""
               onChange={(event) => {
-                const workout = otherScheduledWorkouts.find((w) => w.id === event.target.value)
+                const workout = otherWorkouts.find((w) => w.id === event.target.value)
                 if (workout) onStart(workout)
               }}
             >
               <option value="" disabled>
                 {t('train.chooseWorkoutPlaceholder')}
               </option>
-              {otherScheduledWorkouts.map((workout) => (
+              {otherWorkouts.map((workout) => (
                 <option key={workout.id} value={workout.id}>
                   {workout.name}
                 </option>
