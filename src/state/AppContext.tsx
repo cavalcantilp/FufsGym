@@ -10,6 +10,7 @@ import {
 import { BUILTIN_EXERCISES } from '../lib/exercises'
 import { load, save, clearAll, STORAGE_KEYS } from '../lib/storage'
 import { nextFreeLetter } from '../lib/schedule'
+import { DEFAULT_REST_SEC } from '../lib/rest'
 import { detectLang, TRANSLATIONS, type TranslationKey } from '../i18n/translations'
 import type {
   DaySchedule,
@@ -69,6 +70,7 @@ interface AppState {
   addSet: (sessionId: string, sessionExerciseId: string, set?: Partial<SetLog>) => void
   updateSet: (sessionId: string, sessionExerciseId: string, setId: string, patch: Partial<SetLog>) => void
   removeSet: (sessionId: string, sessionExerciseId: string, setId: string) => void
+  updateSessionExerciseRest: (sessionId: string, sessionExerciseId: string, restSec: number) => void
   finishSession: (sessionId: string) => void
   deleteSession: (sessionId: string) => void
   lastPerformance: (exerciseId: string, beforeDate: string) => SetLog[] | null
@@ -219,6 +221,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           id: newId(),
           exerciseId: planExercise.exerciseId,
           sets: Array.from({ length: Math.max(1, planExercise.sets) }, () => emptySet()),
+          restSec: planExercise.restSec ?? DEFAULT_REST_SEC,
         }))
       : []
     const session: Session = {
@@ -238,7 +241,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       current.map((s) =>
         s.id !== sessionId
           ? s
-          : { ...s, exercises: [...s.exercises, { id: newId(), exerciseId, sets: [emptySet()] }] },
+          : {
+              ...s,
+              exercises: [
+                ...s.exercises,
+                { id: newId(), exerciseId, sets: [emptySet()], restSec: DEFAULT_REST_SEC },
+              ],
+            },
       ),
     )
   }, [])
@@ -278,6 +287,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
                   e.id !== sessionExerciseId
                     ? e
                     : { ...e, sets: e.sets.map((set) => (set.id === setId ? { ...set, ...patch } : set)) },
+                ),
+              },
+        ),
+      )
+    },
+    [],
+  )
+
+  const updateSessionExerciseRest = useCallback(
+    (sessionId: string, sessionExerciseId: string, restSec: number) => {
+      setSessions((current) =>
+        current.map((s) =>
+          s.id !== sessionId
+            ? s
+            : {
+                ...s,
+                exercises: s.exercises.map((e) =>
+                  e.id !== sessionExerciseId ? e : { ...e, restSec: Math.max(0, restSec) },
                 ),
               },
         ),
@@ -371,6 +398,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addSet,
       updateSet,
       removeSet,
+      updateSessionExerciseRest,
       finishSession,
       deleteSession,
       lastPerformance,
@@ -407,6 +435,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addSet,
       updateSet,
       removeSet,
+      updateSessionExerciseRest,
       finishSession,
       deleteSession,
       lastPerformance,

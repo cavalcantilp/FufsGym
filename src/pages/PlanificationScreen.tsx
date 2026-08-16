@@ -6,6 +6,7 @@ import { ExercisePicker } from '../components/ExercisePicker'
 import { PlanExerciseSheet } from '../components/PlanExerciseSheet'
 import { ScheduleScreen } from './ScheduleScreen'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
+import { DEFAULT_REST_SEC, formatRestTime } from '../lib/rest'
 import { IconCalendarCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
 import type { Exercise, PlanExercise, Workout } from '../lib/types'
 
@@ -65,7 +66,7 @@ function WorkoutDetail({
                   <span className="info">
                     <span className="name">{info ? exerciseName(info, t) : ''}</span>
                     <span className="target">
-                      {entry.sets} × {entry.reps}
+                      {entry.sets} × {entry.reps} · {formatRestTime(entry.restSec ?? DEFAULT_REST_SEC)}
                       {entry.note ? ` · ${entry.note}` : ''}
                     </span>
                   </span>

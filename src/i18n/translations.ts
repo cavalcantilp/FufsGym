@@ -69,6 +69,9 @@ const fr = {
   'planEx.notePlaceholder': 'Ex. tempo lent, échec sur la dernière série…',
   'planEx.update': 'Mettre à jour',
   'planEx.add': 'Ajouter à ce jour',
+  'planEx.rest': 'Temps de repos',
+  'planEx.restDecrease': 'Diminuer le temps de repos',
+  'planEx.restIncrease': 'Augmenter le temps de repos',
 
   'prompt.save': 'Enregistrer',
 
@@ -123,6 +126,11 @@ const fr = {
   'train.doneAria': 'Série validée',
   'train.notDoneAria': 'Valider la série',
   'train.deleteSetAria': 'Supprimer cette série',
+  'train.restBetweenSets': 'Repos entre séries',
+  'train.restTimerLabel': 'Repos',
+  'train.restAdd15': '+15s',
+  'train.restSkip': 'Passer le repos',
+  'train.restCloseAria': 'Fermer le minuteur',
 
   'progress.title': 'Progression',
   'progress.subtitle': 'Charge totale et estimation du 1RM au fil des séances.',
@@ -294,6 +302,9 @@ const pt: Dict = {
   'planEx.notePlaceholder': 'Ex. cadência lenta, falha na última série…',
   'planEx.update': 'Atualizar',
   'planEx.add': 'Adicionar a este dia',
+  'planEx.rest': 'Tempo de descanso',
+  'planEx.restDecrease': 'Diminuir o tempo de descanso',
+  'planEx.restIncrease': 'Aumentar o tempo de descanso',
 
   'prompt.save': 'Guardar',
 
@@ -348,6 +359,11 @@ const pt: Dict = {
   'train.doneAria': 'Série validada',
   'train.notDoneAria': 'Validar a série',
   'train.deleteSetAria': 'Apagar esta série',
+  'train.restBetweenSets': 'Descanso entre séries',
+  'train.restTimerLabel': 'Descanso',
+  'train.restAdd15': '+15s',
+  'train.restSkip': 'Saltar o descanso',
+  'train.restCloseAria': 'Fechar o temporizador',
 
   'progress.title': 'Progresso',
   'progress.subtitle': 'Carga total e estimativa do 1RM ao longo dos treinos.',
@@ -516,6 +532,9 @@ const es: Dict = {
   'planEx.notePlaceholder': 'Ej. tempo lento, fallo en la última serie…',
   'planEx.update': 'Actualizar',
   'planEx.add': 'Añadir a este día',
+  'planEx.rest': 'Tiempo de descanso',
+  'planEx.restDecrease': 'Disminuir el tiempo de descanso',
+  'planEx.restIncrease': 'Aumentar el tiempo de descanso',
 
   'prompt.save': 'Guardar',
 
@@ -570,6 +589,11 @@ const es: Dict = {
   'train.doneAria': 'Serie validada',
   'train.notDoneAria': 'Validar la serie',
   'train.deleteSetAria': 'Eliminar esta serie',
+  'train.restBetweenSets': 'Descanso entre series',
+  'train.restTimerLabel': 'Descanso',
+  'train.restAdd15': '+15s',
+  'train.restSkip': 'Saltar el descanso',
+  'train.restCloseAria': 'Cerrar el temporizador',
 
   'progress.title': 'Progreso',
   'progress.subtitle': 'Carga total y estimación del 1RM a lo largo de los entrenamientos.',
@@ -738,6 +762,9 @@ const en: Dict = {
   'planEx.notePlaceholder': 'E.g. slow tempo, failure on the last set…',
   'planEx.update': 'Update',
   'planEx.add': 'Add to this day',
+  'planEx.rest': 'Rest time',
+  'planEx.restDecrease': 'Decrease rest time',
+  'planEx.restIncrease': 'Increase rest time',
 
   'prompt.save': 'Save',
 
@@ -792,6 +819,11 @@ const en: Dict = {
   'train.doneAria': 'Set completed',
   'train.notDoneAria': 'Mark set as done',
   'train.deleteSetAria': 'Delete this set',
+  'train.restBetweenSets': 'Rest between sets',
+  'train.restTimerLabel': 'Rest',
+  'train.restAdd15': '+15s',
+  'train.restSkip': 'Skip rest',
+  'train.restCloseAria': 'Close timer',
 
   'progress.title': 'Progress',
   'progress.subtitle': 'Total load and estimated 1RM across your workouts.',
@@ -960,6 +992,9 @@ const it: Dict = {
   'planEx.notePlaceholder': 'Es. tempo lento, cedimento sull’ultima serie…',
   'planEx.update': 'Aggiorna',
   'planEx.add': 'Aggiungi a questo giorno',
+  'planEx.rest': 'Tempo di recupero',
+  'planEx.restDecrease': 'Diminuisci il tempo di recupero',
+  'planEx.restIncrease': 'Aumenta il tempo di recupero',
 
   'prompt.save': 'Salva',
 
@@ -1014,6 +1049,11 @@ const it: Dict = {
   'train.doneAria': 'Serie completata',
   'train.notDoneAria': 'Convalida la serie',
   'train.deleteSetAria': 'Elimina questa serie',
+  'train.restBetweenSets': 'Recupero tra le serie',
+  'train.restTimerLabel': 'Recupero',
+  'train.restAdd15': '+15s',
+  'train.restSkip': 'Salta il recupero',
+  'train.restCloseAria': 'Chiudi il timer',
 
   'progress.title': 'Progressi',
   'progress.subtitle': 'Carico totale e stima del 1RM nel corso degli allenamenti.',

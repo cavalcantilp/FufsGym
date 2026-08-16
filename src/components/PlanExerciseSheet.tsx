@@ -3,24 +3,26 @@ import { useApp } from '../state/AppContext'
 import { Sheet } from './Sheet'
 import { NumberField } from './NumberField'
 import { exerciseName } from '../lib/exercises'
+import { DEFAULT_REST_SEC, REST_STEP_SEC, MIN_REST_SEC, formatRestTime } from '../lib/rest'
 import type { Exercise, PlanExercise } from '../lib/types'
 
 interface PlanExerciseSheetProps {
   exercise: Exercise
   initial?: PlanExercise
-  onConfirm: (entry: { sets: number; reps: string; note?: string }) => void
+  onConfirm: (entry: { sets: number; reps: string; note?: string; restSec: number }) => void
   onClose: () => void
 }
 
-/** Objectif d'un exercice au sein d'un jour de programme : séries, répétitions, note. */
+/** Objectif d'un exercice au sein d'un jour de programme : séries, répétitions, repos, note. */
 export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: PlanExerciseSheetProps) {
   const { t } = useApp()
   const [sets, setSets] = useState(initial?.sets ?? 3)
   const [reps, setReps] = useState(initial?.reps ?? t('planEx.repsPlaceholder'))
+  const [restSec, setRestSec] = useState(initial?.restSec ?? DEFAULT_REST_SEC)
   const [note, setNote] = useState(initial?.note ?? '')
 
   const submit = () => {
-    onConfirm({ sets, reps: reps.trim() || t('planEx.repsPlaceholder'), note: note.trim() || undefined })
+    onConfirm({ sets, reps: reps.trim() || t('planEx.repsPlaceholder'), note: note.trim() || undefined, restSec })
     onClose()
   }
 
@@ -38,6 +40,22 @@ export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: Pla
               onChange={(event) => setReps(event.target.value)}
               placeholder={t('planEx.repsPlaceholder')}
             />
+          </div>
+        </div>
+        <div className="field">
+          <label>{t('planEx.rest')}</label>
+          <div className="stepper">
+            <button
+              type="button"
+              onClick={() => setRestSec((r) => Math.max(MIN_REST_SEC, r - REST_STEP_SEC))}
+              aria-label={t('planEx.restDecrease')}
+            >
+              −
+            </button>
+            <span className="stepper-value">{formatRestTime(restSec)}</span>
+            <button type="button" onClick={() => setRestSec((r) => r + REST_STEP_SEC)} aria-label={t('planEx.restIncrease')}>
+              +
+            </button>
           </div>
         </div>
         <div className="field">

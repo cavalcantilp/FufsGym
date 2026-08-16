@@ -71,6 +71,8 @@ export interface SessionExercise {
   id: string
   exerciseId: string
   sets: SetLog[]
+  /** Repos entre séries pour cette séance : hérité du programme au lancement, modifiable ensuite. */
+  restSec: number
 }
 
 export interface Session {
