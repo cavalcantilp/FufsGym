@@ -863,6 +863,7 @@ select {
   gap: 8px;
   overflow-x: auto;
   padding-bottom: 4px;
+  margin-bottom: 10px;
   scrollbar-width: none;
 }
 
