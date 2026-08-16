@@ -184,6 +184,8 @@ const fr = {
   'exercise.chest-dips': 'Dips',
   'exercise.chest-pushup': 'Pompes',
   'exercise.chest-cable-crossover': 'Écarté à la poulie',
+  'exercise.chest-machine-press': 'Développé à la machine',
+  'exercise.chest-pec-deck': 'Écarté à la machine (pec deck)',
 
   'exercise.back-pullup': 'Tractions',
   'exercise.back-lat-pulldown': 'Tirage vertical',
@@ -192,6 +194,7 @@ const fr = {
   'exercise.back-seated-row': 'Tirage horizontal',
   'exercise.back-deadlift': 'Soulevé de terre',
   'exercise.back-hyperextension': 'Extension lombaire',
+  'exercise.back-assisted-pullup': 'Tractions assistées',
 
   'exercise.legs-squat': 'Squat',
   'exercise.legs-front-squat': 'Squat avant',
@@ -201,6 +204,10 @@ const fr = {
   'exercise.legs-leg-curl': 'Leg curl',
   'exercise.legs-romanian-deadlift': 'Soulevé de terre roumain',
   'exercise.legs-calf-raise': 'Mollets debout',
+  'exercise.legs-hack-squat': 'Hack squat',
+  'exercise.legs-hip-adduction': 'Adducteurs (machine)',
+  'exercise.legs-hip-abduction': 'Abducteurs (machine)',
+  'exercise.legs-hip-thrust': 'Hip thrust',
 
   'exercise.shoulders-military-press': 'Développé militaire',
   'exercise.shoulders-dumbbell-press': 'Développé épaules haltères',
@@ -209,6 +216,8 @@ const fr = {
   'exercise.shoulders-rear-delt-flye': 'Oiseau',
   'exercise.shoulders-face-pull': 'Face pull',
   'exercise.shoulders-shrug': "Haussements d'épaules",
+  'exercise.shoulders-machine-press': 'Développé épaules à la machine',
+  'exercise.shoulders-lateral-raise-machine': 'Élévations latérales à la machine',
 
   'exercise.arms-barbell-curl': 'Curl biceps barre',
   'exercise.arms-dumbbell-curl': 'Curl haltères',
@@ -217,6 +226,8 @@ const fr = {
   'exercise.arms-triceps-dip': 'Dips triceps',
   'exercise.arms-skullcrusher': 'Barre au front',
   'exercise.arms-close-grip-bench': 'Développé prise serrée',
+  'exercise.arms-preacher-curl': 'Curl pupitre',
+  'exercise.arms-triceps-extension-machine': 'Extension triceps à la machine',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Planche',
@@ -229,6 +240,8 @@ const fr = {
   'exercise.cardio-cycling': 'Vélo',
   'exercise.cardio-rowing': 'Rameur',
   'exercise.cardio-jump-rope': 'Corde à sauter',
+  'exercise.cardio-elliptical': 'Elliptique',
+  'exercise.cardio-stair-climber': 'Stepper / Escaliers',
 } as const
 
 export type TranslationKey = keyof typeof fr
@@ -417,6 +430,8 @@ const pt: Dict = {
   'exercise.chest-dips': 'Paralelas (peito)',
   'exercise.chest-pushup': 'Flexões',
   'exercise.chest-cable-crossover': 'Crossover no cabo',
+  'exercise.chest-machine-press': 'Supino na máquina',
+  'exercise.chest-pec-deck': 'Peck deck (voador)',
 
   'exercise.back-pullup': 'Barra fixa',
   'exercise.back-lat-pulldown': 'Puxada alta',
@@ -425,6 +440,7 @@ const pt: Dict = {
   'exercise.back-seated-row': 'Remada sentada',
   'exercise.back-deadlift': 'Levantamento terra',
   'exercise.back-hyperextension': 'Extensão lombar',
+  'exercise.back-assisted-pullup': 'Barra assistida',
 
   'exercise.legs-squat': 'Agachamento',
   'exercise.legs-front-squat': 'Agachamento frontal',
@@ -434,6 +450,10 @@ const pt: Dict = {
   'exercise.legs-leg-curl': 'Mesa flexora',
   'exercise.legs-romanian-deadlift': 'Levantamento terra romeno',
   'exercise.legs-calf-raise': 'Elevação de panturrilha em pé',
+  'exercise.legs-hack-squat': 'Agachamento hack',
+  'exercise.legs-hip-adduction': 'Adutores (máquina)',
+  'exercise.legs-hip-abduction': 'Abdutores (máquina)',
+  'exercise.legs-hip-thrust': 'Elevação pélvica (hip thrust)',
 
   'exercise.shoulders-military-press': 'Desenvolvimento militar',
   'exercise.shoulders-dumbbell-press': 'Desenvolvimento com halteres',
@@ -442,6 +462,8 @@ const pt: Dict = {
   'exercise.shoulders-rear-delt-flye': 'Crucifixo inverso',
   'exercise.shoulders-face-pull': 'Face pull',
   'exercise.shoulders-shrug': 'Encolhimento de ombros',
+  'exercise.shoulders-machine-press': 'Desenvolvimento na máquina',
+  'exercise.shoulders-lateral-raise-machine': 'Elevação lateral na máquina',
 
   'exercise.arms-barbell-curl': 'Rosca direta com barra',
   'exercise.arms-dumbbell-curl': 'Rosca com halteres',
@@ -450,6 +472,8 @@ const pt: Dict = {
   'exercise.arms-triceps-dip': 'Mergulho para tríceps',
   'exercise.arms-skullcrusher': 'Tríceps testa',
   'exercise.arms-close-grip-bench': 'Supino pegada fechada',
+  'exercise.arms-preacher-curl': 'Rosca scott',
+  'exercise.arms-triceps-extension-machine': 'Extensão de tríceps na máquina',
 
   'exercise.core-crunch': 'Abdominal crunch',
   'exercise.core-plank': 'Prancha',
@@ -462,6 +486,8 @@ const pt: Dict = {
   'exercise.cardio-cycling': 'Bicicleta',
   'exercise.cardio-rowing': 'Remo (ergômetro)',
   'exercise.cardio-jump-rope': 'Pular corda',
+  'exercise.cardio-elliptical': 'Elíptico',
+  'exercise.cardio-stair-climber': 'Step / Escada',
 }
 
 const es: Dict = {
@@ -647,6 +673,8 @@ const es: Dict = {
   'exercise.chest-dips': 'Fondos en paralelas',
   'exercise.chest-pushup': 'Flexiones',
   'exercise.chest-cable-crossover': 'Cruce de poleas',
+  'exercise.chest-machine-press': 'Press en máquina',
+  'exercise.chest-pec-deck': 'Contractor (pec deck)',
 
   'exercise.back-pullup': 'Dominadas',
   'exercise.back-lat-pulldown': 'Jalón al pecho',
@@ -655,6 +683,7 @@ const es: Dict = {
   'exercise.back-seated-row': 'Remo sentado en polea',
   'exercise.back-deadlift': 'Peso muerto',
   'exercise.back-hyperextension': 'Hiperextensiones lumbares',
+  'exercise.back-assisted-pullup': 'Dominadas asistidas',
 
   'exercise.legs-squat': 'Sentadilla',
   'exercise.legs-front-squat': 'Sentadilla frontal',
@@ -664,6 +693,10 @@ const es: Dict = {
   'exercise.legs-leg-curl': 'Curl femoral',
   'exercise.legs-romanian-deadlift': 'Peso muerto rumano',
   'exercise.legs-calf-raise': 'Elevación de gemelos de pie',
+  'exercise.legs-hack-squat': 'Sentadilla hack',
+  'exercise.legs-hip-adduction': 'Aductores (máquina)',
+  'exercise.legs-hip-abduction': 'Abductores (máquina)',
+  'exercise.legs-hip-thrust': 'Hip thrust',
 
   'exercise.shoulders-military-press': 'Press militar',
   'exercise.shoulders-dumbbell-press': 'Press de hombros con mancuernas',
@@ -672,6 +705,8 @@ const es: Dict = {
   'exercise.shoulders-rear-delt-flye': 'Pájaros',
   'exercise.shoulders-face-pull': 'Face pull',
   'exercise.shoulders-shrug': 'Encogimientos de hombros',
+  'exercise.shoulders-machine-press': 'Press de hombros en máquina',
+  'exercise.shoulders-lateral-raise-machine': 'Elevación lateral en máquina',
 
   'exercise.arms-barbell-curl': 'Curl de bíceps con barra',
   'exercise.arms-dumbbell-curl': 'Curl con mancuernas',
@@ -680,6 +715,8 @@ const es: Dict = {
   'exercise.arms-triceps-dip': 'Fondos de tríceps',
   'exercise.arms-skullcrusher': 'Press francés',
   'exercise.arms-close-grip-bench': 'Press banca agarre cerrado',
+  'exercise.arms-preacher-curl': 'Curl en banco Scott',
+  'exercise.arms-triceps-extension-machine': 'Extensión de tríceps en máquina',
 
   'exercise.core-crunch': 'Encogimientos abdominales',
   'exercise.core-plank': 'Plancha',
@@ -692,6 +729,8 @@ const es: Dict = {
   'exercise.cardio-cycling': 'Bicicleta',
   'exercise.cardio-rowing': 'Remo',
   'exercise.cardio-jump-rope': 'Saltar la cuerda',
+  'exercise.cardio-elliptical': 'Elíptica',
+  'exercise.cardio-stair-climber': 'Step / Escaleras',
 }
 
 const en: Dict = {
@@ -877,6 +916,8 @@ const en: Dict = {
   'exercise.chest-dips': 'Dips',
   'exercise.chest-pushup': 'Push-ups',
   'exercise.chest-cable-crossover': 'Cable crossover',
+  'exercise.chest-machine-press': 'Machine chest press',
+  'exercise.chest-pec-deck': 'Pec deck flye',
 
   'exercise.back-pullup': 'Pull-ups',
   'exercise.back-lat-pulldown': 'Lat pulldown',
@@ -885,6 +926,7 @@ const en: Dict = {
   'exercise.back-seated-row': 'Seated cable row',
   'exercise.back-deadlift': 'Deadlift',
   'exercise.back-hyperextension': 'Back extension',
+  'exercise.back-assisted-pullup': 'Assisted pull-up',
 
   'exercise.legs-squat': 'Squat',
   'exercise.legs-front-squat': 'Front squat',
@@ -894,6 +936,10 @@ const en: Dict = {
   'exercise.legs-leg-curl': 'Leg curl',
   'exercise.legs-romanian-deadlift': 'Romanian deadlift',
   'exercise.legs-calf-raise': 'Standing calf raise',
+  'exercise.legs-hack-squat': 'Hack squat',
+  'exercise.legs-hip-adduction': 'Hip adduction machine',
+  'exercise.legs-hip-abduction': 'Hip abduction machine',
+  'exercise.legs-hip-thrust': 'Hip thrust',
 
   'exercise.shoulders-military-press': 'Military press',
   'exercise.shoulders-dumbbell-press': 'Dumbbell shoulder press',
@@ -902,6 +948,8 @@ const en: Dict = {
   'exercise.shoulders-rear-delt-flye': 'Rear delt flye',
   'exercise.shoulders-face-pull': 'Face pull',
   'exercise.shoulders-shrug': 'Shrugs',
+  'exercise.shoulders-machine-press': 'Machine shoulder press',
+  'exercise.shoulders-lateral-raise-machine': 'Machine lateral raise',
 
   'exercise.arms-barbell-curl': 'Barbell curl',
   'exercise.arms-dumbbell-curl': 'Dumbbell curl',
@@ -910,6 +958,8 @@ const en: Dict = {
   'exercise.arms-triceps-dip': 'Triceps dips',
   'exercise.arms-skullcrusher': 'Skull crusher',
   'exercise.arms-close-grip-bench': 'Close-grip bench press',
+  'exercise.arms-preacher-curl': 'Preacher curl',
+  'exercise.arms-triceps-extension-machine': 'Machine triceps extension',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Plank',
@@ -922,6 +972,8 @@ const en: Dict = {
   'exercise.cardio-cycling': 'Cycling',
   'exercise.cardio-rowing': 'Rowing machine',
   'exercise.cardio-jump-rope': 'Jump rope',
+  'exercise.cardio-elliptical': 'Elliptical',
+  'exercise.cardio-stair-climber': 'Stair climber',
 }
 
 const it: Dict = {
@@ -1107,6 +1159,8 @@ const it: Dict = {
   'exercise.chest-dips': 'Dip alle parallele',
   'exercise.chest-pushup': 'Piegamenti',
   'exercise.chest-cable-crossover': 'Croci ai cavi',
+  'exercise.chest-machine-press': 'Chest press macchina',
+  'exercise.chest-pec-deck': 'Pectoral machine (pec deck)',
 
   'exercise.back-pullup': 'Trazioni alla sbarra',
   'exercise.back-lat-pulldown': 'Lat machine',
@@ -1115,6 +1169,7 @@ const it: Dict = {
   'exercise.back-seated-row': 'Rematore al cavo basso',
   'exercise.back-deadlift': 'Stacco da terra',
   'exercise.back-hyperextension': 'Iperestensioni lombari',
+  'exercise.back-assisted-pullup': 'Trazioni assistite',
 
   'exercise.legs-squat': 'Squat',
   'exercise.legs-front-squat': 'Front squat',
@@ -1124,6 +1179,10 @@ const it: Dict = {
   'exercise.legs-leg-curl': 'Leg curl',
   'exercise.legs-romanian-deadlift': 'Stacco rumeno',
   'exercise.legs-calf-raise': 'Calf in piedi',
+  'exercise.legs-hack-squat': 'Hack squat',
+  'exercise.legs-hip-adduction': 'Adduttori (macchina)',
+  'exercise.legs-hip-abduction': 'Abduttori (macchina)',
+  'exercise.legs-hip-thrust': 'Hip thrust',
 
   'exercise.shoulders-military-press': 'Military press',
   'exercise.shoulders-dumbbell-press': 'Shoulder press con manubri',
@@ -1132,6 +1191,8 @@ const it: Dict = {
   'exercise.shoulders-rear-delt-flye': 'Alzate posteriori',
   'exercise.shoulders-face-pull': 'Face pull',
   'exercise.shoulders-shrug': 'Shrug',
+  'exercise.shoulders-machine-press': 'Shoulder press macchina',
+  'exercise.shoulders-lateral-raise-machine': 'Alzate laterali macchina',
 
   'exercise.arms-barbell-curl': 'Curl con bilanciere',
   'exercise.arms-dumbbell-curl': 'Curl con manubri',
@@ -1140,6 +1201,8 @@ const it: Dict = {
   'exercise.arms-triceps-dip': 'Dip per tricipiti',
   'exercise.arms-skullcrusher': 'French press',
   'exercise.arms-close-grip-bench': 'Panca presa stretta',
+  'exercise.arms-preacher-curl': 'Curl alla panca Scott',
+  'exercise.arms-triceps-extension-machine': 'Estensione tricipiti macchina',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Plank',
@@ -1152,6 +1215,8 @@ const it: Dict = {
   'exercise.cardio-cycling': 'Bicicletta',
   'exercise.cardio-rowing': 'Vogatore',
   'exercise.cardio-jump-rope': 'Corda per saltare',
+  'exercise.cardio-elliptical': 'Ellittica',
+  'exercise.cardio-stair-climber': 'Step / Scala',
 }
 
 export const TRANSLATIONS: Record<Lang, Dict> = { fr, pt, es, en, it }

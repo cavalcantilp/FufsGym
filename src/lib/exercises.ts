@@ -47,6 +47,8 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('chest-dips', 'Dips', 'chest', 'bodyweight'),
   ex('chest-pushup', 'Pompes', 'chest', 'bodyweight'),
   ex('chest-cable-crossover', 'Écarté à la poulie', 'chest', 'cable'),
+  ex('chest-machine-press', 'Développé à la machine', 'chest', 'machine'),
+  ex('chest-pec-deck', 'Écarté à la machine (pec deck)', 'chest', 'machine'),
 
   // Dos
   ex('back-pullup', 'Tractions', 'back', 'bodyweight'),
@@ -56,6 +58,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('back-seated-row', 'Tirage horizontal', 'back', 'cable'),
   ex('back-deadlift', 'Soulevé de terre', 'back', 'barbell'),
   ex('back-hyperextension', 'Extension lombaire', 'back', 'bodyweight'),
+  ex('back-assisted-pullup', 'Tractions assistées', 'back', 'machine'),
 
   // Jambes
   ex('legs-squat', 'Squat', 'legs', 'barbell'),
@@ -66,6 +69,10 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('legs-leg-curl', 'Leg curl', 'legs', 'machine'),
   ex('legs-romanian-deadlift', 'Soulevé de terre roumain', 'legs', 'barbell'),
   ex('legs-calf-raise', 'Mollets debout', 'legs', 'machine'),
+  ex('legs-hack-squat', 'Hack squat', 'legs', 'machine'),
+  ex('legs-hip-adduction', 'Adducteurs (machine)', 'legs', 'machine'),
+  ex('legs-hip-abduction', 'Abducteurs (machine)', 'legs', 'machine'),
+  ex('legs-hip-thrust', 'Hip thrust', 'legs', 'barbell'),
 
   // Épaules
   ex('shoulders-military-press', 'Développé militaire', 'shoulders', 'barbell'),
@@ -75,6 +82,8 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('shoulders-rear-delt-flye', 'Oiseau', 'shoulders', 'dumbbell'),
   ex('shoulders-face-pull', 'Face pull', 'shoulders', 'cable'),
   ex('shoulders-shrug', 'Haussements d’épaules', 'shoulders', 'barbell'),
+  ex('shoulders-machine-press', 'Développé épaules à la machine', 'shoulders', 'machine'),
+  ex('shoulders-lateral-raise-machine', 'Élévations latérales à la machine', 'shoulders', 'machine'),
 
   // Bras
   ex('arms-barbell-curl', 'Curl biceps barre', 'arms', 'barbell'),
@@ -84,6 +93,8 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('arms-triceps-dip', 'Dips triceps', 'arms', 'bodyweight'),
   ex('arms-skullcrusher', 'Barre au front', 'arms', 'barbell'),
   ex('arms-close-grip-bench', 'Développé prise serrée', 'arms', 'barbell'),
+  ex('arms-preacher-curl', 'Curl pupitre', 'arms', 'machine'),
+  ex('arms-triceps-extension-machine', 'Extension triceps à la machine', 'arms', 'machine'),
 
   // Abdominaux
   ex('core-crunch', 'Crunch', 'core', 'bodyweight'),
@@ -98,4 +109,6 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('cardio-cycling', 'Vélo', 'cardio'),
   ex('cardio-rowing', 'Rameur', 'cardio'),
   ex('cardio-jump-rope', 'Corde à sauter', 'cardio'),
+  ex('cardio-elliptical', 'Elliptique', 'cardio'),
+  ex('cardio-stair-climber', 'Stepper / Escaliers', 'cardio'),
 ]
