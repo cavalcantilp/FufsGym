@@ -937,6 +937,8 @@ select {
 }
 
 .exercise-row .muscle {
+  display: block;
+  margin-top: 2px;
   font-size: 0.73rem;
   color: var(--text-sub);
 }
@@ -1074,6 +1076,8 @@ select {
 }
 
 .plan-exercise-row .target {
+  display: block;
+  margin-top: 2px;
   font-size: 0.75rem;
   color: var(--text-sub);
   font-variant-numeric: tabular-nums;
@@ -1425,6 +1429,8 @@ select {
 }
 
 .pr-row .date {
+  display: block;
+  margin-top: 2px;
   font-size: 0.72rem;
   color: var(--text-sub);
 }
