@@ -63,7 +63,7 @@ export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProp
                             <span className="info">
                               <span className="name">{info ? exerciseName(info, t) : ''}</span>
                               <span className="target">
-                                {entry.sets} × {entry.reps}
+                                {info?.muscle === 'cardio' ? entry.reps : `${entry.sets} × ${entry.reps}`}
                                 {entry.note ? ` · ${entry.note}` : ''}
                               </span>
                             </span>

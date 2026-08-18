@@ -13,35 +13,55 @@ interface PlanExerciseSheetProps {
   onClose: () => void
 }
 
-/** Objectif d'un exercice au sein d'un jour de programme : séries, répétitions, repos, note. */
+/** Objectif d'un exercice au sein d'un jour de programme : séries + répétitions, ou durée pour le cardio ; repos, note. */
 export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: PlanExerciseSheetProps) {
   const { t } = useApp()
+  const isCardio = exercise.muscle === 'cardio'
   const [sets, setSets] = useState(initial?.sets ?? 3)
-  const [reps, setReps] = useState(initial?.reps ?? t('planEx.repsPlaceholder'))
+  const [reps, setReps] = useState(initial?.reps ?? (isCardio ? '' : t('planEx.repsPlaceholder')))
   const [restSec, setRestSec] = useState(initial?.restSec ?? DEFAULT_REST_SEC)
   const [note, setNote] = useState(initial?.note ?? '')
 
   const submit = () => {
-    onConfirm({ sets, reps: reps.trim() || t('planEx.repsPlaceholder'), note: note.trim() || undefined, restSec })
+    const fallbackReps = isCardio ? t('planEx.durationPlaceholder') : t('planEx.repsPlaceholder')
+    onConfirm({
+      sets: isCardio ? 1 : sets,
+      reps: reps.trim() || fallbackReps,
+      note: note.trim() || undefined,
+      restSec,
+    })
     onClose()
   }
 
   return (
     <Sheet title={exerciseName(exercise, t)} subtitle={t('planEx.subtitle')} onClose={onClose}>
       <div className="stack">
-        <div className="grid-2">
-          <NumberField id="plan-ex-sets" label={t('planEx.sets')} value={sets} onCommit={setSets} min={1} max={20} />
+        {isCardio ? (
           <div className="field">
-            <label htmlFor="plan-ex-reps">{t('planEx.reps')}</label>
+            <label htmlFor="plan-ex-reps">{t('planEx.duration')}</label>
             <input
               id="plan-ex-reps"
               type="text"
               value={reps}
               onChange={(event) => setReps(event.target.value)}
-              placeholder={t('planEx.repsPlaceholder')}
+              placeholder={t('planEx.durationPlaceholder')}
             />
           </div>
-        </div>
+        ) : (
+          <div className="grid-2">
+            <NumberField id="plan-ex-sets" label={t('planEx.sets')} value={sets} onCommit={setSets} min={1} max={20} />
+            <div className="field">
+              <label htmlFor="plan-ex-reps">{t('planEx.reps')}</label>
+              <input
+                id="plan-ex-reps"
+                type="text"
+                value={reps}
+                onChange={(event) => setReps(event.target.value)}
+                placeholder={t('planEx.repsPlaceholder')}
+              />
+            </div>
+          </div>
+        )}
         <div className="field">
           <label>{t('planEx.rest')}</label>
           <div className="stepper">

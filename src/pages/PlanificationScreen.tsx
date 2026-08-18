@@ -69,7 +69,8 @@ function WorkoutDetail({
                     <span className="info">
                       <span className="name">{info ? exerciseName(info, t) : ''}</span>
                       <span className="target">
-                        {entry.sets} × {entry.reps} · {formatRestTime(entry.restSec ?? DEFAULT_REST_SEC)}
+                        {info?.muscle === 'cardio' ? entry.reps : `${entry.sets} × ${entry.reps}`} ·{' '}
+                        {formatRestTime(entry.restSec ?? DEFAULT_REST_SEC)}
                         {entry.note ? ` · ${entry.note}` : ''}
                       </span>
                     </span>
