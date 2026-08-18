@@ -228,7 +228,51 @@ function ExerciseCard({
   )
 }
 
-function ActiveSessionView({ session }: { session: Session }) {
+function SessionSummaryView({ session, onClose }: { session: Session; onClose: () => void }) {
+  const { t, lang } = useApp()
+  const volume = round1(sessionVolume(session))
+  const setCount = sessionSetCount(session)
+
+  return (
+    <div className="screen summary-screen">
+      <div className="summary-badge">
+        <IconCheck size={44} />
+      </div>
+      <h2>{t('train.summaryTitle')}</h2>
+      <p className="congrats">{t('train.summaryCongrats')}</p>
+      <span className="sub">{session.workoutName ?? t('train.freeSession')} · {formatDay(session.date, lang)}</span>
+
+      <div className="card" style={{ width: '100%', marginTop: 14 }}>
+        <div className="stat-row">
+          <div className="stat">
+            <div className="label">{t('train.exercises')}</div>
+            <div className="value">{session.exercises.length}</div>
+          </div>
+          <div className="stat">
+            <div className="label">{t('train.setsDone')}</div>
+            <div className="value">{setCount}</div>
+          </div>
+          <div className="stat">
+            <div className="label">{t('train.volume')}</div>
+            <div className="value accent">{volume} kg</div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" className="btn" style={{ marginTop: 14 }} onClick={onClose}>
+        {t('train.summaryClose')}
+      </button>
+    </div>
+  )
+}
+
+function ActiveSessionView({
+  session,
+  onFinish,
+}: {
+  session: Session
+  onFinish: (sessionId: string) => void
+}) {
   const { t, lang, addSessionExercise, finishSession, deleteSession } = useApp()
   const [picking, setPicking] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
@@ -303,7 +347,14 @@ function ActiveSessionView({ session }: { session: Session }) {
         <button type="button" className="btn danger" onClick={() => setConfirmEnd(true)}>
           {t('train.cancelSession')}
         </button>
-        <button type="button" className="btn" onClick={() => finishSession(session.id)}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            finishSession(session.id)
+            onFinish(session.id)
+          }}
+        >
           {t('train.finishSession')}
         </button>
       </div>
@@ -344,11 +395,17 @@ function ActiveSessionView({ session }: { session: Session }) {
 }
 
 export function TrainScreen() {
-  const { sessionsFor, startSession } = useApp()
+  const { sessions, sessionsFor, startSession } = useApp()
   const today = todayKey()
-  const current = sessionsFor(today).find((s) => !s.finishedAt)
+  const [justFinishedId, setJustFinishedId] = useState<string | null>(null)
 
-  if (current) return <ActiveSessionView session={current} />
+  const justFinished = justFinishedId ? sessions.find((s) => s.id === justFinishedId) : undefined
+  if (justFinished) {
+    return <SessionSummaryView session={justFinished} onClose={() => setJustFinishedId(null)} />
+  }
+
+  const current = sessionsFor(today).find((s) => !s.finishedAt)
+  if (current) return <ActiveSessionView session={current} onFinish={setJustFinishedId} />
 
   return (
     <StartView

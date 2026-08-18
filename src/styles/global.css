@@ -1432,6 +1432,86 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- Résumé de fin de séance ---------- */
+
+.summary-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 40px;
+}
+
+.summary-screen h2 {
+  margin-top: 18px;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.summary-screen .congrats {
+  margin-top: 4px;
+  color: var(--text-sub);
+  font-size: 0.9rem;
+}
+
+.summary-screen .sub {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-badge {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--positive);
+  color: #04231a;
+  animation: summary-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.summary-badge::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 2px solid var(--positive);
+  animation: summary-ring 0.7s ease-out 0.1s backwards;
+}
+
+.summary-badge svg {
+  stroke-width: 3;
+}
+
+@keyframes summary-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes summary-ring {
+  from {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
 /* ---------- Progression : records personnels ---------- */
 
 .pr-list {
