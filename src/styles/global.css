@@ -30,6 +30,9 @@
   --muscle-core: #2dd4bf;
   --muscle-cardio: #f472b6;
 
+  /* Calendrier : pictogrammes de type de séance sur un jour entraîné. */
+  --type-cardio: #a78bfa;
+
   --radius: 16px;
   --radius-lg: 24px;
   --tabbar-height: 64px;
@@ -1598,10 +1601,10 @@ select {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
+  justify-content: flex-start;
+  gap: 3px;
   min-height: 56px;
-  padding: 5px 4px;
+  padding: 20px 4px 6px;
   background: var(--card-bg);
   text-align: center;
   overflow: hidden;
@@ -1612,7 +1615,10 @@ select {
 }
 
 .calendar-day .num {
-  font-size: 0.82rem;
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 0.72rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -1636,6 +1642,24 @@ select {
   flex-wrap: wrap;
   justify-content: center;
   max-width: 100%;
+}
+
+.calendar-day .day-types {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.day-type-icon {
+  display: inline-flex;
+}
+
+.day-type-icon.strength {
+  color: var(--positive);
+}
+
+.day-type-icon.cardio {
+  color: var(--type-cardio);
 }
 
 .calendar-day.trained {

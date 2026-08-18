@@ -136,6 +136,14 @@ export function IconFlame({ size = 16 }: IconProps) {
   )
 }
 
+export function IconHeart({ size = 16 }: IconProps) {
+  return (
+    <svg {...base(size)} aria-hidden="true">
+      <path d="M12 20s-7-4.35-9.5-8.5C1 8 2.5 4.5 6 4c2-.3 4 .7 6 3 2-2.3 4-3.3 6-3 3.5.5 5 4 3.5 7.5C19 15.65 12 20 12 20Z" />
+    </svg>
+  )
+}
+
 export function IconSettings({ size = 20 }: IconProps) {
   return (
     <svg {...base(size)} aria-hidden="true">

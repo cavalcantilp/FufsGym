@@ -16,7 +16,7 @@ function startOfGrid(year: number, month: number): Date {
 }
 
 export function CalendarScreen() {
-  const { t, lang, sessions, schedules, workouts } = useApp()
+  const { t, lang, sessions, schedules, workouts, exerciseById } = useApp()
   const today = todayKey()
   const [cursor, setCursor] = useState(() => {
     const current = fromKey(today)
@@ -33,6 +33,21 @@ export function CalendarScreen() {
     })
     return map
   }, [sessions])
+
+  const dayTypesByDate = useMemo(() => {
+    const map = new Map<string, { strength: boolean; cardio: boolean }>()
+    sessions.forEach((session) => {
+      const current = map.get(session.date) ?? { strength: false, cardio: false }
+      session.exercises.forEach((entry) => {
+        const info = exerciseById(entry.exerciseId)
+        if (!info) return
+        if (info.muscle === 'cardio') current.cardio = true
+        else current.strength = true
+      })
+      map.set(session.date, current)
+    })
+    return map
+  }, [sessions, exerciseById])
 
   const streak = useMemo(() => trainingStreak(sessions, today), [sessions, today])
 
@@ -113,6 +128,7 @@ export function CalendarScreen() {
           {days.map((day) => {
             const key = toKey(day)
             const daySessions = sessionsByDate.get(key)
+            const dayTypes = dayTypesByDate.get(key)
             const letters = schedulesForDate(schedules, key)
               .filter((schedule) => workouts.some((w) => w.id === schedule.workoutId))
               .map((schedule) => ({
@@ -129,6 +145,8 @@ export function CalendarScreen() {
                 selected={key === opened}
                 isToday={key === today}
                 trained={Boolean(daySessions?.length)}
+                strength={dayTypes?.strength ?? false}
+                cardio={dayTypes?.cardio ?? false}
                 letters={letters}
                 onSelect={setOpened}
               />

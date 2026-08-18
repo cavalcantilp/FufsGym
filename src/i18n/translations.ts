@@ -160,6 +160,7 @@ const fr = {
   'history.deleteConfirmBody': 'Cette séance et toutes ses séries seront définitivement supprimées.',
 
   'chart.notEnough': 'Pas encore assez de données pour tracer une courbe.',
+  'chart.range1w': '1 S',
   'chart.range1m': '1 M',
   'chart.range3m': '3 M',
   'chart.range6m': '6 M',
@@ -421,6 +422,7 @@ const pt: Dict = {
   'history.deleteConfirmBody': 'Este treino e todas as suas séries serão definitivamente apagados.',
 
   'chart.notEnough': 'Ainda não há dados suficientes para traçar uma curva.',
+  'chart.range1w': '1 S',
   'chart.range1m': '1 M',
   'chart.range3m': '3 M',
   'chart.range6m': '6 M',
@@ -679,6 +681,7 @@ const es: Dict = {
   'history.deleteConfirmBody': 'Este entrenamiento y todas sus series se eliminarán definitivamente.',
 
   'chart.notEnough': 'Todavía no hay suficientes datos para trazar una curva.',
+  'chart.range1w': '1 S',
   'chart.range1m': '1 M',
   'chart.range3m': '3 M',
   'chart.range6m': '6 M',
@@ -937,6 +940,7 @@ const en: Dict = {
   'history.deleteConfirmBody': 'This workout and all its sets will be permanently deleted.',
 
   'chart.notEnough': 'Not enough data yet to draw a chart.',
+  'chart.range1w': '1 W',
   'chart.range1m': '1 M',
   'chart.range3m': '3 M',
   'chart.range6m': '6 M',
@@ -1195,6 +1199,7 @@ const it: Dict = {
   'history.deleteConfirmBody': 'Questo allenamento e tutte le sue serie saranno eliminati definitivamente.',
 
   'chart.notEnough': 'Non ci sono ancora abbastanza dati per tracciare una curva.',
+  'chart.range1w': '1 S',
   'chart.range1m': '1 M',
   'chart.range3m': '3 M',
   'chart.range6m': '6 M',

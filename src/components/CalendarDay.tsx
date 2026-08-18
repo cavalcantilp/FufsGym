@@ -1,3 +1,5 @@
+import { IconDumbbell, IconHeart } from './icons'
+
 interface DayLetter {
   letter: string
   color: string
@@ -10,6 +12,10 @@ interface CalendarDayProps {
   selected: boolean
   isToday: boolean
   trained: boolean
+  /** Au moins un exercice hors cardio dans une séance de ce jour-là. */
+  strength: boolean
+  /** Au moins un exercice cardio dans une séance de ce jour-là. */
+  cardio: boolean
   /** Lettres des jours de programme planifiés ce jour-là (3 maximum). */
   letters: DayLetter[]
   onSelect: (date: string) => void
@@ -22,6 +28,8 @@ export function CalendarDay({
   selected,
   isToday,
   trained,
+  strength,
+  cardio,
   letters,
   onSelect,
 }: CalendarDayProps) {
@@ -45,6 +53,20 @@ export function CalendarDay({
               {entry.letter}
             </span>
           ))}
+        </span>
+      ) : null}
+      {strength || cardio ? (
+        <span className="day-types">
+          {strength ? (
+            <span className="day-type-icon strength">
+              <IconDumbbell size={11} />
+            </span>
+          ) : null}
+          {cardio ? (
+            <span className="day-type-icon cardio">
+              <IconHeart size={11} />
+            </span>
+          ) : null}
         </span>
       ) : null}
     </button>

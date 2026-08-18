@@ -19,11 +19,12 @@ interface LineChartProps {
   positiveDirection?: 'up' | 'down'
 }
 
-export type RangeKey = '1m' | '3m' | '6m' | '1a' | 'all'
+export type RangeKey = '1w' | '1m' | '3m' | '6m' | '1a' | 'all'
 
-const RANGE_DAYS: Record<Exclude<RangeKey, 'all'>, number> = { '1m': 30, '3m': 90, '6m': 182, '1a': 365 }
-export const RANGE_ORDER: RangeKey[] = ['1m', '3m', '6m', '1a', 'all']
+const RANGE_DAYS: Record<Exclude<RangeKey, 'all'>, number> = { '1w': 7, '1m': 30, '3m': 90, '6m': 182, '1a': 365 }
+export const RANGE_ORDER: RangeKey[] = ['1w', '1m', '3m', '6m', '1a', 'all']
 export const RANGE_LABEL: Record<RangeKey, TranslationKey> = {
+  '1w': 'chart.range1w',
   '1m': 'chart.range1m',
   '3m': 'chart.range3m',
   '6m': 'chart.range6m',
