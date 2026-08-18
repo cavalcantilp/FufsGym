@@ -51,9 +51,10 @@ interface AppState {
   addWorkout: (name: string) => Workout
   renameWorkout: (id: string, name: string) => void
   removeWorkout: (id: string) => void
-  addExercise: (workoutId: string, entry: Omit<PlanExercise, 'id'>) => void
+  addExercise: (workoutId: string, entry: Omit<PlanExercise, 'id'>) => PlanExercise
   updateExercise: (workoutId: string, entryId: string, patch: Partial<PlanExercise>) => void
   removeExercise: (workoutId: string, entryId: string) => void
+  setSupersetLink: (workoutId: string, exerciseId: string, linked: boolean) => void
 
   schedules: DaySchedule[]
   scheduleForWorkout: (workoutId: string) => DaySchedule | undefined
@@ -158,11 +159,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const addExercise = useCallback((workoutId: string, entry: Omit<PlanExercise, 'id'>) => {
+    const created: PlanExercise = { ...entry, id: newId() }
     setWorkouts((current) =>
-      current.map((w) =>
-        w.id !== workoutId ? w : { ...w, exercises: [...w.exercises, { ...entry, id: newId() }] },
-      ),
+      current.map((w) => (w.id !== workoutId ? w : { ...w, exercises: [...w.exercises, created] })),
     )
+    return created
   }, [])
 
   const updateExercise = useCallback(
@@ -180,8 +181,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const removeExercise = useCallback((workoutId: string, entryId: string) => {
     setWorkouts((current) =>
+      current.map((w) => {
+        if (w.id !== workoutId) return w
+        const idx = w.exercises.findIndex((e) => e.id === entryId)
+        if (idx === -1) return w
+        const exercises = w.exercises
+          .filter((e) => e.id !== entryId)
+          .map((e, i) => (idx > 0 && i === idx - 1 ? { ...e, linkedToNext: false } : e))
+        return { ...w, exercises }
+      }),
+    )
+  }, [])
+
+  const setSupersetLink = useCallback((workoutId: string, exerciseId: string, linked: boolean) => {
+    setWorkouts((current) =>
       current.map((w) =>
-        w.id !== workoutId ? w : { ...w, exercises: w.exercises.filter((e) => e.id !== entryId) },
+        w.id !== workoutId
+          ? w
+          : { ...w, exercises: w.exercises.map((e) => (e.id === exerciseId ? { ...e, linkedToNext: linked } : e)) },
       ),
     )
   }, [])
@@ -222,6 +239,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           exerciseId: planExercise.exerciseId,
           sets: Array.from({ length: Math.max(1, planExercise.sets) }, () => emptySet()),
           restSec: planExercise.restSec ?? DEFAULT_REST_SEC,
+          linkedToNext: planExercise.linkedToNext,
         }))
       : []
     const session: Session = {
@@ -254,9 +272,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const removeSessionExercise = useCallback((sessionId: string, sessionExerciseId: string) => {
     setSessions((current) =>
-      current.map((s) =>
-        s.id !== sessionId ? s : { ...s, exercises: s.exercises.filter((e) => e.id !== sessionExerciseId) },
-      ),
+      current.map((s) => {
+        if (s.id !== sessionId) return s
+        const idx = s.exercises.findIndex((e) => e.id === sessionExerciseId)
+        if (idx === -1) return s
+        const exercises = s.exercises
+          .filter((e) => e.id !== sessionExerciseId)
+          .map((e, i) => (idx > 0 && i === idx - 1 ? { ...e, linkedToNext: false } : e))
+        return { ...s, exercises }
+      }),
     )
   }, [])
 
@@ -385,6 +409,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addExercise,
       updateExercise,
       removeExercise,
+      setSupersetLink,
       schedules,
       scheduleForWorkout,
       addSchedule,
@@ -422,6 +447,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addExercise,
       updateExercise,
       removeExercise,
+      setSupersetLink,
       schedules,
       scheduleForWorkout,
       addSchedule,

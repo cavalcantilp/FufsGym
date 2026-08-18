@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { FormPage } from '../components/FormPage'
 import { Sheet } from '../components/Sheet'
@@ -7,6 +7,7 @@ import { PlanExerciseSheet } from '../components/PlanExerciseSheet'
 import { ScheduleScreen } from './ScheduleScreen'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
 import { DEFAULT_REST_SEC, formatRestTime } from '../lib/rest'
+import { groupBySuperset } from '../lib/superset'
 import { IconCalendarCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
 import type { Exercise, PlanExercise, Workout } from '../lib/types'
 
@@ -30,6 +31,7 @@ function WorkoutDetail({
   const [pickerOpen, setPickerOpen] = useState(false)
   const [pendingPick, setPendingPick] = useState<Exercise | null>(null)
   const [editingEntry, setEditingEntry] = useState<EditingEntry | null>(null)
+  const [addingSuperset, setAddingSuperset] = useState(false)
 
   const hasSchedule = Boolean(scheduleForWorkout(workout.id))
 
@@ -58,34 +60,45 @@ function WorkoutDetail({
           {workout.exercises.length === 0 ? (
             <p className="empty">{t('workout.noExercises')}</p>
           ) : (
-            workout.exercises.map((entry) => {
-              const info = exerciseById(entry.exerciseId)
-              return (
-                <div className="plan-exercise-row" key={entry.id}>
-                  <span className="muscle-dot" style={{ background: info ? MUSCLE_COLOR[info.muscle] : 'var(--border)' }} />
-                  <span className="info">
-                    <span className="name">{info ? exerciseName(info, t) : ''}</span>
-                    <span className="target">
-                      {entry.sets} × {entry.reps} · {formatRestTime(entry.restSec ?? DEFAULT_REST_SEC)}
-                      {entry.note ? ` · ${entry.note}` : ''}
+            groupBySuperset(workout.exercises).map((group) => {
+              const rows = group.map((entry) => {
+                const info = exerciseById(entry.exerciseId)
+                return (
+                  <div className="plan-exercise-row" key={entry.id}>
+                    <span className="muscle-dot" style={{ background: info ? MUSCLE_COLOR[info.muscle] : 'var(--border)' }} />
+                    <span className="info">
+                      <span className="name">{info ? exerciseName(info, t) : ''}</span>
+                      <span className="target">
+                        {entry.sets} × {entry.reps} · {formatRestTime(entry.restSec ?? DEFAULT_REST_SEC)}
+                        {entry.note ? ` · ${entry.note}` : ''}
+                      </span>
                     </span>
-                  </span>
-                  <button
-                    type="button"
-                    className="icon-btn"
-                    onClick={() => setEditingEntry({ entry })}
-                    aria-label={t('day.editAria')}
-                  >
-                    <IconEdit size={15} />
-                  </button>
-                  <button
-                    type="button"
-                    className="icon-btn danger"
-                    onClick={() => removeExercise(workout.id, entry.id)}
-                    aria-label={t('day.removeAria')}
-                  >
-                    <IconTrash size={15} />
-                  </button>
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      onClick={() => setEditingEntry({ entry })}
+                      aria-label={t('day.editAria')}
+                    >
+                      <IconEdit size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-btn danger"
+                      onClick={() => removeExercise(workout.id, entry.id)}
+                      aria-label={t('day.removeAria')}
+                    >
+                      <IconTrash size={15} />
+                    </button>
+                  </div>
+                )
+              })
+
+              if (group.length === 1) return <Fragment key={group[0].id}>{rows}</Fragment>
+
+              return (
+                <div className="superset-group" key={group[0].id}>
+                  <div className="superset-group-label">{t('train.supersetLabel', { count: group.length })}</div>
+                  {rows}
                 </div>
               )
             })
@@ -94,6 +107,10 @@ function WorkoutDetail({
           <button type="button" className="day-add" onClick={() => setPickerOpen(true)}>
             <IconPlus size={16} />
             {t('workout.addExercise')}
+          </button>
+          <button type="button" className="day-add" onClick={() => setAddingSuperset(true)}>
+            <IconPlus size={16} />
+            {t('workout.addSuperset')}
           </button>
         </div>
 
@@ -133,6 +150,8 @@ function WorkoutDetail({
           onClose={() => setEditingEntry(null)}
         />
       ) : null}
+
+      {addingSuperset ? <AddSupersetFlow workoutId={workout.id} onClose={() => setAddingSuperset(false)} /> : null}
 
       {confirmDelete ? (
         <Sheet title={t('workout.deleteConfirmTitle')} subtitle={workout.name} onClose={() => setConfirmDelete(false)}>
@@ -254,5 +273,59 @@ function NewWorkoutPicker({ workoutId, onClose }: { workoutId: string; onClose: 
       onClose={onClose}
       onPick={(exercise) => setPendingPick(exercise)}
     />
+  )
+}
+
+type SupersetStep = { kind: 'picking' } | { kind: 'configuring'; exercise: Exercise } | { kind: 'prompt' }
+
+/**
+ * Ajoute plusieurs exercices enchaînés (superset) : sélection puis réglages
+ * en boucle, chaque nouvel ajout marquant le précédent comme lié au suivant.
+ */
+function AddSupersetFlow({ workoutId, onClose }: { workoutId: string; onClose: () => void }) {
+  const { t, addExercise, setSupersetLink } = useApp()
+  const [step, setStep] = useState<SupersetStep>({ kind: 'picking' })
+  const lastAddedId = useRef<string | null>(null)
+  const addedCount = useRef(0)
+
+  if (step.kind === 'picking') {
+    return (
+      <ExercisePicker
+        title={t('picker.addTitle')}
+        onClose={() => (addedCount.current === 0 ? onClose() : setStep({ kind: 'prompt' }))}
+        onPick={(exercise) => setStep({ kind: 'configuring', exercise })}
+      />
+    )
+  }
+
+  if (step.kind === 'configuring') {
+    const exercise = step.exercise
+    return (
+      <PlanExerciseSheet
+        exercise={exercise}
+        onConfirm={(target) => {
+          const created = addExercise(workoutId, { exerciseId: exercise.id, ...target })
+          if (lastAddedId.current) setSupersetLink(workoutId, lastAddedId.current, true)
+          lastAddedId.current = created.id
+          addedCount.current += 1
+        }}
+        onClose={() => setStep({ kind: 'prompt' })}
+      />
+    )
+  }
+
+  return (
+    <Sheet title={t('workout.supersetPromptTitle')} onClose={onClose}>
+      <div className="stack">
+        <p className="hint">{t('workout.supersetPromptBody')}</p>
+        <button type="button" className="btn" onClick={() => setStep({ kind: 'picking' })}>
+          <IconPlus size={18} />
+          {t('workout.addExercise')}
+        </button>
+        <button type="button" className="btn secondary" onClick={onClose}>
+          {t('workout.supersetFinish')}
+        </button>
+      </div>
+    </Sheet>
   )
 }

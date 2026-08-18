@@ -30,6 +30,8 @@ export interface PlanExercise {
   reps: string
   restSec?: number
   note?: string
+  /** Superset : cet exercice s'enchaîne avec le suivant dans la liste, sans repos entre les deux. */
+  linkedToNext?: boolean
 }
 
 /** Un entraînement : une liste nommée d'exercices (ex. "Push"). Rien au-dessus — pas de regroupement en "programme". */
@@ -73,6 +75,8 @@ export interface SessionExercise {
   sets: SetLog[]
   /** Repos entre séries pour cette séance : hérité du programme au lancement, modifiable ensuite. */
   restSec: number
+  /** Hérité du programme : superset avec l'exercice suivant, pas de repos déclenché avant la fin de la série. */
+  linkedToNext?: boolean
 }
 
 export interface Session {

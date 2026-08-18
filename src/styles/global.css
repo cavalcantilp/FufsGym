@@ -1083,6 +1083,26 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+.superset-group {
+  border-top: 1px solid rgba(71, 85, 105, 0.25);
+  border-left: 3px solid var(--accent);
+  background: rgba(239, 68, 68, 0.05);
+  padding-top: 2px;
+}
+
+.superset-group + .plan-exercise-row {
+  border-top: 1px solid rgba(71, 85, 105, 0.25);
+}
+
+.superset-group-label {
+  padding: 8px 16px 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .day-add {
   display: flex;
   align-items: center;
@@ -1102,6 +1122,25 @@ select {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+}
+
+.superset-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.superset-block-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .session-exercise-head {

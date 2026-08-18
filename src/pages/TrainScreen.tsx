@@ -8,6 +8,7 @@ import { exerciseName } from '../lib/exercises'
 import { todayKey, formatDay } from '../lib/date'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { DEFAULT_REST_SEC, MIN_REST_SEC, REST_STEP_SEC, formatRestTime } from '../lib/rest'
+import { groupBySuperset } from '../lib/superset'
 import { round1, sessionSetCount, sessionVolume } from '../lib/stats'
 import type { Session, SessionExercise, Workout } from '../lib/types'
 
@@ -103,10 +104,13 @@ function ExerciseCard({
   session,
   sessionExercise,
   onSetCompleted,
+  triggersRest,
 }: {
   session: Session
   sessionExercise: SessionExercise
   onSetCompleted: (restSec: number) => void
+  /** Faux pour un exercice qui n'est pas le dernier d'un superset : cocher une série y enchaîne directement, sans minuteur. */
+  triggersRest: boolean
 }) {
   const { t, exerciseById, lastPerformance, addSet, updateSet, removeSet, removeSessionExercise, updateSessionExerciseRest } =
     useApp()
@@ -196,7 +200,7 @@ function ExerciseCard({
                   onClick={() => {
                     const next = !set.done
                     updateSet(session.id, sessionExercise.id, set.id, { done: next })
-                    if (next) onSetCompleted(restSec)
+                    if (next && triggersRest) onSetCompleted(restSec)
                   }}
                   aria-label={set.done ? t('train.doneAria') : t('train.notDoneAria')}
                 >
@@ -265,14 +269,30 @@ function ActiveSessionView({ session }: { session: Session }) {
         </div>
       </div>
 
-      {session.exercises.map((sessionExercise) => (
-        <ExerciseCard
-          key={sessionExercise.id}
-          session={session}
-          sessionExercise={sessionExercise}
-          onSetCompleted={handleSetCompleted}
-        />
-      ))}
+      {groupBySuperset(session.exercises).map((group) =>
+        group.length > 1 ? (
+          <div className="superset-block" key={group[0].id}>
+            <div className="superset-block-label">{t('train.supersetLabel', { count: group.length })}</div>
+            {group.map((sessionExercise, index) => (
+              <ExerciseCard
+                key={sessionExercise.id}
+                session={session}
+                sessionExercise={sessionExercise}
+                onSetCompleted={handleSetCompleted}
+                triggersRest={index === group.length - 1}
+              />
+            ))}
+          </div>
+        ) : (
+          <ExerciseCard
+            key={group[0].id}
+            session={session}
+            sessionExercise={group[0]}
+            onSetCompleted={handleSetCompleted}
+            triggersRest
+          />
+        ),
+      )}
 
       <button type="button" className="btn secondary" onClick={() => setPicking(true)}>
         <IconPlus size={18} />
