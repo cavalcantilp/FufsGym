@@ -11,31 +11,78 @@ interface RestTimerProps {
 const RADIUS = 90
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
-/** Deux bips brefs, générés à la volée : aucun asset audio à charger, fonctionne hors-ligne. */
+/**
+ * Deux bips francs, générés à la volée : aucun asset audio à charger, fonctionne
+ * hors-ligne. Chaque bip superpose la fondamentale et une octave au-dessus (plus
+ * de présence qu'une simple sinusoïde) et passe par un compresseur pour pousser
+ * le volume perçu sans écrêter.
+ */
 function playChime() {
   try {
     const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
     const ctx = new Ctx()
-    const tone = (freq: number, start: number, duration: number) => {
+    const compressor = ctx.createDynamicsCompressor()
+    compressor.threshold.setValueAtTime(-12, ctx.currentTime)
+    compressor.ratio.setValueAtTime(8, ctx.currentTime)
+    compressor.connect(ctx.destination)
+
+    const tone = (freq: number, start: number, duration: number, peak: number) => {
       const osc = ctx.createOscillator()
       const gain = ctx.createGain()
       osc.type = 'sine'
       osc.frequency.value = freq
       gain.gain.setValueAtTime(0.0001, ctx.currentTime + start)
-      gain.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + start + 0.02)
+      gain.gain.exponentialRampToValueAtTime(peak, ctx.currentTime + start + 0.015)
       gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + duration)
       osc.connect(gain)
-      gain.connect(ctx.destination)
+      gain.connect(compressor)
       osc.start(ctx.currentTime + start)
       osc.stop(ctx.currentTime + start + duration + 0.05)
     }
-    tone(880, 0, 0.16)
-    tone(880, 0.2, 0.28)
-    setTimeout(() => ctx.close().catch(() => {}), 900)
+    tone(880, 0, 0.22, 0.9)
+    tone(1760, 0, 0.16, 0.35)
+    tone(880, 0.26, 0.32, 0.9)
+    tone(1760, 0.26, 0.22, 0.35)
+    setTimeout(() => ctx.close().catch(() => {}), 1000)
   } catch {
     // Web Audio indisponible : le minuteur reste utilisable sans le son.
   }
   if (navigator.vibrate) navigator.vibrate([120, 60, 120])
+}
+
+/** Empêche l'écran de s'éteindre tant que le repos est en cours ; ré-acquis si l'onglet redevient visible. */
+function useWakeLock() {
+  useEffect(() => {
+    let cancelled = false
+    let sentinel: WakeLockSentinel | null = null
+
+    const acquire = async () => {
+      try {
+        if (!('wakeLock' in navigator)) return
+        const lock = await navigator.wakeLock.request('screen')
+        if (cancelled) {
+          lock.release().catch(() => {})
+        } else {
+          sentinel = lock
+        }
+      } catch {
+        // Refusé (économie d'énergie, hors focus…) : le minuteur reste utilisable sans lui.
+      }
+    }
+
+    acquire()
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !sentinel) acquire()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    return () => {
+      cancelled = true
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      sentinel?.release().catch(() => {})
+    }
+  }, [])
 }
 
 /**
@@ -45,6 +92,7 @@ function playChime() {
  */
 export function RestTimer({ seconds, onClose }: RestTimerProps) {
   const { t } = useApp()
+  useWakeLock()
   const [totalMs, setTotalMs] = useState(() => Math.max(1, seconds) * 1000)
   const [now, setNow] = useState(() => Date.now())
   const startedAt = useRef(Date.now())
