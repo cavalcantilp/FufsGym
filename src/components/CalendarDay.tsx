@@ -59,12 +59,12 @@ export function CalendarDay({
         <span className="day-types">
           {strength ? (
             <span className="day-type-icon strength">
-              <IconDumbbell size={11} />
+              <IconDumbbell size={14} />
             </span>
           ) : null}
           {cardio ? (
             <span className="day-type-icon cardio">
-              <IconHeart size={11} />
+              <IconHeart size={14} />
             </span>
           ) : null}
         </span>
