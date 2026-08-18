@@ -152,6 +152,13 @@ const fr = {
   'progress.emptyAll': 'Terminez votre première séance pour commencer à suivre votre progression.',
   'progress.records': 'Records personnels (1RM estimé)',
 
+  'history.title': 'Historique des séances',
+  'history.subtitle': 'Corriger une séance déjà enregistrée',
+  'history.empty': 'Aucune séance terminée pour le moment.',
+  'history.deleteSession': 'Supprimer cette séance',
+  'history.deleteConfirmTitle': 'Supprimer cette séance ?',
+  'history.deleteConfirmBody': 'Cette séance et toutes ses séries seront définitivement supprimées.',
+
   'chart.notEnough': 'Pas encore assez de données pour tracer une courbe.',
   'chart.range1m': '1 M',
   'chart.range3m': '3 M',
@@ -406,6 +413,13 @@ const pt: Dict = {
   'progress.emptyAll': 'Termine o seu primeiro treino para começar a acompanhar a sua progressão.',
   'progress.records': 'Recordes pessoais (1RM estimado)',
 
+  'history.title': 'Histórico de treinos',
+  'history.subtitle': 'Corrigir um treino já registado',
+  'history.empty': 'Nenhum treino terminado por enquanto.',
+  'history.deleteSession': 'Apagar este treino',
+  'history.deleteConfirmTitle': 'Apagar este treino?',
+  'history.deleteConfirmBody': 'Este treino e todas as suas séries serão definitivamente apagados.',
+
   'chart.notEnough': 'Ainda não há dados suficientes para traçar uma curva.',
   'chart.range1m': '1 M',
   'chart.range3m': '3 M',
@@ -656,6 +670,13 @@ const es: Dict = {
   'progress.oneRmEmpty': 'Todavía no hay suficientes series validadas para este ejercicio.',
   'progress.emptyAll': 'Termina tu primer entrenamiento para empezar a seguir tu progreso.',
   'progress.records': 'Récords personales (1RM estimado)',
+
+  'history.title': 'Historial de entrenamientos',
+  'history.subtitle': 'Corregir un entrenamiento ya registrado',
+  'history.empty': 'Ningún entrenamiento terminado por el momento.',
+  'history.deleteSession': 'Eliminar este entrenamiento',
+  'history.deleteConfirmTitle': '¿Eliminar este entrenamiento?',
+  'history.deleteConfirmBody': 'Este entrenamiento y todas sus series se eliminarán definitivamente.',
 
   'chart.notEnough': 'Todavía no hay suficientes datos para trazar una curva.',
   'chart.range1m': '1 M',
@@ -908,6 +929,13 @@ const en: Dict = {
   'progress.emptyAll': 'Finish your first workout to start tracking your progress.',
   'progress.records': 'Personal records (estimated 1RM)',
 
+  'history.title': 'Workout history',
+  'history.subtitle': 'Correct an already logged workout',
+  'history.empty': 'No finished workout yet.',
+  'history.deleteSession': 'Delete this workout',
+  'history.deleteConfirmTitle': 'Delete this workout?',
+  'history.deleteConfirmBody': 'This workout and all its sets will be permanently deleted.',
+
   'chart.notEnough': 'Not enough data yet to draw a chart.',
   'chart.range1m': '1 M',
   'chart.range3m': '3 M',
@@ -1158,6 +1186,13 @@ const it: Dict = {
   'progress.oneRmEmpty': 'Non ci sono ancora abbastanza serie convalidate per questo esercizio.',
   'progress.emptyAll': 'Termina il tuo primo allenamento per iniziare a monitorare i tuoi progressi.',
   'progress.records': 'Record personali (1RM stimato)',
+
+  'history.title': 'Cronologia allenamenti',
+  'history.subtitle': 'Correggi un allenamento già registrato',
+  'history.empty': 'Nessun allenamento completato per il momento.',
+  'history.deleteSession': 'Elimina questo allenamento',
+  'history.deleteConfirmTitle': 'Eliminare questo allenamento?',
+  'history.deleteConfirmBody': 'Questo allenamento e tutte le sue serie saranno eliminati definitivamente.',
 
   'chart.notEnough': 'Non ci sono ancora abbastanza dati per tracciare una curva.',
   'chart.range1m': '1 M',

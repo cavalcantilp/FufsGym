@@ -1,16 +1,25 @@
 import { useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { LineChart, RANGE_LABEL, RANGE_ORDER, type RangeKey } from '../components/LineChart'
+import { FormPage } from '../components/FormPage'
+import { Sheet } from '../components/Sheet'
+import { ExercisePicker } from '../components/ExercisePicker'
+import { ExerciseCard } from '../components/ExerciseCard'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
-import { formatShort } from '../lib/date'
+import { formatLong, formatShort } from '../lib/date'
+import { groupBySuperset } from '../lib/superset'
+import { IconChevronRight, IconPlus } from '../components/icons'
 import {
   bestEstimate1RM,
   bestWeight,
   oneRepMaxSeries,
   round1,
+  sessionSetCount,
+  sessionVolume,
   trainedExerciseIds,
   volumeSeries,
 } from '../lib/stats'
+import type { Session } from '../lib/types'
 
 function RangePicker({ range, onChange }: { range: RangeKey; onChange: (range: RangeKey) => void }) {
   const { t } = useApp()
@@ -30,9 +39,137 @@ function RangePicker({ range, onChange }: { range: RangeKey; onChange: (range: R
   )
 }
 
+function HistoryScreen({ onBack, onSelect }: { onBack: () => void; onSelect: (sessionId: string) => void }) {
+  const { t, lang, sessions } = useApp()
+
+  const finished = useMemo(
+    () =>
+      sessions
+        .filter((s) => s.finishedAt)
+        .sort((a, b) => b.date.localeCompare(a.date) || (b.finishedAt ?? '').localeCompare(a.finishedAt ?? '')),
+    [sessions],
+  )
+
+  return (
+    <FormPage title={t('history.title')} onBack={onBack}>
+      <div className="stack">
+        {finished.length === 0 ? (
+          <div className="card">
+            <p className="empty">{t('history.empty')}</p>
+          </div>
+        ) : (
+          finished.map((session) => {
+            const volume = round1(sessionVolume(session))
+            const setCount = sessionSetCount(session)
+            return (
+              <button type="button" className="plan-card" key={session.id} onClick={() => onSelect(session.id)}>
+                <div className="plan-card-head">
+                  <span className="name">{session.workoutName ?? t('train.freeSession')}</span>
+                  <span className="value accent" style={{ fontSize: '0.9rem' }}>
+                    {volume} kg
+                  </span>
+                </div>
+                <span className="days-sub">
+                  {formatLong(session.date, lang)} · {setCount} {t('unit.set')}
+                </span>
+              </button>
+            )
+          })
+        )}
+      </div>
+    </FormPage>
+  )
+}
+
+function SessionEditScreen({ session, onBack }: { session: Session; onBack: () => void }) {
+  const { t, lang, addSessionExercise, deleteSession } = useApp()
+  const [picking, setPicking] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  const volume = round1(sessionVolume(session))
+  const setCount = sessionSetCount(session)
+
+  return (
+    <FormPage title={session.workoutName ?? t('train.freeSession')} subtitle={formatLong(session.date, lang)} onBack={onBack}>
+      <div className="stack">
+        <div className="card">
+          <div className="stat-row">
+            <div className="stat">
+              <div className="label">{t('train.exercises')}</div>
+              <div className="value">{session.exercises.length}</div>
+            </div>
+            <div className="stat">
+              <div className="label">{t('train.setsDone')}</div>
+              <div className="value">{setCount}</div>
+            </div>
+            <div className="stat">
+              <div className="label">{t('train.volume')}</div>
+              <div className="value accent">{volume} kg</div>
+            </div>
+          </div>
+        </div>
+
+        {groupBySuperset(session.exercises).map((group) =>
+          group.length > 1 ? (
+            <div className="superset-block" key={group[0].id}>
+              <div className="superset-block-label">{t('train.supersetLabel', { count: group.length })}</div>
+              {group.map((sessionExercise) => (
+                <ExerciseCard key={sessionExercise.id} session={session} sessionExercise={sessionExercise} />
+              ))}
+            </div>
+          ) : (
+            <ExerciseCard key={group[0].id} session={session} sessionExercise={group[0]} />
+          ),
+        )}
+
+        <button type="button" className="btn secondary" onClick={() => setPicking(true)}>
+          <IconPlus size={18} />
+          {t('train.addExercise')}
+        </button>
+
+        <button type="button" className="btn danger" onClick={() => setConfirmDelete(true)}>
+          {t('history.deleteSession')}
+        </button>
+      </div>
+
+      {picking ? (
+        <ExercisePicker
+          title={t('picker.addTitle')}
+          onClose={() => setPicking(false)}
+          onPick={(exercise) => {
+            addSessionExercise(session.id, exercise.id)
+            setPicking(false)
+          }}
+        />
+      ) : null}
+
+      {confirmDelete ? (
+        <Sheet title={t('history.deleteConfirmTitle')} onClose={() => setConfirmDelete(false)}>
+          <div className="stack">
+            <p className="hint">{t('history.deleteConfirmBody')}</p>
+            <button
+              type="button"
+              className="btn danger"
+              onClick={() => {
+                deleteSession(session.id)
+                setConfirmDelete(false)
+                onBack()
+              }}
+            >
+              {t('history.deleteSession')}
+            </button>
+          </div>
+        </Sheet>
+      ) : null}
+    </FormPage>
+  )
+}
+
 export function ProgressionScreen() {
   const { t, lang, sessions, exerciseById } = useApp()
   const [range, setRange] = useState<RangeKey>('3m')
+  const [screen, setScreen] = useState<'main' | 'history'>('main')
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null)
   const trainedIds = useMemo(() => trainedExerciseIds(sessions), [sessions])
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
@@ -59,12 +196,34 @@ export function ProgressionScreen() {
       .sort((a, b) => b.best.value - a.best.value)
   }, [trainedIds, sessions, exerciseById])
 
+  const editingSession = editingSessionId ? sessions.find((s) => s.id === editingSessionId) : undefined
+  if (editingSession) {
+    return <SessionEditScreen session={editingSession} onBack={() => setEditingSessionId(null)} />
+  }
+
+  if (screen === 'history') {
+    return (
+      <HistoryScreen
+        onBack={() => setScreen('main')}
+        onSelect={(sessionId) => setEditingSessionId(sessionId)}
+      />
+    )
+  }
+
   return (
     <div className="screen">
       <div>
         <h2 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{t('progress.title')}</h2>
         <p className="hint" style={{ marginTop: 4 }}>{t('progress.subtitle')}</p>
       </div>
+
+      <button type="button" className="plan-card" onClick={() => setScreen('history')}>
+        <div className="plan-card-head">
+          <span className="name">{t('history.title')}</span>
+          <IconChevronRight size={18} />
+        </div>
+        <span className="days-sub">{t('history.subtitle')}</span>
+      </button>
 
       <RangePicker range={range} onChange={setRange} />
 
