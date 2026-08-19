@@ -21,12 +21,21 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
     useApp()
   const [expanded, setExpanded] = useState(false)
   const info = exerciseById(sessionExercise.exerciseId)
+  const isCardio = info?.muscle === 'cardio'
   const last = useMemo(
     () => lastPerformance(sessionExercise.exerciseId, session.date),
     [lastPerformance, sessionExercise.exerciseId, session.date],
   )
   const restSec = sessionExercise.restSec ?? DEFAULT_REST_SEC
   const doneCount = sessionExercise.sets.filter((set) => set.done).length
+
+  const formatSet = (set: (typeof sessionExercise.sets)[number]) => {
+    if (!isCardio) return `${set.weight}kg×${set.reps}`
+    const parts: string[] = []
+    if (set.durationMin) parts.push(`${set.durationMin} min`)
+    if (set.distanceKm) parts.push(`${set.distanceKm} km`)
+    return parts.join(' · ') || '—'
+  }
 
   return (
     <div className={`session-exercise${expanded ? ' expanded' : ''}`}>
@@ -53,9 +62,7 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
       {expanded ? (
         <>
           <p className="hint" style={{ padding: '10px 16px 0' }}>
-            {last
-              ? t('train.lastTime', { sets: last.map((set) => `${set.weight}kg×${set.reps}`).join(', ') })
-              : t('train.firstTime')}
+            {last ? t('train.lastTime', { sets: last.map(formatSet).join(', ') }) : t('train.firstTime')}
           </p>
 
           <div className="rest-control">
@@ -85,20 +92,41 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
             {sessionExercise.sets.map((set, index) => (
               <div className={`set-row${set.done ? ' done' : ''}`} key={set.id}>
                 <span className="idx">{index + 1}</span>
-                <NumberField
-                  id={`${set.id}-w`}
-                  value={set.weight}
-                  onCommit={(weight) => updateSet(session.id, sessionExercise.id, set.id, { weight })}
-                  placeholder="kg"
-                  inputMode="decimal"
-                />
-                <NumberField
-                  id={`${set.id}-r`}
-                  value={set.reps}
-                  onCommit={(reps) => updateSet(session.id, sessionExercise.id, set.id, { reps })}
-                  placeholder="reps"
-                  inputMode="numeric"
-                />
+                {isCardio ? (
+                  <>
+                    <NumberField
+                      id={`${set.id}-d`}
+                      value={set.durationMin ?? 0}
+                      onCommit={(durationMin) => updateSet(session.id, sessionExercise.id, set.id, { durationMin })}
+                      placeholder="min"
+                      inputMode="decimal"
+                    />
+                    <NumberField
+                      id={`${set.id}-k`}
+                      value={set.distanceKm ?? 0}
+                      onCommit={(distanceKm) => updateSet(session.id, sessionExercise.id, set.id, { distanceKm })}
+                      placeholder="km"
+                      inputMode="decimal"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <NumberField
+                      id={`${set.id}-w`}
+                      value={set.weight}
+                      onCommit={(weight) => updateSet(session.id, sessionExercise.id, set.id, { weight })}
+                      placeholder="kg"
+                      inputMode="decimal"
+                    />
+                    <NumberField
+                      id={`${set.id}-r`}
+                      value={set.reps}
+                      onCommit={(reps) => updateSet(session.id, sessionExercise.id, set.id, { reps })}
+                      placeholder="reps"
+                      inputMode="numeric"
+                    />
+                  </>
+                )}
                 <button
                   type="button"
                   className="done-toggle"

@@ -66,6 +66,9 @@ export interface SetLog {
   id: string
   weight: number
   reps: number
+  /** Pour une série cardio : durée en minutes, distance en km. Non pertinent (et laissés à 0) sur un exercice de force. */
+  durationMin?: number
+  distanceKm?: number
   done: boolean
 }
 
