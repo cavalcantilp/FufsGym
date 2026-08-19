@@ -12,10 +12,8 @@ interface CalendarDayProps {
   selected: boolean
   isToday: boolean
   trained: boolean
-  /** Au moins un exercice hors cardio dans une séance de ce jour-là. */
-  strength: boolean
-  /** Au moins un exercice cardio dans une séance de ce jour-là. */
-  cardio: boolean
+  /** Types entraînés ce jour-là, dans l'ordre chronologique réel (le premier pratiqué en premier). */
+  dayTypes: ('strength' | 'cardio')[]
   /** Lettres des jours de programme planifiés ce jour-là (3 maximum). */
   letters: DayLetter[]
   onSelect: (date: string) => void
@@ -28,8 +26,7 @@ export function CalendarDay({
   selected,
   isToday,
   trained,
-  strength,
-  cardio,
+  dayTypes,
   letters,
   onSelect,
 }: CalendarDayProps) {
@@ -38,6 +35,7 @@ export function CalendarDay({
     outside ? 'outside' : '',
     isToday ? 'today' : '',
     trained ? 'trained' : '',
+    dayTypes.length === 2 ? 'mixed' : '',
     selected ? 'selected' : '',
   ]
     .filter(Boolean)
@@ -55,18 +53,13 @@ export function CalendarDay({
           ))}
         </span>
       ) : null}
-      {strength || cardio ? (
+      {dayTypes.length ? (
         <span className="day-types">
-          {strength ? (
-            <span className="day-type-icon strength">
-              <IconDumbbell size={14} />
+          {dayTypes.map((type) => (
+            <span key={type} className={`day-type-icon ${type}`}>
+              {type === 'strength' ? <IconDumbbell size={14} /> : <IconHeart size={14} />}
             </span>
-          ) : null}
-          {cardio ? (
-            <span className="day-type-icon cardio">
-              <IconHeart size={14} />
-            </span>
-          ) : null}
+          ))}
         </span>
       ) : null}
     </button>

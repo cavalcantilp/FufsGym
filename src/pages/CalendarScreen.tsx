@@ -34,20 +34,25 @@ export function CalendarScreen() {
     return map
   }, [sessions])
 
+  /** Type(s) entraînés par jour, dans l'ordre chronologique réel (séances triées par heure de départ). */
   const dayTypesByDate = useMemo(() => {
-    const map = new Map<string, { strength: boolean; cardio: boolean }>()
-    sessions.forEach((session) => {
-      const current = map.get(session.date) ?? { strength: false, cardio: false }
-      session.exercises.forEach((entry) => {
-        const info = exerciseById(entry.exerciseId)
-        if (!info) return
-        if (info.muscle === 'cardio') current.cardio = true
-        else current.strength = true
-      })
-      map.set(session.date, current)
+    const map = new Map<string, ('strength' | 'cardio')[]>()
+    sessionsByDate.forEach((daySessions, date) => {
+      const sorted = [...daySessions].sort((a, b) => a.startedAt.localeCompare(b.startedAt))
+      const order: ('strength' | 'cardio')[] = []
+      for (const session of sorted) {
+        for (const entry of session.exercises) {
+          const info = exerciseById(entry.exerciseId)
+          if (!info) continue
+          const type = info.muscle === 'cardio' ? 'cardio' : 'strength'
+          if (!order.includes(type)) order.push(type)
+        }
+        if (order.length === 2) break
+      }
+      map.set(date, order)
     })
     return map
-  }, [sessions, exerciseById])
+  }, [sessionsByDate, exerciseById])
 
   const streak = useMemo(() => trainingStreak(sessions, today), [sessions, today])
 
@@ -145,8 +150,7 @@ export function CalendarScreen() {
                 selected={key === opened}
                 isToday={key === today}
                 trained={Boolean(daySessions?.length)}
-                strength={dayTypes?.strength ?? false}
-                cardio={dayTypes?.cardio ?? false}
+                dayTypes={dayTypes ?? []}
                 letters={letters}
                 onSelect={setOpened}
               />

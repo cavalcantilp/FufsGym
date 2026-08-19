@@ -1708,9 +1708,10 @@ select {
 
 .calendar-day .day-types {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 2px;
   width: 100%;
 }
 
@@ -1728,6 +1729,11 @@ select {
 
 .calendar-day.trained {
   background: rgba(239, 68, 68, 0.14);
+}
+
+/* Force + cardio le même jour : le rectangle bascule au vert plutôt qu'au rouge habituel. */
+.calendar-day.trained.mixed {
+  background: rgba(52, 211, 153, 0.2);
 }
 
 .calendar-day.selected {
