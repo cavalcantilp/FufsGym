@@ -1,3 +1,4 @@
+import { daysBetween } from './date'
 import type { Exercise, Session, SetLog } from './types'
 
 /** Arrondi à une décimale : évite les 62.500000000001 issus des calculs flottants. */
@@ -138,6 +139,20 @@ export function trainingStreak(sessions: Session[], today: string): number {
     cursor = shiftDayLocal(cursor, -1)
   }
   return streak
+}
+
+/** Plus longue série de jours d'entraînement consécutifs jamais atteinte. */
+export function longestTrainingStreak(sessions: Session[]): number {
+  const trainedDays = Array.from(new Set(sessions.filter((session) => session.finishedAt).map((session) => session.date))).sort()
+  let best = 0
+  let current = 0
+  let prevDay: string | null = null
+  for (const day of trainedDays) {
+    current = prevDay && daysBetween(prevDay, day) === 1 ? current + 1 : 1
+    best = Math.max(best, current)
+    prevDay = day
+  }
+  return best
 }
 
 function shiftDayLocal(key: string, days: number): string {

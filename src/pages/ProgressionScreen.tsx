@@ -6,18 +6,20 @@ import { Sheet } from '../components/Sheet'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { ExerciseCard } from '../components/ExerciseCard'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
-import { formatLong, formatShort } from '../lib/date'
+import { formatLong, formatShort, todayKey } from '../lib/date'
 import { groupBySuperset } from '../lib/superset'
-import { IconCheck, IconChevronRight, IconDumbbell, IconHeart, IconPlus } from '../components/icons'
+import { IconCheck, IconChevronRight, IconDumbbell, IconFlame, IconHeart, IconPlus } from '../components/icons'
 import {
   bestEstimate1RM,
   bestWeight,
+  longestTrainingStreak,
   oneRepMaxSeries,
   round1,
   sessionSetCount,
   sessionTypes,
   sessionVolume,
   trainedExerciseIds,
+  trainingStreak,
   volumeSeries,
 } from '../lib/stats'
 import type { Session } from '../lib/types'
@@ -219,6 +221,9 @@ export function ProgressionScreen() {
   const activeExerciseId = selectedId ?? trainedIds[0] ?? null
   const activeExercise = activeExerciseId ? exerciseById(activeExerciseId) : undefined
 
+  const streak = useMemo(() => trainingStreak(sessions, todayKey()), [sessions])
+  const bestStreak = useMemo(() => longestTrainingStreak(sessions), [sessions])
+
   const volumePoints = useMemo(() => volumeSeries(sessions), [sessions])
   const oneRmPoints = useMemo(
     () => (activeExerciseId ? oneRepMaxSeries(sessions, activeExerciseId) : []),
@@ -267,6 +272,25 @@ export function ProgressionScreen() {
         </div>
         <span className="days-sub">{t('history.subtitle')}</span>
       </button>
+
+      <div className="card">
+        <div className="card-title">{t('progress.streakTitle')}</div>
+        <div className="stat-row">
+          <div className="stat">
+            <div className="label">{t('progress.streakCurrent')}</div>
+            <div className="value accent" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <IconFlame size={16} />
+              {streak} {t('unit.day')}
+            </div>
+          </div>
+          <div className="stat">
+            <div className="label">{t('progress.streakBest')}</div>
+            <div className="value">
+              {bestStreak} {t('unit.day')}
+            </div>
+          </div>
+        </div>
+      </div>
 
       <RangePicker range={range} onChange={setRange} />
 

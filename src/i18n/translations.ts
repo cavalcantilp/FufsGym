@@ -51,6 +51,7 @@ const fr = {
 
   'unit.exercise': 'exercice(s)',
   'unit.set': 'série(s)',
+  'unit.day': 'jour(s)',
 
   'picker.addTitle': 'Ajouter un exercice',
   'picker.search': 'Rechercher un exercice…',
@@ -150,6 +151,9 @@ const fr = {
 
   'progress.title': 'Progression',
   'progress.subtitle': 'Charge totale et estimation du 1RM au fil des séances.',
+  'progress.streakTitle': "Série d'entraînement",
+  'progress.streakCurrent': 'Série actuelle',
+  'progress.streakBest': 'Record',
   'progress.volumeTitle': 'Volume total soulevé',
   'progress.volumeEmpty': 'Terminez une séance pour voir apparaître votre volume ici.',
   'progress.oneRmTitle': '1RM estimé par exercice',
@@ -324,6 +328,7 @@ const pt: Dict = {
 
   'unit.exercise': 'exercício(s)',
   'unit.set': 'série(s)',
+  'unit.day': 'dia(s)',
 
   'picker.addTitle': 'Adicionar um exercício',
   'picker.search': 'Pesquisar um exercício…',
@@ -423,6 +428,9 @@ const pt: Dict = {
 
   'progress.title': 'Progresso',
   'progress.subtitle': 'Carga total e estimativa do 1RM ao longo dos treinos.',
+  'progress.streakTitle': 'Sequência de treinos',
+  'progress.streakCurrent': 'Sequência atual',
+  'progress.streakBest': 'Recorde',
   'progress.volumeTitle': 'Volume total levantado',
   'progress.volumeEmpty': 'Termine um treino para ver o seu volume aparecer aqui.',
   'progress.oneRmTitle': '1RM estimado por exercício',
@@ -594,6 +602,7 @@ const es: Dict = {
 
   'unit.exercise': 'ejercicio(s)',
   'unit.set': 'serie(s)',
+  'unit.day': 'día(s)',
 
   'picker.addTitle': 'Añadir un ejercicio',
   'picker.search': 'Buscar un ejercicio…',
@@ -693,6 +702,9 @@ const es: Dict = {
 
   'progress.title': 'Progreso',
   'progress.subtitle': 'Carga total y estimación del 1RM a lo largo de los entrenamientos.',
+  'progress.streakTitle': 'Racha de entrenamiento',
+  'progress.streakCurrent': 'Racha actual',
+  'progress.streakBest': 'Récord',
   'progress.volumeTitle': 'Volumen total levantado',
   'progress.volumeEmpty': 'Termina un entrenamiento para ver tu volumen aparecer aquí.',
   'progress.oneRmTitle': '1RM estimado por ejercicio',
@@ -864,6 +876,7 @@ const en: Dict = {
 
   'unit.exercise': 'exercise(s)',
   'unit.set': 'set(s)',
+  'unit.day': 'day(s)',
 
   'picker.addTitle': 'Add an exercise',
   'picker.search': 'Search for an exercise…',
@@ -963,6 +976,9 @@ const en: Dict = {
 
   'progress.title': 'Progress',
   'progress.subtitle': 'Total load and estimated 1RM across your workouts.',
+  'progress.streakTitle': 'Training streak',
+  'progress.streakCurrent': 'Current streak',
+  'progress.streakBest': 'Record',
   'progress.volumeTitle': 'Total volume lifted',
   'progress.volumeEmpty': 'Finish a workout to see your volume appear here.',
   'progress.oneRmTitle': 'Estimated 1RM by exercise',
@@ -1134,6 +1150,7 @@ const it: Dict = {
 
   'unit.exercise': 'esercizio/i',
   'unit.set': 'serie',
+  'unit.day': 'giorno/i',
 
   'picker.addTitle': 'Aggiungi un esercizio',
   'picker.search': 'Cerca un esercizio…',
@@ -1233,6 +1250,9 @@ const it: Dict = {
 
   'progress.title': 'Progressi',
   'progress.subtitle': 'Carico totale e stima del 1RM nel corso degli allenamenti.',
+  'progress.streakTitle': 'Serie di allenamento',
+  'progress.streakCurrent': 'Serie attuale',
+  'progress.streakBest': 'Record',
   'progress.volumeTitle': 'Volume totale sollevato',
   'progress.volumeEmpty': 'Termina un allenamento per vedere qui il tuo volume.',
   'progress.oneRmTitle': '1RM stimato per esercizio',
