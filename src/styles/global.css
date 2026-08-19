@@ -526,21 +526,6 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
-.chart-delta {
-  font-size: 0.85rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-sub);
-}
-
-.chart-delta.down {
-  color: var(--negative);
-}
-
-.chart-delta.up {
-  color: var(--positive);
-}
-
 .chart-date {
   width: 100%;
   font-size: 0.75rem;
@@ -1725,6 +1710,13 @@ select {
 
 .day-type-icon.cardio {
   color: var(--type-cardio);
+}
+
+.session-type-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .calendar-day.trained {

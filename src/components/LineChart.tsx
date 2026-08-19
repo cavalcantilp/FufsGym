@@ -15,8 +15,8 @@ interface LineChartProps {
   unit: string
   color: string
   range: RangeKey
-  /** Sens souhaitable de la variation : une hausse de charge est positive, contrairement à un poids. */
-  positiveDirection?: 'up' | 'down'
+  /** 'sum' additionne les points de la période (ex. volume total) ; 'last' affiche la dernière valeur connue. */
+  aggregate?: 'last' | 'sum'
 }
 
 export type RangeKey = '1w' | '1m' | '3m' | '6m' | '1a' | 'all'
@@ -37,7 +37,7 @@ const HEIGHT = 180
 const PAD = { top: 14, right: 34, bottom: 20, left: 8 }
 
 /** Courbe valeur/temps — 1RM estimé, volume — avec un en-tête façon suivi boursier. */
-export function LineChart({ points: allPoints, unit, color, range, positiveDirection = 'up' }: LineChartProps) {
+export function LineChart({ points: allPoints, unit, color, range, aggregate = 'last' }: LineChartProps) {
   const { t, lang } = useApp()
   const [active, setActive] = useState<number | null>(null)
   const gradientId = useId()
@@ -49,12 +49,8 @@ export function LineChart({ points: allPoints, unit, color, range, positiveDirec
   }, [allPoints, range])
 
   const last = allPoints.length ? allPoints[allPoints.length - 1] : null
-  const first = entries.length ? entries[0] : null
-  const delta = last && first && entries.length > 1 ? round1(last.value - first.value) : null
-  const goodDelta = delta !== null && (positiveDirection === 'up' ? delta > 0 : delta < 0)
-  const badDelta = delta !== null && delta !== 0 && !goodDelta
-  const trendClass = delta === null || delta === 0 ? '' : goodDelta ? ' down' : badDelta ? ' up' : ''
-  const trendArrow = delta === null || delta === 0 ? '' : delta > 0 ? '▲' : '▼'
+  const headValue =
+    aggregate === 'sum' ? round1(entries.reduce((sum, point) => sum + point.value, 0)) : last?.value ?? 0
 
   const model = useMemo(() => {
     if (entries.length < 2) return null
@@ -106,15 +102,13 @@ export function LineChart({ points: allPoints, unit, color, range, positiveDirec
     <div className="line-chart">
       <div className="chart-head">
         <div className="chart-value">
-          {last.value} {unit}
+          {headValue} {unit}
         </div>
-        {delta !== null ? (
-          <div className={`chart-delta${trendClass}`}>
-            {delta > 0 ? '+' : ''}
-            {delta} {unit} {trendArrow}
-          </div>
-        ) : null}
-        <div className="chart-date">{formatDay(last.date, lang)}</div>
+        <div className="chart-date">
+          {aggregate === 'sum' && entries.length > 1
+            ? `${formatShort(entries[0].date, lang)} – ${formatShort(entries[entries.length - 1].date, lang)}`
+            : formatDay(last.date, lang)}
+        </div>
       </div>
 
       {model && lastPoint ? (
@@ -123,8 +117,10 @@ export function LineChart({ points: allPoints, unit, color, range, positiveDirec
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           role="img"
           aria-label={`${entries[0].value} ${unit} → ${entries[entries.length - 1].value} ${unit}`}
-          onPointerMove={(event) => setActive(nearest(event.clientX, event.currentTarget))}
-          onPointerLeave={() => setActive(null)}
+          onClick={(event) => {
+            const index = nearest(event.clientX, event.currentTarget)
+            setActive((current) => (current === index ? null : index))
+          }}
         >
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -171,17 +167,43 @@ export function LineChart({ points: allPoints, unit, color, range, positiveDirec
 
           <circle cx={lastPoint.x} cy={lastPoint.y} r="4.5" fill={color} stroke="var(--card-bg)" strokeWidth="2" />
 
-          {focused && focused !== lastPoint ? (
+          {focused ? (
             <>
-              <line
-                x1={focused.x}
-                x2={focused.x}
-                y1={PAD.top}
-                y2={HEIGHT - PAD.bottom}
-                stroke="rgba(148, 163, 184, 0.35)"
-                strokeWidth="1"
-              />
-              <circle cx={focused.x} cy={focused.y} r="4.5" fill={color} stroke="var(--card-bg)" strokeWidth="2" />
+              {focused !== lastPoint ? (
+                <>
+                  <line
+                    x1={focused.x}
+                    x2={focused.x}
+                    y1={PAD.top}
+                    y2={HEIGHT - PAD.bottom}
+                    stroke="rgba(148, 163, 184, 0.35)"
+                    strokeWidth="1"
+                  />
+                  <circle cx={focused.x} cy={focused.y} r="4.5" fill={color} stroke="var(--card-bg)" strokeWidth="2" />
+                </>
+              ) : null}
+              {(() => {
+                const label = `${focused.entry.value} ${unit}`
+                const boxW = Math.max(46, label.length * 5.6 + 14)
+                const boxH = 20
+                const boxX = Math.min(Math.max(focused.x - boxW / 2, PAD.left), WIDTH - PAD.right - boxW)
+                const boxY = Math.max(focused.y - boxH - 10, PAD.top)
+                return (
+                  <g>
+                    <rect x={boxX} y={boxY} width={boxW} height={boxH} rx="6" fill="var(--card-bg)" stroke={color} strokeWidth="1.2" />
+                    <text
+                      x={boxX + boxW / 2}
+                      y={boxY + boxH / 2 + 3.5}
+                      textAnchor="middle"
+                      fill="var(--text-main)"
+                      fontSize="10"
+                      fontWeight="700"
+                    >
+                      {label}
+                    </text>
+                  </g>
+                )
+              })()}
             </>
           ) : null}
 

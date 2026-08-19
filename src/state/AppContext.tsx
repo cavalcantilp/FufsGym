@@ -74,6 +74,7 @@ interface AppState {
   updateSessionExerciseRest: (sessionId: string, sessionExerciseId: string, restSec: number) => void
   finishSession: (sessionId: string) => void
   deleteSession: (sessionId: string) => void
+  renameSession: (sessionId: string, name: string) => void
   lastPerformance: (exerciseId: string, beforeDate: string) => SetLog[] | null
 
   resetAll: () => void
@@ -362,6 +363,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSessions((current) => current.filter((s) => s.id !== sessionId))
   }, [])
 
+  const renameSession = useCallback((sessionId: string, name: string) => {
+    setSessions((current) => current.map((s) => (s.id === sessionId ? { ...s, workoutName: name } : s)))
+  }, [])
+
   /** Dernières séries validées pour un exercice, avant une date donnée : la référence "dernière fois". */
   const lastPerformance = useCallback(
     (exerciseId: string, beforeDate: string) => {
@@ -430,6 +435,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateSessionExerciseRest,
       finishSession,
       deleteSession,
+      renameSession,
       lastPerformance,
       resetAll,
     }),
@@ -468,6 +474,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateSessionExerciseRest,
       finishSession,
       deleteSession,
+      renameSession,
       lastPerformance,
       resetAll,
     ],

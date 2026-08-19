@@ -1,4 +1,4 @@
-import type { Session, SetLog } from './types'
+import type { Exercise, Session, SetLog } from './types'
 
 /** Arrondi à une décimale : évite les 62.500000000001 issus des calculs flottants. */
 export function round1(n: number): number {
@@ -27,6 +27,21 @@ export function sessionVolume(session: Session): number {
       sum + exercise.sets.filter((set) => set.done).reduce((s, set) => s + setVolume(set), 0),
     0,
   )
+}
+
+/** Type(s) pratiqués dans une séance (force et/ou cardio), dans l'ordre des exercices ajoutés. */
+export function sessionTypes(
+  session: Session,
+  exerciseById: (id: string) => Exercise | undefined,
+): ('strength' | 'cardio')[] {
+  const order: ('strength' | 'cardio')[] = []
+  for (const entry of session.exercises) {
+    const info = exerciseById(entry.exerciseId)
+    if (!info) continue
+    const type = info.muscle === 'cardio' ? 'cardio' : 'strength'
+    if (!order.includes(type)) order.push(type)
+  }
+  return order
 }
 
 /** Nombre de séries validées dans une séance. */

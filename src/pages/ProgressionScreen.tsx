@@ -8,13 +8,14 @@ import { ExerciseCard } from '../components/ExerciseCard'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
 import { formatLong, formatShort } from '../lib/date'
 import { groupBySuperset } from '../lib/superset'
-import { IconChevronRight, IconPlus } from '../components/icons'
+import { IconCheck, IconChevronRight, IconDumbbell, IconHeart, IconPlus } from '../components/icons'
 import {
   bestEstimate1RM,
   bestWeight,
   oneRepMaxSeries,
   round1,
   sessionSetCount,
+  sessionTypes,
   sessionVolume,
   trainedExerciseIds,
   volumeSeries,
@@ -40,7 +41,7 @@ function RangePicker({ range, onChange }: { range: RangeKey; onChange: (range: R
 }
 
 function HistoryScreen({ onBack, onSelect }: { onBack: () => void; onSelect: (sessionId: string) => void }) {
-  const { t, lang, sessions } = useApp()
+  const { t, lang, sessions, exerciseById } = useApp()
 
   const finished = useMemo(
     () =>
@@ -61,10 +62,22 @@ function HistoryScreen({ onBack, onSelect }: { onBack: () => void; onSelect: (se
           finished.map((session) => {
             const volume = round1(sessionVolume(session))
             const setCount = sessionSetCount(session)
+            const types = sessionTypes(session, exerciseById)
             return (
               <button type="button" className="plan-card" key={session.id} onClick={() => onSelect(session.id)}>
                 <div className="plan-card-head">
-                  <span className="name">{session.workoutName ?? t('train.freeSession')}</span>
+                  <span className="name" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {types.length ? (
+                      <span className="session-type-icons">
+                        {types.map((type) => (
+                          <span key={type} className={`day-type-icon ${type}`}>
+                            {type === 'strength' ? <IconDumbbell size={14} /> : <IconHeart size={14} />}
+                          </span>
+                        ))}
+                      </span>
+                    ) : null}
+                    {session.workoutName ?? t('train.freeSession')}
+                  </span>
                   <span className="value accent" style={{ fontSize: '0.9rem' }}>
                     {volume} kg
                   </span>
@@ -82,15 +95,45 @@ function HistoryScreen({ onBack, onSelect }: { onBack: () => void; onSelect: (se
 }
 
 function SessionEditScreen({ session, onBack }: { session: Session; onBack: () => void }) {
-  const { t, lang, addSessionExercise, deleteSession } = useApp()
+  const { t, lang, addSessionExercise, deleteSession, renameSession } = useApp()
   const [picking, setPicking] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const currentName = session.workoutName ?? t('train.freeSession')
+  const [nameDraft, setNameDraft] = useState(currentName)
 
   const volume = round1(sessionVolume(session))
   const setCount = sessionSetCount(session)
 
+  const trimmedDraft = nameDraft.trim()
+  const nameDirty = trimmedDraft !== '' && trimmedDraft !== currentName
+
+  const saveName = () => {
+    if (!trimmedDraft) return
+    renameSession(session.id, trimmedDraft)
+  }
+
+  const nameField = (
+    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <input
+        type="text"
+        className="plan-name-input"
+        value={nameDraft}
+        aria-label={t('history.sessionNameLabel')}
+        onChange={(event) => setNameDraft(event.target.value)}
+        onBlur={() => {
+          if (!nameDraft.trim()) setNameDraft(currentName)
+        }}
+      />
+      {nameDirty ? (
+        <button type="button" className="name-save-btn" onClick={saveName} aria-label={t('history.saveName')}>
+          <IconCheck size={16} />
+        </button>
+      ) : null}
+    </span>
+  )
+
   return (
-    <FormPage title={session.workoutName ?? t('train.freeSession')} subtitle={formatLong(session.date, lang)} onBack={onBack}>
+    <FormPage title={nameField} backLabel={currentName} subtitle={formatLong(session.date, lang)} onBack={onBack}>
       <div className="stack">
         <div className="card">
           <div className="stat-row">
@@ -230,7 +273,7 @@ export function ProgressionScreen() {
       <div className="card">
         <div className="card-title">{t('progress.volumeTitle')}</div>
         {volumePoints.length ? (
-          <LineChart points={volumePoints} unit="kg" color="var(--accent)" range={range} />
+          <LineChart points={volumePoints} unit="kg" color="var(--accent)" range={range} aggregate="sum" />
         ) : (
           <p className="hint">{t('progress.volumeEmpty')}</p>
         )}

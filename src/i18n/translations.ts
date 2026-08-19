@@ -166,6 +166,8 @@ const fr = {
   'history.deleteSession': 'Supprimer cette séance',
   'history.deleteConfirmTitle': 'Supprimer cette séance ?',
   'history.deleteConfirmBody': 'Cette séance et toutes ses séries seront définitivement supprimées.',
+  'history.sessionNameLabel': 'Nom de la séance',
+  'history.saveName': 'Enregistrer le nom',
 
   'chart.notEnough': 'Pas encore assez de données pour tracer une courbe.',
   'chart.range1w': '1 S',
@@ -437,6 +439,8 @@ const pt: Dict = {
   'history.deleteSession': 'Apagar este treino',
   'history.deleteConfirmTitle': 'Apagar este treino?',
   'history.deleteConfirmBody': 'Este treino e todas as suas séries serão definitivamente apagados.',
+  'history.sessionNameLabel': 'Nome do treino',
+  'history.saveName': 'Guardar o nome',
 
   'chart.notEnough': 'Ainda não há dados suficientes para traçar uma curva.',
   'chart.range1w': '1 S',
@@ -705,6 +709,8 @@ const es: Dict = {
   'history.deleteSession': 'Eliminar este entrenamiento',
   'history.deleteConfirmTitle': '¿Eliminar este entrenamiento?',
   'history.deleteConfirmBody': 'Este entrenamiento y todas sus series se eliminarán definitivamente.',
+  'history.sessionNameLabel': 'Nombre del entrenamiento',
+  'history.saveName': 'Guardar el nombre',
 
   'chart.notEnough': 'Todavía no hay suficientes datos para trazar una curva.',
   'chart.range1w': '1 S',
@@ -973,6 +979,8 @@ const en: Dict = {
   'history.deleteSession': 'Delete this workout',
   'history.deleteConfirmTitle': 'Delete this workout?',
   'history.deleteConfirmBody': 'This workout and all its sets will be permanently deleted.',
+  'history.sessionNameLabel': 'Workout name',
+  'history.saveName': 'Save name',
 
   'chart.notEnough': 'Not enough data yet to draw a chart.',
   'chart.range1w': '1 W',
@@ -1241,6 +1249,8 @@ const it: Dict = {
   'history.deleteSession': 'Elimina questo allenamento',
   'history.deleteConfirmTitle': 'Eliminare questo allenamento?',
   'history.deleteConfirmBody': 'Questo allenamento e tutte le sue serie saranno eliminati definitivamente.',
+  'history.sessionNameLabel': "Nome dell'allenamento",
+  'history.saveName': 'Salva il nome',
 
   'chart.notEnough': 'Non ci sono ancora abbastanza dati per tracciare una curva.',
   'chart.range1w': '1 S',
