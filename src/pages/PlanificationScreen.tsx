@@ -8,7 +8,7 @@ import { ScheduleScreen } from './ScheduleScreen'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
 import { DEFAULT_REST_SEC, formatRestTime } from '../lib/rest'
 import { groupBySuperset } from '../lib/superset'
-import { IconCalendarCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
+import { IconCalendarCheck, IconCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
 import type { Exercise, PlanExercise, Workout } from '../lib/types'
 
 interface EditingEntry {
@@ -32,20 +32,35 @@ function WorkoutDetail({
   const [pendingPick, setPendingPick] = useState<Exercise | null>(null)
   const [editingEntry, setEditingEntry] = useState<EditingEntry | null>(null)
   const [addingSuperset, setAddingSuperset] = useState(false)
+  const [nameDraft, setNameDraft] = useState(workout.name)
 
   const hasSchedule = Boolean(scheduleForWorkout(workout.id))
+  const trimmedDraft = nameDraft.trim()
+  const nameDirty = trimmedDraft !== '' && trimmedDraft !== workout.name
+
+  const saveName = () => {
+    if (!trimmedDraft) return
+    renameWorkout(workout.id, trimmedDraft)
+  }
 
   const nameField = (
-    <input
-      type="text"
-      className="plan-name-input"
-      value={workout.name}
-      aria-label={t('workout.newName')}
-      onChange={(event) => renameWorkout(workout.id, event.target.value)}
-      onBlur={(event) => {
-        if (!event.target.value.trim()) renameWorkout(workout.id, t('workout.new'))
-      }}
-    />
+    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <input
+        type="text"
+        className="plan-name-input"
+        value={nameDraft}
+        aria-label={t('workout.newName')}
+        onChange={(event) => setNameDraft(event.target.value)}
+        onBlur={() => {
+          if (!nameDraft.trim()) setNameDraft(workout.name)
+        }}
+      />
+      {nameDirty ? (
+        <button type="button" className="name-save-btn" onClick={saveName} aria-label={t('workout.saveName')}>
+          <IconCheck size={16} />
+        </button>
+      ) : null}
+    </span>
   )
 
   return (

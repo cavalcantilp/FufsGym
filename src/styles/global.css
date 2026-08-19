@@ -800,6 +800,23 @@ select {
   box-shadow: none;
 }
 
+.name-save-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--positive);
+  color: #04231a;
+  flex: none;
+  transition: transform 0.1s ease;
+  animation: fade 0.15s ease;
+}
+
+.name-save-btn:active {
+  transform: scale(0.9);
+}
+
 @keyframes rise {
   from {
     transform: translateY(24px);
