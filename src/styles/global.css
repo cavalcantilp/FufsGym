@@ -1249,6 +1249,10 @@ select {
   padding: 10px 16px;
 }
 
+.set-row.hold {
+  grid-template-columns: 22px 1fr 34px 38px 28px;
+}
+
 .set-row + .set-row {
   border-top: 1px solid rgba(71, 85, 105, 0.25);
 }
@@ -1416,6 +1420,47 @@ select {
   font-weight: 700;
   color: var(--text-sub);
   padding: 8px;
+}
+
+/* ---------- Chronomètre de maintien (planche…) ---------- */
+
+.hold-timer-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.hold-timer-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: hold-timer-pulse 1.4s ease-in-out infinite;
+}
+
+.hold-timer-digits {
+  font-size: 3.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-main);
+}
+
+.hold-timer-stop {
+  width: auto;
+  padding: 14px 40px;
+}
+
+@keyframes hold-timer-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
 }
 
 /* ---------- Compteur pas à pas (repos entre séries) ---------- */

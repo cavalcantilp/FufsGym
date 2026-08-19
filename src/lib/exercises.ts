@@ -29,8 +29,19 @@ export function exerciseName(exercise: Exercise, t: TFn): string {
   return t(`exercise.${exercise.id}` as TranslationKey)
 }
 
-function ex(id: string, name: string, muscle: MuscleGroup, equipment?: Equipment): Exercise {
-  return { id, name, muscle, equipment }
+/** Cardio ou maintien isométrique : chronométré, sans notion de séries × répétitions ni de charge. */
+export function isDurationBased(exercise: Exercise): boolean {
+  return exercise.muscle === 'cardio' || exercise.trackingType === 'duration'
+}
+
+function ex(
+  id: string,
+  name: string,
+  muscle: MuscleGroup,
+  equipment?: Equipment,
+  trackingType?: Exercise['trackingType'],
+): Exercise {
+  return { id, name, muscle, equipment, trackingType }
 }
 
 /**
@@ -99,7 +110,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
 
   // Abdominaux
   ex('core-crunch', 'Crunch', 'core', 'bodyweight'),
-  ex('core-plank', 'Planche', 'core', 'bodyweight'),
+  ex('core-plank', 'Planche', 'core', 'bodyweight', 'duration'),
   ex('core-leg-raise', 'Relevé de jambes', 'core', 'bodyweight'),
   ex('core-russian-twist', 'Russian twist', 'core', 'bodyweight'),
   ex('core-ab-wheel', 'Roue abdominale', 'core', 'wheel'),

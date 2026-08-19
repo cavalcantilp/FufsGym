@@ -371,7 +371,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       for (const session of candidates) {
         const match = session.exercises.find((e) => e.exerciseId === exerciseId)
         const done = match?.sets.filter(
-          (set) => set.done && (set.weight > 0 || (set.durationMin ?? 0) > 0 || (set.distanceKm ?? 0) > 0),
+          (set) =>
+            set.done &&
+            (set.weight > 0 || (set.durationMin ?? 0) > 0 || (set.distanceKm ?? 0) > 0 || (set.durationSec ?? 0) > 0),
         )
         if (done && done.length) return done
       }

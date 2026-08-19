@@ -13,17 +13,26 @@ interface PlanExerciseSheetProps {
   onClose: () => void
 }
 
-/** Objectif d'un exercice au sein d'un jour de programme : séries + répétitions, ou durée pour le cardio ; repos, note. */
+/**
+ * Objectif d'un exercice au sein d'un jour de programme. Trois formes : séries
+ * + répétitions (force), une seule durée sans notion de séries (cardio), ou
+ * séries + durée de maintien cible (planche, gainage…).
+ */
 export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: PlanExerciseSheetProps) {
   const { t } = useApp()
   const isCardio = exercise.muscle === 'cardio'
+  const isHold = exercise.trackingType === 'duration' && !isCardio
   const [sets, setSets] = useState(initial?.sets ?? 3)
-  const [reps, setReps] = useState(initial?.reps ?? (isCardio ? '' : t('planEx.repsPlaceholder')))
+  const [reps, setReps] = useState(initial?.reps ?? (isCardio ? '' : isHold ? '' : t('planEx.repsPlaceholder')))
   const [restSec, setRestSec] = useState(initial?.restSec ?? DEFAULT_REST_SEC)
   const [note, setNote] = useState(initial?.note ?? '')
 
   const submit = () => {
-    const fallbackReps = isCardio ? t('planEx.durationPlaceholder') : t('planEx.repsPlaceholder')
+    const fallbackReps = isHold
+      ? t('planEx.holdDurationPlaceholder')
+      : isCardio
+        ? t('planEx.durationPlaceholder')
+        : t('planEx.repsPlaceholder')
     onConfirm({
       sets: isCardio ? 1 : sets,
       reps: reps.trim() || fallbackReps,
@@ -33,19 +42,29 @@ export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: Pla
     onClose()
   }
 
+  const durationPlaceholder = isHold ? t('planEx.holdDurationPlaceholder') : t('planEx.durationPlaceholder')
+  const durationField = (
+    <div className="field">
+      <label htmlFor="plan-ex-reps">{t('planEx.duration')}</label>
+      <input
+        id="plan-ex-reps"
+        type="text"
+        value={reps}
+        onChange={(event) => setReps(event.target.value)}
+        placeholder={durationPlaceholder}
+      />
+    </div>
+  )
+
   return (
     <Sheet title={exerciseName(exercise, t)} subtitle={t('planEx.subtitle')} onClose={onClose}>
       <div className="stack">
         {isCardio ? (
-          <div className="field">
-            <label htmlFor="plan-ex-reps">{t('planEx.duration')}</label>
-            <input
-              id="plan-ex-reps"
-              type="text"
-              value={reps}
-              onChange={(event) => setReps(event.target.value)}
-              placeholder={t('planEx.durationPlaceholder')}
-            />
+          durationField
+        ) : isHold ? (
+          <div className="grid-2">
+            <NumberField id="plan-ex-sets" label={t('planEx.sets')} value={sets} onCommit={setSets} min={1} max={20} />
+            {durationField}
           </div>
         ) : (
           <div className="grid-2">

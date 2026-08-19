@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { IconClose, IconPlus } from './icons'
 import { REST_STEP_SEC } from '../lib/rest'
+import { useWakeLock } from '../hooks/useWakeLock'
 
 interface RestTimerProps {
   seconds: number
@@ -48,41 +49,6 @@ function playChime() {
     // Web Audio indisponible : le minuteur reste utilisable sans le son.
   }
   if (navigator.vibrate) navigator.vibrate([120, 60, 120])
-}
-
-/** Empêche l'écran de s'éteindre tant que le repos est en cours ; ré-acquis si l'onglet redevient visible. */
-function useWakeLock() {
-  useEffect(() => {
-    let cancelled = false
-    let sentinel: WakeLockSentinel | null = null
-
-    const acquire = async () => {
-      try {
-        if (!('wakeLock' in navigator)) return
-        const lock = await navigator.wakeLock.request('screen')
-        if (cancelled) {
-          lock.release().catch(() => {})
-        } else {
-          sentinel = lock
-        }
-      } catch {
-        // Refusé (économie d'énergie, hors focus…) : le minuteur reste utilisable sans lui.
-      }
-    }
-
-    acquire()
-
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && !sentinel) acquire()
-    }
-    document.addEventListener('visibilitychange', onVisibilityChange)
-
-    return () => {
-      cancelled = true
-      document.removeEventListener('visibilitychange', onVisibilityChange)
-      sentinel?.release().catch(() => {})
-    }
-  }, [])
 }
 
 /**

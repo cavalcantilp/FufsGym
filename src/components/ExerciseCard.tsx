@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { NumberField } from './NumberField'
-import { IconCheck, IconChevronDown, IconPlus, IconTrash } from './icons'
-import { exerciseName } from '../lib/exercises'
+import { HoldTimer } from './HoldTimer'
+import { IconCheck, IconChevronDown, IconPlay, IconPlus, IconTrash } from './icons'
+import { exerciseName, isDurationBased } from '../lib/exercises'
 import { DEFAULT_REST_SEC, MIN_REST_SEC, REST_STEP_SEC, formatRestTime } from '../lib/rest'
 import type { Session, SessionExercise } from '../lib/types'
 
@@ -20,8 +21,10 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
   const { t, exerciseById, lastPerformance, addSet, updateSet, removeSet, removeSessionExercise, updateSessionExerciseRest } =
     useApp()
   const [expanded, setExpanded] = useState(false)
+  const [timingSetId, setTimingSetId] = useState<string | null>(null)
   const info = exerciseById(sessionExercise.exerciseId)
   const isCardio = info?.muscle === 'cardio'
+  const isHold = Boolean(info && isDurationBased(info) && !isCardio)
   const last = useMemo(
     () => lastPerformance(sessionExercise.exerciseId, session.date),
     [lastPerformance, sessionExercise.exerciseId, session.date],
@@ -30,6 +33,7 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
   const doneCount = sessionExercise.sets.filter((set) => set.done).length
 
   const formatSet = (set: (typeof sessionExercise.sets)[number]) => {
+    if (isHold) return formatRestTime(set.durationSec ?? 0)
     if (!isCardio) return `${set.weight}kg×${set.reps}`
     const parts: string[] = []
     if (set.durationMin) parts.push(`${set.durationMin} min`)
@@ -90,9 +94,27 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
 
           <div className="set-rows">
             {sessionExercise.sets.map((set, index) => (
-              <div className={`set-row${set.done ? ' done' : ''}`} key={set.id}>
+              <div className={`set-row${set.done ? ' done' : ''}${isHold ? ' hold' : ''}`} key={set.id}>
                 <span className="idx">{index + 1}</span>
-                {isCardio ? (
+                {isHold ? (
+                  <>
+                    <NumberField
+                      id={`${set.id}-d`}
+                      value={set.durationSec ?? 0}
+                      onCommit={(durationSec) => updateSet(session.id, sessionExercise.id, set.id, { durationSec })}
+                      placeholder="sec"
+                      inputMode="numeric"
+                    />
+                    <button
+                      type="button"
+                      className="icon-btn accent"
+                      onClick={() => setTimingSetId(set.id)}
+                      aria-label={t('train.holdStart')}
+                    >
+                      <IconPlay size={16} />
+                    </button>
+                  </>
+                ) : isCardio ? (
                   <>
                     <NumberField
                       id={`${set.id}-d`}
@@ -156,6 +178,17 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
             {t('train.addSet')}
           </button>
         </>
+      ) : null}
+
+      {timingSetId ? (
+        <HoldTimer
+          onCommit={(seconds) => {
+            updateSet(session.id, sessionExercise.id, timingSetId, { durationSec: seconds, done: true })
+            if (triggersRest) onSetCompleted?.(restSec)
+            setTimingSetId(null)
+          }}
+          onClose={() => setTimingSetId(null)}
+        />
       ) : null}
     </div>
   )

@@ -136,6 +136,22 @@ export function IconFlame({ size = 16 }: IconProps) {
   )
 }
 
+export function IconPlay({ size = 18 }: IconProps) {
+  return (
+    <svg {...base(size)} aria-hidden="true" fill="currentColor" stroke="none">
+      <path d="M7 4.5v15l13-7.5Z" />
+    </svg>
+  )
+}
+
+export function IconStop({ size = 18 }: IconProps) {
+  return (
+    <svg {...base(size)} aria-hidden="true" fill="currentColor" stroke="none">
+      <rect x="6" y="6" width="12" height="12" rx="2" />
+    </svg>
+  )
+}
+
 export function IconHeart({ size = 16 }: IconProps) {
   return (
     <svg {...base(size)} aria-hidden="true">

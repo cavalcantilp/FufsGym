@@ -19,6 +19,8 @@ export interface Exercise {
   muscle: MuscleGroup
   equipment?: Equipment
   custom?: boolean
+  /** Exercice de maintien isométrique (planche, gainage…) : chronométré, pas de séries × répétitions. */
+  trackingType?: 'duration'
 }
 
 /** Ligne d'un entraînement : l'exercice visé et son objectif (séries × répétitions). */
@@ -69,6 +71,8 @@ export interface SetLog {
   /** Pour une série cardio : durée en minutes, distance en km. Non pertinent (et laissés à 0) sur un exercice de force. */
   durationMin?: number
   distanceKm?: number
+  /** Pour un maintien isométrique (planche…) : durée tenue, en secondes — chronométrable en direct. */
+  durationSec?: number
   done: boolean
 }
 
