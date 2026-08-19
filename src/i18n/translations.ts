@@ -357,7 +357,7 @@ const pt: Dict = {
   'workout.empty': 'Nenhum treino por enquanto.',
   'workout.new': 'Novo treino',
   'workout.newName': 'Nome do treino',
-  'workout.activate': 'Planear este treino',
+  'workout.activate': 'Planificar treino',
   'workout.active': 'Planeado',
   'workout.addExercise': 'Adicionar um exercício',
   'workout.addSuperset': 'Adicionar superset',
