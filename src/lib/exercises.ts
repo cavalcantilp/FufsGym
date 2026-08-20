@@ -123,4 +123,5 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('cardio-jump-rope', 'Corde à sauter', 'cardio'),
   ex('cardio-elliptical', 'Elliptique', 'cardio'),
   ex('cardio-stair-climber', 'Stepper / Escaliers', 'cardio'),
+  ex('cardio-echo-bike', 'Rogue Echo Bike', 'cardio'),
 ]

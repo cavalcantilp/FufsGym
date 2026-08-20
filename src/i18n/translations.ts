@@ -273,6 +273,7 @@ const fr = {
   'exercise.cardio-jump-rope': 'Corde à sauter',
   'exercise.cardio-elliptical': 'Elliptique',
   'exercise.cardio-stair-climber': 'Stepper / Escaliers',
+  'exercise.cardio-echo-bike': 'Rogue Echo Bike',
 } as const
 
 export type TranslationKey = keyof typeof fr
@@ -550,6 +551,7 @@ const pt: Dict = {
   'exercise.cardio-jump-rope': 'Pular corda',
   'exercise.cardio-elliptical': 'Elíptico',
   'exercise.cardio-stair-climber': 'Step / Escada',
+  'exercise.cardio-echo-bike': 'Rogue Echo Bike',
 }
 
 const es: Dict = {
@@ -824,6 +826,7 @@ const es: Dict = {
   'exercise.cardio-jump-rope': 'Saltar la cuerda',
   'exercise.cardio-elliptical': 'Elíptica',
   'exercise.cardio-stair-climber': 'Step / Escaleras',
+  'exercise.cardio-echo-bike': 'Rogue Echo Bike',
 }
 
 const en: Dict = {
@@ -1098,6 +1101,7 @@ const en: Dict = {
   'exercise.cardio-jump-rope': 'Jump rope',
   'exercise.cardio-elliptical': 'Elliptical',
   'exercise.cardio-stair-climber': 'Stair climber',
+  'exercise.cardio-echo-bike': 'Rogue Echo Bike',
 }
 
 const it: Dict = {
@@ -1372,6 +1376,7 @@ const it: Dict = {
   'exercise.cardio-jump-rope': 'Corda per saltare',
   'exercise.cardio-elliptical': 'Ellittica',
   'exercise.cardio-stair-climber': 'Step / Scala',
+  'exercise.cardio-echo-bike': 'Rogue Echo Bike',
 }
 
 export const TRANSLATIONS: Record<Lang, Dict> = { fr, pt, es, en, it }
