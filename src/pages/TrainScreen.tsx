@@ -143,14 +143,25 @@ function ActiveSessionView({
   session: Session
   onFinish: (sessionId: string) => void
 }) {
-  const { t, lang, addSessionExercise, finishSession, deleteSession } = useApp()
+  const { t, lang, addSessionExercise, finishSession, deleteSession, renameSession } = useApp()
   const [picking, setPicking] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
   const [restTimer, setRestTimer] = useState<{ key: number; seconds: number } | null>(null)
   const restKeyRef = useRef(0)
+  const isFreeSession = !session.workoutId
+  const currentName = session.workoutName ?? t('train.freeSession')
+  const [nameDraft, setNameDraft] = useState(currentName)
 
   const volume = round1(sessionVolume(session))
   const setCount = sessionSetCount(session)
+
+  const trimmedDraft = nameDraft.trim()
+  const nameDirty = trimmedDraft !== '' && trimmedDraft !== currentName
+
+  const saveName = () => {
+    if (!trimmedDraft) return
+    renameSession(session.id, trimmedDraft)
+  }
 
   const handleSetCompleted = (restSec: number) => {
     restKeyRef.current += 1
@@ -160,8 +171,28 @@ function ActiveSessionView({
   return (
     <div className="screen">
       <div className="form-page-head" style={{ alignItems: 'center' }}>
-        <div>
-          <h2>{session.workoutName ?? t('train.freeSession')}</h2>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {isFreeSession ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="text"
+                className="plan-name-input"
+                value={nameDraft}
+                aria-label={t('history.sessionNameLabel')}
+                onChange={(event) => setNameDraft(event.target.value)}
+                onBlur={() => {
+                  if (!nameDraft.trim()) setNameDraft(currentName)
+                }}
+              />
+              {nameDirty ? (
+                <button type="button" className="name-save-btn" onClick={saveName} aria-label={t('history.saveName')}>
+                  <IconCheck size={16} />
+                </button>
+              ) : null}
+            </span>
+          ) : (
+            <h2>{session.workoutName ?? t('train.freeSession')}</h2>
+          )}
           <span className="sub">{formatDay(session.date, lang)}</span>
         </div>
       </div>

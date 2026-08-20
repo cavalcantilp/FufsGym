@@ -18,13 +18,23 @@ interface ExerciseCardProps {
 
 /** Carte repliable d'un exercice en séance : nom + résumé, détail (dernière fois, repos, séries) sur demande. */
 export function ExerciseCard({ session, sessionExercise, onSetCompleted, triggersRest = false }: ExerciseCardProps) {
-  const { t, exerciseById, lastPerformance, addSet, updateSet, removeSet, removeSessionExercise, updateSessionExerciseRest } =
-    useApp()
+  const {
+    t,
+    exerciseById,
+    lastPerformance,
+    addSet,
+    updateSet,
+    removeSet,
+    removeSessionExercise,
+    updateSessionExerciseRest,
+    updateSessionExerciseCardioUnit,
+  } = useApp()
   const [expanded, setExpanded] = useState(false)
   const [timingSetId, setTimingSetId] = useState<string | null>(null)
   const info = exerciseById(sessionExercise.exerciseId)
   const isCardio = info?.muscle === 'cardio'
   const isHold = Boolean(info && isDurationBased(info) && !isCardio)
+  const cardioUnit = sessionExercise.cardioUnit ?? 'min'
   const last = useMemo(
     () => lastPerformance(sessionExercise.exerciseId, session.date),
     [lastPerformance, sessionExercise.exerciseId, session.date],
@@ -92,9 +102,31 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
             </div>
           </div>
 
+          {isCardio ? (
+            <div className="segmented" style={{ margin: '0 16px 10px' }}>
+              <button
+                type="button"
+                className={cardioUnit === 'min' ? 'active' : ''}
+                onClick={() => updateSessionExerciseCardioUnit(session.id, sessionExercise.id, 'min')}
+              >
+                {t('train.cardioUnitMin')}
+              </button>
+              <button
+                type="button"
+                className={cardioUnit === 'km' ? 'active' : ''}
+                onClick={() => updateSessionExerciseCardioUnit(session.id, sessionExercise.id, 'km')}
+              >
+                {t('train.cardioUnitKm')}
+              </button>
+            </div>
+          ) : null}
+
           <div className="set-rows">
             {sessionExercise.sets.map((set, index) => (
-              <div className={`set-row${set.done ? ' done' : ''}${isHold ? ' hold' : ''}`} key={set.id}>
+              <div
+                className={`set-row${set.done ? ' done' : ''}${isHold ? ' hold' : ''}${isCardio ? ' cardio' : ''}`}
+                key={set.id}
+              >
                 <span className="idx">{index + 1}</span>
                 {isHold ? (
                   <>
@@ -115,7 +147,7 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
                     </button>
                   </>
                 ) : isCardio ? (
-                  <>
+                  cardioUnit === 'min' ? (
                     <NumberField
                       id={`${set.id}-d`}
                       value={set.durationMin ?? 0}
@@ -123,6 +155,7 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
                       placeholder="min"
                       inputMode="decimal"
                     />
+                  ) : (
                     <NumberField
                       id={`${set.id}-k`}
                       value={set.distanceKm ?? 0}
@@ -130,7 +163,7 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
                       placeholder="km"
                       inputMode="decimal"
                     />
-                  </>
+                  )
                 ) : (
                   <>
                     <NumberField

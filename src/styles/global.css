@@ -1238,6 +1238,10 @@ select {
   grid-template-columns: 22px 1fr 34px 38px 28px;
 }
 
+.set-row.cardio {
+  grid-template-columns: 22px 1fr 38px 28px;
+}
+
 .set-row + .set-row {
   border-top: 1px solid rgba(71, 85, 105, 0.25);
 }

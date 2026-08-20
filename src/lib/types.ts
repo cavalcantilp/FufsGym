@@ -84,6 +84,8 @@ export interface SessionExercise {
   restSec: number
   /** Hérité du programme : superset avec l'exercice suivant, pas de repos déclenché avant la fin de la série. */
   linkedToNext?: boolean
+  /** Pour un exercice cardio : unité suivie pour cette séance, durée ou distance. Défaut : durée. */
+  cardioUnit?: 'min' | 'km'
 }
 
 export interface Session {

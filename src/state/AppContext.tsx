@@ -72,6 +72,7 @@ interface AppState {
   updateSet: (sessionId: string, sessionExerciseId: string, setId: string, patch: Partial<SetLog>) => void
   removeSet: (sessionId: string, sessionExerciseId: string, setId: string) => void
   updateSessionExerciseRest: (sessionId: string, sessionExerciseId: string, restSec: number) => void
+  updateSessionExerciseCardioUnit: (sessionId: string, sessionExerciseId: string, unit: 'min' | 'km') => void
   finishSession: (sessionId: string) => void
   deleteSession: (sessionId: string) => void
   renameSession: (sessionId: string, name: string) => void
@@ -338,6 +339,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const updateSessionExerciseCardioUnit = useCallback(
+    (sessionId: string, sessionExerciseId: string, unit: 'min' | 'km') => {
+      setSessions((current) =>
+        current.map((s) =>
+          s.id !== sessionId
+            ? s
+            : {
+                ...s,
+                exercises: s.exercises.map((e) => (e.id !== sessionExerciseId ? e : { ...e, cardioUnit: unit })),
+              },
+        ),
+      )
+    },
+    [],
+  )
+
   const removeSet = useCallback((sessionId: string, sessionExerciseId: string, setId: string) => {
     setSessions((current) =>
       current.map((s) =>
@@ -433,6 +450,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateSet,
       removeSet,
       updateSessionExerciseRest,
+      updateSessionExerciseCardioUnit,
       finishSession,
       deleteSession,
       renameSession,
@@ -472,6 +490,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateSet,
       removeSet,
       updateSessionExerciseRest,
+      updateSessionExerciseCardioUnit,
       finishSession,
       deleteSession,
       renameSession,
