@@ -264,6 +264,7 @@ const fr = {
   'exercise.arms-close-grip-bench': 'Développé prise serrée',
   'exercise.arms-preacher-curl': 'Curl pupitre',
   'exercise.arms-triceps-extension-machine': 'Extension triceps à la machine',
+  'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Planche',
@@ -547,6 +548,7 @@ const pt: Dict = {
   'exercise.arms-close-grip-bench': 'Supino pegada fechada',
   'exercise.arms-preacher-curl': 'Rosca scott',
   'exercise.arms-triceps-extension-machine': 'Extensão de tríceps na máquina',
+  'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
 
   'exercise.core-crunch': 'Abdominal crunch',
   'exercise.core-plank': 'Prancha',
@@ -827,6 +829,7 @@ const es: Dict = {
   'exercise.arms-close-grip-bench': 'Press banca agarre cerrado',
   'exercise.arms-preacher-curl': 'Curl en banco Scott',
   'exercise.arms-triceps-extension-machine': 'Extensión de tríceps en máquina',
+  'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
 
   'exercise.core-crunch': 'Encogimientos abdominales',
   'exercise.core-plank': 'Plancha',
@@ -1107,6 +1110,7 @@ const en: Dict = {
   'exercise.arms-close-grip-bench': 'Close-grip bench press',
   'exercise.arms-preacher-curl': 'Preacher curl',
   'exercise.arms-triceps-extension-machine': 'Machine triceps extension',
+  'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Plank',
@@ -1387,6 +1391,7 @@ const it: Dict = {
   'exercise.arms-close-grip-bench': 'Panca presa stretta',
   'exercise.arms-preacher-curl': 'Curl alla panca Scott',
   'exercise.arms-triceps-extension-machine': 'Estensione tricipiti macchina',
+  'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Plank',

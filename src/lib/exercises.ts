@@ -109,6 +109,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('arms-close-grip-bench', 'Développé prise serrée', 'arms', 'barbell'),
   ex('arms-preacher-curl', 'Curl pupitre', 'arms', 'machine'),
   ex('arms-triceps-extension-machine', 'Extension triceps à la machine', 'arms', 'machine'),
+  ex('arms-triceps-press-life-fitness', 'Triceps press (Life Fitness)', 'arms', 'machine'),
 
   // Abdominaux
   ex('core-crunch', 'Crunch', 'core', 'bodyweight'),
