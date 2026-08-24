@@ -95,6 +95,8 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('shoulders-shrug', 'Haussements d’épaules', 'shoulders', 'barbell'),
   ex('shoulders-machine-press', 'Développé épaules à la machine', 'shoulders', 'machine'),
   ex('shoulders-lateral-raise-machine', 'Élévations latérales à la machine', 'shoulders', 'machine'),
+  ex('shoulders-lateral-raise-machine-life-fitness', 'Élévation latérale machine (Life Fitness)', 'shoulders', 'machine'),
+  ex('shoulders-lateral-raise-machine-hammer-strength', 'Élévation latérale machine (Hammer Strength)', 'shoulders', 'machine'),
   ex('shoulders-iso-lateral-press', 'Développé épaules iso-latéral (Hammer Strength)', 'shoulders', 'machine'),
 
   // Bras

@@ -251,6 +251,8 @@ const fr = {
   'exercise.shoulders-shrug': "Haussements d'épaules",
   'exercise.shoulders-machine-press': 'Développé épaules à la machine',
   'exercise.shoulders-lateral-raise-machine': 'Élévations latérales à la machine',
+  'exercise.shoulders-lateral-raise-machine-life-fitness': 'Élévation latérale machine (Life Fitness)',
+  'exercise.shoulders-lateral-raise-machine-hammer-strength': 'Élévation latérale machine (Hammer Strength)',
   'exercise.shoulders-iso-lateral-press': 'Développé épaules iso-latéral (Hammer Strength)',
 
   'exercise.arms-barbell-curl': 'Curl biceps barre',
@@ -532,6 +534,8 @@ const pt: Dict = {
   'exercise.shoulders-shrug': 'Encolhimento de ombros',
   'exercise.shoulders-machine-press': 'Desenvolvimento na máquina',
   'exercise.shoulders-lateral-raise-machine': 'Elevação lateral na máquina',
+  'exercise.shoulders-lateral-raise-machine-life-fitness': 'Elevação lateral na máquina (Life Fitness)',
+  'exercise.shoulders-lateral-raise-machine-hammer-strength': 'Elevação lateral na máquina (Hammer Strength)',
   'exercise.shoulders-iso-lateral-press': 'Desenvolvimento iso-lateral de ombros (Hammer Strength)',
 
   'exercise.arms-barbell-curl': 'Rosca direta com barra',
@@ -810,6 +814,8 @@ const es: Dict = {
   'exercise.shoulders-shrug': 'Encogimientos de hombros',
   'exercise.shoulders-machine-press': 'Press de hombros en máquina',
   'exercise.shoulders-lateral-raise-machine': 'Elevación lateral en máquina',
+  'exercise.shoulders-lateral-raise-machine-life-fitness': 'Elevación lateral en máquina (Life Fitness)',
+  'exercise.shoulders-lateral-raise-machine-hammer-strength': 'Elevación lateral en máquina (Hammer Strength)',
   'exercise.shoulders-iso-lateral-press': 'Press de hombros iso-lateral (Hammer Strength)',
 
   'exercise.arms-barbell-curl': 'Curl de bíceps con barra',
@@ -1088,6 +1094,8 @@ const en: Dict = {
   'exercise.shoulders-shrug': 'Shrugs',
   'exercise.shoulders-machine-press': 'Machine shoulder press',
   'exercise.shoulders-lateral-raise-machine': 'Machine lateral raise',
+  'exercise.shoulders-lateral-raise-machine-life-fitness': 'Machine lateral raise (Life Fitness)',
+  'exercise.shoulders-lateral-raise-machine-hammer-strength': 'Machine lateral raise (Hammer Strength)',
   'exercise.shoulders-iso-lateral-press': 'Iso-lateral shoulder press (Hammer Strength)',
 
   'exercise.arms-barbell-curl': 'Barbell curl',
@@ -1366,6 +1374,8 @@ const it: Dict = {
   'exercise.shoulders-shrug': 'Shrug',
   'exercise.shoulders-machine-press': 'Shoulder press macchina',
   'exercise.shoulders-lateral-raise-machine': 'Alzate laterali macchina',
+  'exercise.shoulders-lateral-raise-machine-life-fitness': 'Alzate laterali macchina (Life Fitness)',
+  'exercise.shoulders-lateral-raise-machine-hammer-strength': 'Alzate laterali macchina (Hammer Strength)',
   'exercise.shoulders-iso-lateral-press': 'Shoulder press iso-laterale (Hammer Strength)',
 
   'exercise.arms-barbell-curl': 'Curl con bilanciere',
