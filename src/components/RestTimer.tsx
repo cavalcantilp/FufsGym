@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
-import { IconClose, IconPlus } from './icons'
+import { IconClose, IconMinus, IconPlus } from './icons'
 import { REST_STEP_SEC } from '../lib/rest'
 import { useWakeLock } from '../hooks/useWakeLock'
 
@@ -118,14 +118,24 @@ export function RestTimer({ seconds, onClose }: RestTimerProps) {
         <div className="rest-timer-digits">{digits}</div>
       </div>
 
-      <button
-        type="button"
-        className="btn secondary rest-timer-add"
-        onClick={() => setTotalMs((t) => t + REST_STEP_SEC * 1000)}
-      >
-        <IconPlus size={18} />
-        {t('train.restAdd15')}
-      </button>
+      <div className="rest-timer-adjust">
+        <button
+          type="button"
+          className="btn secondary rest-timer-add"
+          onClick={() => setTotalMs((t) => Math.max(0, t - REST_STEP_SEC * 1000))}
+        >
+          <IconMinus size={18} />
+          {t('train.restSubtract15')}
+        </button>
+        <button
+          type="button"
+          className="btn secondary rest-timer-add"
+          onClick={() => setTotalMs((t) => t + REST_STEP_SEC * 1000)}
+        >
+          <IconPlus size={18} />
+          {t('train.restAdd15')}
+        </button>
+      </div>
 
       <button type="button" className="rest-timer-skip" onClick={onClose}>
         {t('train.restSkip')}

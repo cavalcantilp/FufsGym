@@ -1399,9 +1399,18 @@ select {
   color: var(--text-main);
 }
 
+.rest-timer-adjust {
+  display: flex;
+  gap: 10px;
+}
+
 .rest-timer-add {
   width: auto;
-  padding: 12px 28px;
+  padding: 12px 20px;
+}
+
+.rest-timer-adjust .rest-timer-add {
+  flex: 1;
 }
 
 .rest-timer-skip {

@@ -111,6 +111,14 @@ export function IconPlus({ size = 22 }: IconProps) {
   )
 }
 
+export function IconMinus({ size = 22 }: IconProps) {
+  return (
+    <svg {...base(size)} aria-hidden="true">
+      <path d="M5 12h14" />
+    </svg>
+  )
+}
+
 export function IconCheck({ size = 18 }: IconProps) {
   return (
     <svg {...base(size)} aria-hidden="true">
