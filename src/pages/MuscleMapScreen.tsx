@@ -9,12 +9,16 @@ import {
   ALL_BASE_MUSCLES,
   aggregateByBaseMuscle,
   computeMuscleLoad,
-  exercisesForBaseMuscle,
+  exercisesEngagingMuscle,
   muscleBaseId,
+  performedExercisesForMuscle,
+  type MuscleExercisePerformance,
 } from '../lib/muscleLoad'
 import { exerciseName } from '../lib/exercises'
+import { round1 } from '../lib/stats'
 import { todayKey } from '../lib/date'
 import type { TranslationKey } from '../i18n/translations'
+import type { Session } from '../lib/types'
 
 type TFn = (key: TranslationKey, vars?: Record<string, string | number>) => string
 
@@ -22,44 +26,140 @@ function muscleDisplayName(baseId: string, t: TFn): string {
   return t(`muscleName.${baseId}` as TranslationKey)
 }
 
+type SortColumn = 'volume' | 'sessions' | 'maxLoad' | 'estRM' | 'engagement'
+type SortDirection = 'asc' | 'desc'
+
+const SORT_VALUE: Record<SortColumn, (row: MuscleExercisePerformance) => number> = {
+  volume: (row) => row.volume,
+  sessions: (row) => row.sessionsCount,
+  maxLoad: (row) => row.maxLoad,
+  estRM: (row) => row.estRM,
+  engagement: (row) => row.engagementPct,
+}
+
+function SortableHeader({
+  column,
+  label,
+  sort,
+  onSort,
+}: {
+  column: SortColumn
+  label: string
+  sort: { column: SortColumn; direction: SortDirection }
+  onSort: (column: SortColumn) => void
+}) {
+  const active = sort.column === column
+  return (
+    <th onClick={() => onSort(column)} className={active ? 'active' : undefined}>
+      {label}
+      {active ? <span className="sort-arrow">{sort.direction === 'desc' ? ' ▼' : ' ▲'}</span> : null}
+    </th>
+  )
+}
+
 function MuscleDetailScreen({
   baseMuscleId,
-  byMuscleByExercise,
+  sessions,
+  range,
+  onRangeChange,
   onBack,
 }: {
   baseMuscleId: string
-  byMuscleByExercise: Record<string, Record<string, number>>
+  sessions: Session[]
+  range: RangeKey
+  onRangeChange: (range: RangeKey) => void
   onBack: () => void
 }) {
   const { t, exerciseById } = useApp()
-  const rows = useMemo(
-    () => exercisesForBaseMuscle(byMuscleByExercise, baseMuscleId),
-    [byMuscleByExercise, baseMuscleId],
-  )
-  const max = rows[0]?.value ?? 0
+  const [sort, setSort] = useState<{ column: SortColumn; direction: SortDirection }>({
+    column: 'volume',
+    direction: 'desc',
+  })
+
+  const performed = useMemo(() => {
+    const from = rangeStartDate(range)
+    return performedExercisesForMuscle(sessions, baseMuscleId, from, todayKey())
+  }, [sessions, baseMuscleId, range])
+
+  const sortedPerformed = useMemo(() => {
+    const getValue = SORT_VALUE[sort.column]
+    const factor = sort.direction === 'asc' ? 1 : -1
+    return [...performed].sort((a, b) => (getValue(a) - getValue(b)) * factor)
+  }, [performed, sort])
+
+  const engaging = useMemo(() => exercisesEngagingMuscle(baseMuscleId), [baseMuscleId])
+
+  const toggleSort = (column: SortColumn) => {
+    setSort((current) =>
+      current.column === column
+        ? { column, direction: current.direction === 'desc' ? 'asc' : 'desc' }
+        : { column, direction: 'desc' },
+    )
+  }
+
+  const colorFor = (muscleId: string) =>
+    muscleBaseId(muscleId) === baseMuscleId ? 'var(--accent)' : NEUTRAL_MUSCLE_COLOR
 
   return (
     <FormPage title={muscleDisplayName(baseMuscleId, t)} subtitle={t('muscleMap.detailSubtitle')} onBack={onBack}>
       <div className="stack">
-        {rows.length ? (
-          <div className="muscle-rank-list">
-            {rows.map(({ exerciseId, value }) => {
-              const info = exerciseById(exerciseId)
-              const pct = max > 0 ? Math.round((value / max) * 100) : 0
-              return (
-                <div className="muscle-rank-row" key={exerciseId}>
-                  <span className="name">{info ? exerciseName(info, t) : exerciseId}</span>
-                  <span className="muscle-rank-bar-track">
-                    <span className="muscle-rank-bar-fill" style={{ width: `${pct}%`, background: 'var(--accent)' }} />
-                  </span>
-                  <span className="pct">{pct}%</span>
-                </div>
-              )
-            })}
+        <RangePicker range={range} onChange={onRangeChange} />
+
+        <MuscleDiagram colorFor={colorFor} />
+
+        <div className="info-section-title">{t('muscleMap.performedTitle')}</div>
+        {sortedPerformed.length ? (
+          <div className="muscle-table-wrap">
+            <table className="muscle-table">
+              <thead>
+                <tr>
+                  <th>{t('muscleMap.colExercise')}</th>
+                  <SortableHeader column="volume" label={t('muscleMap.colVolume')} sort={sort} onSort={toggleSort} />
+                  <SortableHeader column="sessions" label={t('muscleMap.colSessions')} sort={sort} onSort={toggleSort} />
+                  <SortableHeader column="maxLoad" label={t('muscleMap.colMaxLoad')} sort={sort} onSort={toggleSort} />
+                  <SortableHeader column="estRM" label={t('muscleMap.colEstRM')} sort={sort} onSort={toggleSort} />
+                  <SortableHeader column="engagement" label={t('muscleMap.colEngagement')} sort={sort} onSort={toggleSort} />
+                </tr>
+              </thead>
+              <tbody>
+                {sortedPerformed.map((row) => {
+                  const info = exerciseById(row.exerciseId)
+                  return (
+                    <tr key={row.exerciseId}>
+                      <td className="name-cell">{info ? exerciseName(info, t) : row.exerciseId}</td>
+                      <td>{round1(row.volume)}</td>
+                      <td>{row.sessionsCount}</td>
+                      <td>{row.maxLoad ? round1(row.maxLoad) : '—'}</td>
+                      <td>{row.estRM ? round1(row.estRM) : '—'}</td>
+                      <td>{Math.round(row.engagementPct)}%</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
         ) : (
           <p className="empty">{t('muscleMap.detailEmpty')}</p>
         )}
+
+        <div className="info-section-title" style={{ marginTop: 4 }}>
+          {t('muscleMap.engagedTitle')}
+        </div>
+        <div className="muscle-rank-list">
+          {engaging.map((row) => {
+            const info = exerciseById(row.exerciseId)
+            const pct = Math.round(row.engagementPct)
+            return (
+              <div className="muscle-rank-row" key={row.exerciseId}>
+                <span className="name">{info ? exerciseName(info, t) : row.exerciseId}</span>
+                <span className="muscle-rank-bar-track">
+                  <span className="muscle-rank-bar-fill" style={{ width: `${pct}%`, background: 'var(--accent)' }} />
+                </span>
+                <span className="pct">{pct}%</span>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </FormPage>
   )
@@ -76,7 +176,7 @@ export function MuscleMapScreen({ onBack }: { onBack: () => void }) {
   const [range, setRange] = useState<RangeKey>('3m')
   const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null)
 
-  const { byMuscle, byMuscleByExercise } = useMemo(() => {
+  const { byMuscle } = useMemo(() => {
     const from = rangeStartDate(range)
     return computeMuscleLoad(sessions, from, todayKey())
   }, [sessions, range])
@@ -100,7 +200,9 @@ export function MuscleMapScreen({ onBack }: { onBack: () => void }) {
     return (
       <MuscleDetailScreen
         baseMuscleId={selectedMuscle}
-        byMuscleByExercise={byMuscleByExercise}
+        sessions={sessions}
+        range={range}
+        onRangeChange={setRange}
         onBack={() => setSelectedMuscle(null)}
       />
     )

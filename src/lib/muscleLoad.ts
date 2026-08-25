@@ -1,12 +1,10 @@
+import { estimate1RM, setVolume } from './stats'
 import { EXERCISE_ACTIVATION } from './exerciseActivation'
-import { setVolume } from './stats'
 import type { Session } from './types'
 
 export interface MuscleLoadResult {
   /** Charge pondérée totale par muscle précis (identifiant `body-muscles`, ex. "chest-upper-left"). */
   byMuscle: Record<string, number>
-  /** Même charge, détaillée par exercice contributeur — sert au classement au clic sur un muscle. */
-  byMuscleByExercise: Record<string, Record<string, number>>
 }
 
 /**
@@ -18,7 +16,6 @@ export interface MuscleLoadResult {
  */
 export function computeMuscleLoad(sessions: Session[], fromDate: string | null, toDate: string): MuscleLoadResult {
   const byMuscle: Record<string, number> = {}
-  const byMuscleByExercise: Record<string, Record<string, number>> = {}
 
   for (const session of sessions) {
     if (session.date > toDate) continue
@@ -32,15 +29,12 @@ export function computeMuscleLoad(sessions: Session[], fromDate: string | null, 
       if (volume <= 0) continue
 
       for (const [muscleId, intensity] of Object.entries(activation)) {
-        const contribution = volume * intensity
-        byMuscle[muscleId] = (byMuscle[muscleId] ?? 0) + contribution
-        const byExercise = (byMuscleByExercise[muscleId] ??= {})
-        byExercise[exercise.exerciseId] = (byExercise[exercise.exerciseId] ?? 0) + contribution
+        byMuscle[muscleId] = (byMuscle[muscleId] ?? 0) + volume * intensity
       }
     }
   }
 
-  return { byMuscle, byMuscleByExercise }
+  return { byMuscle }
 }
 
 /** Identifiant de muscle sans son côté ("chest-upper-left" → "chest-upper"), pour regrouper gauche/droite. */
@@ -63,19 +57,83 @@ export function aggregateByBaseMuscle(byMuscle: Record<string, number>): Record<
   return result
 }
 
-/** Classement décroissant des exercices contribuant à un muscle de base donné (gauche + droite cumulés). */
-export function exercisesForBaseMuscle(
-  byMuscleByExercise: Record<string, Record<string, number>>,
+/** Intensité (0-1) d'un muscle de base dans la carte d'activation d'un exercice — gauche/droite étant toujours identiques. */
+function activationForBaseMuscle(exerciseId: string, baseMuscleId: string): number {
+  const activation = EXERCISE_ACTIVATION[exerciseId]
+  if (!activation) return 0
+  return activation[`${baseMuscleId}-left`] ?? activation[`${baseMuscleId}-right`] ?? activation[baseMuscleId] ?? 0
+}
+
+export interface MuscleEngagement {
+  exerciseId: string
+  /** Intensité de ce muscle dans cet exercice, en pourcentage (0-100). */
+  engagementPct: number
+}
+
+/** Tous les exercices du catalogue sollicitant un muscle de base donné, classés du plus au moins engagé — indépendant de l'historique. */
+export function exercisesEngagingMuscle(baseMuscleId: string): MuscleEngagement[] {
+  return Object.keys(EXERCISE_ACTIVATION)
+    .map((exerciseId) => ({ exerciseId, engagementPct: activationForBaseMuscle(exerciseId, baseMuscleId) * 100 }))
+    .filter((row) => row.engagementPct > 0)
+    .sort((a, b) => b.engagementPct - a.engagementPct)
+}
+
+export interface MuscleExercisePerformance extends MuscleEngagement {
+  /** Volume total (poids × répétitions) de l'exercice sur la période, séries validées uniquement. */
+  volume: number
+  /** Nombre de séances distinctes où l'exercice a été réalisé sur la période. */
+  sessionsCount: number
+  /** Charge maximale (une répétition) soulevée sur la période. */
+  maxLoad: number
+  /** Meilleure estimation de 1RM (formule d'Epley) atteinte sur la période. */
+  estRM: number
+}
+
+/**
+ * Exercices effectivement réalisés sur la période et sollicitant ce muscle, avec
+ * leurs statistiques de performance (indépendantes de la pondération musculaire :
+ * le volume, la charge et le 1RM sont ceux de l'exercice lui-même).
+ */
+export function performedExercisesForMuscle(
+  sessions: Session[],
   baseMuscleId: string,
-): { exerciseId: string; value: number }[] {
-  const totals: Record<string, number> = {}
-  for (const [muscleId, byExercise] of Object.entries(byMuscleByExercise)) {
-    if (muscleBaseId(muscleId) !== baseMuscleId) continue
-    for (const [exerciseId, value] of Object.entries(byExercise)) {
-      totals[exerciseId] = (totals[exerciseId] ?? 0) + value
+  fromDate: string | null,
+  toDate: string,
+): MuscleExercisePerformance[] {
+  const byExercise: Record<string, { volume: number; sessionIds: Set<string>; maxLoad: number; estRM: number }> = {}
+
+  for (const session of sessions) {
+    if (session.date > toDate) continue
+    if (fromDate && session.date < fromDate) continue
+
+    for (const exercise of session.exercises) {
+      if (activationForBaseMuscle(exercise.exerciseId, baseMuscleId) <= 0) continue
+      const doneSets = exercise.sets.filter((set) => set.done)
+      if (!doneSets.length) continue
+
+      const entry = (byExercise[exercise.exerciseId] ??= {
+        volume: 0,
+        sessionIds: new Set(),
+        maxLoad: 0,
+        estRM: 0,
+      })
+      entry.sessionIds.add(session.id)
+      for (const set of doneSets) {
+        entry.volume += setVolume(set)
+        entry.maxLoad = Math.max(entry.maxLoad, set.weight)
+        if (set.weight > 0 && set.reps > 0) {
+          entry.estRM = Math.max(entry.estRM, estimate1RM(set.weight, set.reps))
+        }
+      }
     }
   }
-  return Object.entries(totals)
-    .map(([exerciseId, value]) => ({ exerciseId, value }))
-    .sort((a, b) => b.value - a.value)
+
+  return Object.entries(byExercise).map(([exerciseId, data]) => ({
+    exerciseId,
+    volume: data.volume,
+    sessionsCount: data.sessionIds.size,
+    maxLoad: data.maxLoad,
+    estRM: data.estRM,
+    engagementPct: activationForBaseMuscle(exerciseId, baseMuscleId) * 100,
+  }))
 }

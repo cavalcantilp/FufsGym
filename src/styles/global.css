@@ -960,6 +960,61 @@ select {
   opacity: 0.5;
 }
 
+.muscle-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+}
+
+.muscle-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.muscle-table th,
+.muscle-table td {
+  padding: 8px 10px;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.muscle-table th:first-child,
+.muscle-table td:first-child {
+  text-align: left;
+}
+
+.muscle-table td.name-cell {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.muscle-table thead th {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-sub);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+
+.muscle-table thead th.active {
+  color: var(--accent);
+}
+
+.muscle-table tbody tr + tr td {
+  border-top: 1px solid rgba(71, 85, 105, 0.2);
+}
+
+.muscle-table tbody td {
+  font-weight: 600;
+}
+
 /* ---------- Page de formulaire ---------- */
 
 .form-page-head {
