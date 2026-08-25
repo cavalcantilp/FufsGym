@@ -1,6 +1,6 @@
 import { estimate1RM, setVolume } from './stats'
 import { EXERCISE_ACTIVATION } from './exerciseActivation'
-import type { Session } from './types'
+import type { Session, SetLog } from './types'
 
 export interface MuscleLoadResult {
   /** Charge pondérée totale par muscle précis (identifiant `body-muscles`, ex. "chest-upper-left"). */
@@ -8,13 +8,32 @@ export interface MuscleLoadResult {
 }
 
 /**
- * Charge d'entraînement par muscle sur une période : pour chaque série validée d'un
- * exercice ayant une carte d'activation, son volume (poids × répétitions, comme le
- * reste de l'appli) est réparti entre les muscles sollicités au prorata de leur
- * intensité dans cet exercice précis (un muscle secondaire compte moins qu'un
- * moteur principal). Les exercices sans carte d'activation (cardio) n'y contribuent pas.
+ * Grandeur mesurée pour la heat map. Le volume (poids × répétitions) ne dit rien
+ * des exercices au poids du corps (abdos, tractions...) puisqu'aucune charge n'y
+ * est enregistrée : répétitions ou séries restent pertinentes pour ces exercices-là.
  */
-export function computeMuscleLoad(sessions: Session[], fromDate: string | null, toDate: string): MuscleLoadResult {
+export type MuscleLoadCriterion = 'volume' | 'reps' | 'sets'
+
+function setAmount(set: SetLog, criterion: MuscleLoadCriterion): number {
+  if (criterion === 'sets') return 1
+  if (criterion === 'reps') return set.reps
+  return setVolume(set)
+}
+
+/**
+ * Charge d'entraînement par muscle sur une période : pour chaque série validée d'un
+ * exercice ayant une carte d'activation, sa grandeur (volume, répétitions ou nombre
+ * de séries selon `criterion`) est répartie entre les muscles sollicités au prorata
+ * de leur intensité dans cet exercice précis (un muscle secondaire compte moins
+ * qu'un moteur principal). Les exercices sans carte d'activation (cardio) n'y
+ * contribuent pas.
+ */
+export function computeMuscleLoad(
+  sessions: Session[],
+  fromDate: string | null,
+  toDate: string,
+  criterion: MuscleLoadCriterion = 'volume',
+): MuscleLoadResult {
   const byMuscle: Record<string, number> = {}
 
   for (const session of sessions) {
@@ -25,11 +44,13 @@ export function computeMuscleLoad(sessions: Session[], fromDate: string | null, 
       const activation = EXERCISE_ACTIVATION[exercise.exerciseId]
       if (!activation) continue
 
-      const volume = exercise.sets.filter((set) => set.done).reduce((sum, set) => sum + setVolume(set), 0)
-      if (volume <= 0) continue
+      const amount = exercise.sets
+        .filter((set) => set.done)
+        .reduce((sum, set) => sum + setAmount(set, criterion), 0)
+      if (amount <= 0) continue
 
       for (const [muscleId, intensity] of Object.entries(activation)) {
-        byMuscle[muscleId] = (byMuscle[muscleId] ?? 0) + volume * intensity
+        byMuscle[muscleId] = (byMuscle[muscleId] ?? 0) + amount * intensity
       }
     }
   }

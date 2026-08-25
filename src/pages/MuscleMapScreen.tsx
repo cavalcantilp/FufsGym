@@ -14,6 +14,7 @@ import {
   muscleBaseId,
   performedExercisesForMuscle,
   type MuscleExercisePerformance,
+  type MuscleLoadCriterion,
 } from '../lib/muscleLoad'
 import { exerciseName } from '../lib/exercises'
 import { round1 } from '../lib/stats'
@@ -30,6 +31,13 @@ function muscleDisplayName(baseId: string, t: TFn): string {
 /** Seuls les muscles ayant au moins un exercice (tête, mains, pieds, tibias... exclus) sont sélectionnables. */
 const CLICKABLE_BASE_MUSCLES = new Set(ALL_BASE_MUSCLES)
 const isMuscleClickable = (muscleId: string) => CLICKABLE_BASE_MUSCLES.has(muscleBaseId(muscleId))
+
+const CRITERION_ORDER: MuscleLoadCriterion[] = ['volume', 'reps', 'sets']
+const CRITERION_LABEL: Record<MuscleLoadCriterion, TranslationKey> = {
+  volume: 'muscleMap.criterionVolume',
+  reps: 'muscleMap.criterionReps',
+  sets: 'muscleMap.criterionSets',
+}
 
 type SortColumn = 'volume' | 'sessions' | 'maxLoad' | 'estRM' | 'engagement'
 type SortDirection = 'asc' | 'desc'
@@ -186,12 +194,13 @@ function MuscleDetailScreen({
 export function MuscleMapScreen({ onBack }: { onBack: () => void }) {
   const { t, sessions } = useApp()
   const [range, setRange] = useState<RangeKey>('3m')
+  const [criterion, setCriterion] = useState<MuscleLoadCriterion>('volume')
   const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null)
 
   const { byMuscle } = useMemo(() => {
     const from = rangeStartDate(range)
-    return computeMuscleLoad(sessions, from, todayKey())
-  }, [sessions, range])
+    return computeMuscleLoad(sessions, from, todayKey(), criterion)
+  }, [sessions, range, criterion])
 
   const baseTotals = useMemo(() => aggregateByBaseMuscle(byMuscle), [byMuscle])
 
@@ -225,6 +234,21 @@ export function MuscleMapScreen({ onBack }: { onBack: () => void }) {
     <FormPage title={t('muscleMap.title')} subtitle={t('muscleMap.subtitle')} onBack={onBack}>
       <div className="stack">
         <RangePicker range={range} onChange={setRange} />
+
+        <div className="field">
+          <label htmlFor="muscle-map-criterion">{t('muscleMap.criterionLabel')}</label>
+          <select
+            id="muscle-map-criterion"
+            value={criterion}
+            onChange={(event) => setCriterion(event.target.value as MuscleLoadCriterion)}
+          >
+            {CRITERION_ORDER.map((key) => (
+              <option key={key} value={key}>
+                {t(CRITERION_LABEL[key])}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="card">
           <div className="card-title">{t('muscleMap.diagramTitle')}</div>
