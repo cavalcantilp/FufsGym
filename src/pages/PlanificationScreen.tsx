@@ -1,11 +1,14 @@
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useMemo, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { FormPage } from '../components/FormPage'
 import { Sheet } from '../components/Sheet'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { PlanExerciseSheet } from '../components/PlanExerciseSheet'
+import { MuscleDiagram } from '../components/MuscleDiagram'
 import { ScheduleScreen } from './ScheduleScreen'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
+import { aggregateActivation } from '../lib/exerciseActivation'
+import { ACTIVATION_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
 import { DEFAULT_REST_SEC, formatRestTime } from '../lib/rest'
 import { groupBySuperset } from '../lib/superset'
 import { IconCalendarCheck, IconCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
@@ -37,6 +40,15 @@ function WorkoutDetail({
   const hasSchedule = Boolean(scheduleForWorkout(workout.id))
   const trimmedDraft = nameDraft.trim()
   const nameDirty = trimmedDraft !== '' && trimmedDraft !== workout.name
+
+  const activation = useMemo(
+    () => aggregateActivation(workout.exercises.map((entry) => entry.exerciseId)),
+    [workout.exercises],
+  )
+  const colorForMuscle = (muscleId: string) => {
+    const intensity = activation[muscleId] ?? 0
+    return intensity > 0 ? interpolateColor(ACTIVATION_STOPS, intensity) : NEUTRAL_MUSCLE_COLOR
+  }
 
   const saveName = () => {
     if (!trimmedDraft) return
@@ -136,6 +148,16 @@ function WorkoutDetail({
             <IconPlus size={16} />
             {t('workout.addSuperset')}
           </button>
+        </div>
+
+        <div className="card">
+          <div className="card-title">{t('exerciseInfo.muscleTitle')}</div>
+          <MuscleDiagram colorFor={colorForMuscle} />
+          <div className="legend">
+            <span className="legend-label">{t('exerciseInfo.legendLow')}</span>
+            <span className="legend-bar" />
+            <span className="legend-label">{t('exerciseInfo.legendHigh')}</span>
+          </div>
         </div>
 
         <button type="button" className={hasSchedule ? 'btn secondary' : 'btn'} onClick={onSchedule}>

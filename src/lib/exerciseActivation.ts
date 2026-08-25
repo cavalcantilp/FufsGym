@@ -293,3 +293,21 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
   ),
   'core-cable-crunch': merge(bi('abs-upper', 1), bi('abs-lower', 0.5)),
 }
+
+/**
+ * Activation cumulée d'une liste d'exercices (ex. les exercices d'un entraînement
+ * en cours de composition) : pour chaque muscle, la plus forte intensité parmi les
+ * exercices inclus — ajouter un exercice ne peut donc que renforcer ou compléter la
+ * carte, jamais l'atténuer.
+ */
+export function aggregateActivation(exerciseIds: string[]): Activation {
+  const result: Activation = {}
+  for (const exerciseId of exerciseIds) {
+    const activation = EXERCISE_ACTIVATION[exerciseId]
+    if (!activation) continue
+    for (const [muscleId, intensity] of Object.entries(activation)) {
+      result[muscleId] = Math.max(result[muscleId] ?? 0, intensity)
+    }
+  }
+  return result
+}
