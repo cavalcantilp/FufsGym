@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { Sheet } from './Sheet'
+import { ExerciseInfoButton } from './ExerciseInfoButton'
 import { MUSCLE_COLOR, MUSCLE_GROUPS, equipmentLabel, exerciseName, muscleLabel } from '../lib/exercises'
 import { IconPlus } from './icons'
 import type { Exercise, MuscleGroup } from '../lib/types'
@@ -98,16 +99,19 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
             <div className="exercise-list">
               {results.length ? (
                 results.map(({ exercise, label }) => (
-                  <button key={exercise.id} type="button" className="exercise-row" onClick={() => onPick(exercise)}>
-                    <span className="muscle-dot" style={{ background: MUSCLE_COLOR[exercise.muscle] }} />
-                    <span className="info">
-                      <span className="name">{label}</span>
-                      <span className="muscle">
-                        {muscleLabel(exercise.muscle, t)}
-                        {exercise.equipment ? ` · ${equipmentLabel(exercise.equipment, t)}` : ''}
+                  <div key={exercise.id} className="exercise-row">
+                    <button type="button" className="exercise-row-main" onClick={() => onPick(exercise)}>
+                      <span className="muscle-dot" style={{ background: MUSCLE_COLOR[exercise.muscle] }} />
+                      <span className="info">
+                        <span className="name">{label}</span>
+                        <span className="muscle">
+                          {muscleLabel(exercise.muscle, t)}
+                          {exercise.equipment ? ` · ${equipmentLabel(exercise.equipment, t)}` : ''}
+                        </span>
                       </span>
-                    </span>
-                  </button>
+                    </button>
+                    <ExerciseInfoButton exercise={exercise} />
+                  </div>
                 ))
               ) : (
                 <p className="empty">{t('picker.empty')}</p>

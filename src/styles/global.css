@@ -962,14 +962,22 @@ select {
 .exercise-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  text-align: left;
-  width: 100%;
+  gap: 4px;
+  padding-right: 10px;
 }
 
 .exercise-row + .exercise-row {
   border-top: 1px solid rgba(71, 85, 105, 0.25);
+}
+
+.exercise-row-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
 }
 
 .exercise-row .muscle-dot {
