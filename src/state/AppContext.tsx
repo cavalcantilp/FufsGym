@@ -93,6 +93,27 @@ const AppContext = createContext<AppState | null>(null)
 
 const emptySet = (): SetLog => ({ id: newId(), weight: 0, reps: 0, done: false })
 
+/**
+ * Dernière série réellement validée (poids ou reps > 0) pour un exercice, tous
+ * entraînements confondus (peu importe la séance ou l'entraînement d'où elle
+ * provient) — sert de valeur de départ pour la prochaine série de cet exercice.
+ */
+function findLastSet(allSessions: Session[], exerciseId: string): SetLog | null {
+  const candidates = [...allSessions].sort((a, b) => b.startedAt.localeCompare(a.startedAt))
+  for (const session of candidates) {
+    const match = session.exercises.find((e) => e.exerciseId === exerciseId)
+    if (!match) continue
+    const done = match.sets.filter((set) => set.done && (set.weight > 0 || set.reps > 0))
+    if (done.length) return done[done.length - 1]
+  }
+  return null
+}
+
+/** Reprend poids/reps d'une série précédente pour préremplir une nouvelle série ; vide si aucune référence. */
+function carryOverValues(last: SetLog | null): Pick<SetLog, 'weight' | 'reps'> | Record<string, never> {
+  return last ? { weight: last.weight, reps: last.reps } : {}
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => load(STORAGE_KEYS.lang, detectLang()))
   const [units, setUnits] = useState<Units>(() => ({ ...DEFAULT_UNITS, ...load(STORAGE_KEYS.units, {} as Partial<Units>) }))
@@ -263,43 +284,53 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const sessionsFor = useCallback((date: string) => sessions.filter((s) => s.date === date), [sessions])
 
-  const startSession = useCallback((date: string, workout?: Workout | null) => {
-    const sessionExercises: SessionExercise[] = workout
-      ? workout.exercises.map((planExercise) => ({
-          id: newId(),
-          exerciseId: planExercise.exerciseId,
-          sets: Array.from({ length: Math.max(1, planExercise.sets) }, () => emptySet()),
-          restSec: planExercise.restSec ?? DEFAULT_REST_SEC,
-          linkedToNext: planExercise.linkedToNext,
-        }))
-      : []
-    const session: Session = {
-      id: newId(),
-      date,
-      workoutId: workout?.id,
-      workoutName: workout?.name,
-      exercises: sessionExercises,
-      startedAt: new Date().toISOString(),
-    }
-    setSessions((current) => [...current, session])
-    return session
-  }, [])
+  const startSession = useCallback(
+    (date: string, workout?: Workout | null) => {
+      const sessionExercises: SessionExercise[] = workout
+        ? workout.exercises.map((planExercise) => {
+            const carry = carryOverValues(findLastSet(sessions, planExercise.exerciseId))
+            return {
+              id: newId(),
+              exerciseId: planExercise.exerciseId,
+              sets: Array.from({ length: Math.max(1, planExercise.sets) }, () => ({ ...emptySet(), ...carry })),
+              restSec: planExercise.restSec ?? DEFAULT_REST_SEC,
+              linkedToNext: planExercise.linkedToNext,
+            }
+          })
+        : []
+      const session: Session = {
+        id: newId(),
+        date,
+        workoutId: workout?.id,
+        workoutName: workout?.name,
+        exercises: sessionExercises,
+        startedAt: new Date().toISOString(),
+      }
+      setSessions((current) => [...current, session])
+      return session
+    },
+    [sessions],
+  )
 
-  const addSessionExercise = useCallback((sessionId: string, exerciseId: string) => {
-    setSessions((current) =>
-      current.map((s) =>
-        s.id !== sessionId
-          ? s
-          : {
-              ...s,
-              exercises: [
-                ...s.exercises,
-                { id: newId(), exerciseId, sets: [emptySet()], restSec: DEFAULT_REST_SEC },
-              ],
-            },
-      ),
-    )
-  }, [])
+  const addSessionExercise = useCallback(
+    (sessionId: string, exerciseId: string) => {
+      const carry = carryOverValues(findLastSet(sessions, exerciseId))
+      setSessions((current) =>
+        current.map((s) =>
+          s.id !== sessionId
+            ? s
+            : {
+                ...s,
+                exercises: [
+                  ...s.exercises,
+                  { id: newId(), exerciseId, sets: [{ ...emptySet(), ...carry }], restSec: DEFAULT_REST_SEC },
+                ],
+              },
+        ),
+      )
+    },
+    [sessions],
+  )
 
   const removeSessionExercise = useCallback((sessionId: string, sessionExerciseId: string) => {
     setSessions((current) =>
@@ -315,20 +346,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     )
   }, [])
 
-  const addSet = useCallback((sessionId: string, sessionExerciseId: string, set?: Partial<SetLog>) => {
-    setSessions((current) =>
-      current.map((s) =>
-        s.id !== sessionId
-          ? s
-          : {
-              ...s,
-              exercises: s.exercises.map((e) =>
-                e.id !== sessionExerciseId ? e : { ...e, sets: [...e.sets, { ...emptySet(), ...set }] },
-              ),
-            },
-      ),
-    )
-  }, [])
+  const addSet = useCallback(
+    (sessionId: string, sessionExerciseId: string, set?: Partial<SetLog>) => {
+      let carry: Partial<SetLog> | undefined = set
+      if (!carry) {
+        const session = sessions.find((s) => s.id === sessionId)
+        const exercise = session?.exercises.find((e) => e.id === sessionExerciseId)
+        carry = exercise ? carryOverValues(findLastSet(sessions, exercise.exerciseId)) : {}
+      }
+      setSessions((current) =>
+        current.map((s) =>
+          s.id !== sessionId
+            ? s
+            : {
+                ...s,
+                exercises: s.exercises.map((e) =>
+                  e.id !== sessionExerciseId ? e : { ...e, sets: [...e.sets, { ...emptySet(), ...carry }] },
+                ),
+              },
+        ),
+      )
+    },
+    [sessions],
+  )
 
   const updateSet = useCallback(
     (sessionId: string, sessionExerciseId: string, setId: string, patch: Partial<SetLog>) => {
