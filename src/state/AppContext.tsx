@@ -65,6 +65,11 @@ interface AppState {
   updateSchedule: (id: string, patch: Partial<Pick<DaySchedule, 'weekdays' | 'startDate' | 'endDate'>>) => void
   removeSchedule: (id: string) => void
 
+  /** Notes libres par jour (clé YYYY-MM-DD), indépendantes de toute séance. */
+  dayNotes: Record<string, string>
+  /** Une chaîne vide efface la note du jour. */
+  setDayNote: (date: string, text: string) => void
+
   sessions: Session[]
   sessionsFor: (date: string) => Session[]
   startSession: (date: string, workout?: Workout | null) => Session
@@ -97,6 +102,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [workouts, setWorkouts] = useState<Workout[]>(() => load(STORAGE_KEYS.workouts, []))
   const [schedules, setSchedules] = useState<DaySchedule[]>(() => load(STORAGE_KEYS.schedules, []))
   const [sessions, setSessions] = useState<Session[]>(() => load(STORAGE_KEYS.sessions, []))
+  const [dayNotes, setDayNotes] = useState<Record<string, string>>(() => load(STORAGE_KEYS.dayNotes, {}))
 
   useEffect(() => {
     setSchedules((current) => {
@@ -113,6 +119,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => save(STORAGE_KEYS.workouts, workouts), [workouts])
   useEffect(() => save(STORAGE_KEYS.schedules, schedules), [schedules])
   useEffect(() => save(STORAGE_KEYS.sessions, sessions), [sessions])
+  useEffect(() => save(STORAGE_KEYS.dayNotes, dayNotes), [dayNotes])
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -240,6 +247,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const removeSchedule = useCallback((id: string) => {
     setSchedules((current) => current.filter((s) => s.id !== id))
+  }, [])
+
+  const setDayNote = useCallback((date: string, text: string) => {
+    setDayNotes((current) => {
+      if (!text) {
+        if (!(date in current)) return current
+        const { [date]: _removed, ...rest } = current
+        return rest
+      }
+      return { ...current, [date]: text }
+    })
   }, [])
 
   const sessionsFor = useCallback((date: string) => sessions.filter((s) => s.date === date), [sessions])
@@ -421,6 +439,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setWorkouts([])
     setSchedules([])
     setSessions([])
+    setDayNotes({})
     setUnits(DEFAULT_UNITS)
   }, [])
 
@@ -452,6 +471,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addSchedule,
       updateSchedule,
       removeSchedule,
+      dayNotes,
+      setDayNote,
       sessions,
       sessionsFor,
       startSession,
@@ -493,6 +514,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addSchedule,
       updateSchedule,
       removeSchedule,
+      dayNotes,
+      setDayNote,
       sessions,
       sessionsFor,
       startSession,

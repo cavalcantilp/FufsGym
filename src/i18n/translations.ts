@@ -89,6 +89,9 @@ const fr = {
   'day.session.volume': 'Volume',
   'day.session.unfinished': 'Séance non terminée.',
   'day.session.deleteAria': 'Supprimer cette séance',
+  'day.session.noteLabel': 'Note du jour',
+  'day.session.notePlaceholder': 'Ajouter une note pour cette journée...',
+  'day.session.noteSave': 'Enregistrer la note',
 
   'workout.title': 'Entraînements',
   'workout.subtitle': 'Composez vos entraînements : exercices, séries et répétitions visées.',
@@ -388,6 +391,9 @@ const pt: Dict = {
   'day.session.volume': 'Volume',
   'day.session.unfinished': 'Treino não terminado.',
   'day.session.deleteAria': 'Apagar este treino',
+  'day.session.noteLabel': 'Nota do dia',
+  'day.session.notePlaceholder': 'Adicionar uma nota para este dia...',
+  'day.session.noteSave': 'Guardar a nota',
 
   'workout.title': 'Treinos',
   'workout.subtitle': 'Componha os seus treinos: exercícios, séries e repetições visadas.',
@@ -684,6 +690,9 @@ const es: Dict = {
   'day.session.volume': 'Volumen',
   'day.session.unfinished': 'Entrenamiento sin terminar.',
   'day.session.deleteAria': 'Eliminar este entrenamiento',
+  'day.session.noteLabel': 'Nota del día',
+  'day.session.notePlaceholder': 'Añadir una nota para este día...',
+  'day.session.noteSave': 'Guardar la nota',
 
   'workout.title': 'Entrenamientos',
   'workout.subtitle': 'Compón tus entrenamientos: ejercicios, series y repeticiones objetivo.',
@@ -980,6 +989,9 @@ const en: Dict = {
   'day.session.volume': 'Volume',
   'day.session.unfinished': 'Workout not finished.',
   'day.session.deleteAria': 'Delete this workout',
+  'day.session.noteLabel': 'Day note',
+  'day.session.notePlaceholder': 'Add a note for this day...',
+  'day.session.noteSave': 'Save note',
 
   'workout.title': 'Workouts',
   'workout.subtitle': 'Build your workouts: exercises, target sets and reps.',
@@ -1276,6 +1288,9 @@ const it: Dict = {
   'day.session.volume': 'Volume',
   'day.session.unfinished': 'Allenamento non terminato.',
   'day.session.deleteAria': 'Elimina questo allenamento',
+  'day.session.noteLabel': 'Nota del giorno',
+  'day.session.notePlaceholder': 'Aggiungi una nota per questo giorno...',
+  'day.session.noteSave': 'Salva la nota',
 
   'workout.title': 'Allenamenti',
   'workout.subtitle': 'Componi i tuoi allenamenti: esercizi, serie e ripetizioni target.',

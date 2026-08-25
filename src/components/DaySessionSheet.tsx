@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { Sheet } from './Sheet'
-import { IconChevronDown, IconTrash } from './icons'
+import { IconCheck, IconChevronDown, IconTrash } from './icons'
 import { formatLong } from '../lib/date'
 import { exerciseName } from '../lib/exercises'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
@@ -16,8 +16,11 @@ interface DaySessionSheetProps {
 
 /** Détail en lecture d'un jour, ouvert depuis le calendrier : entraînement prévu, puis séances déjà journalisées. */
 export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProps) {
-  const { t, lang, workouts, schedules, exerciseById, deleteSession } = useApp()
+  const { t, lang, workouts, schedules, exerciseById, deleteSession, dayNotes, setDayNote } = useApp()
   const [expanded, setExpanded] = useState<string | null>(null)
+  const savedNote = dayNotes[date] ?? ''
+  const [noteDraft, setNoteDraft] = useState(savedNote)
+  const noteDirty = noteDraft.trim() !== savedNote
 
   const planned = schedulesForDate(schedules, date)
     .map((schedule) => {
@@ -29,6 +32,30 @@ export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProp
   return (
     <Sheet title={formatLong(date, lang)} onClose={onClose}>
       <div className="stack">
+        <div className="card">
+          <div className="field">
+            <label htmlFor="day-note">{t('day.session.noteLabel')}</label>
+            <textarea
+              id="day-note"
+              rows={3}
+              value={noteDraft}
+              onChange={(event) => setNoteDraft(event.target.value)}
+              placeholder={t('day.session.notePlaceholder')}
+            />
+          </div>
+          {noteDirty ? (
+            <button
+              type="button"
+              className="btn"
+              style={{ marginTop: 10 }}
+              onClick={() => setDayNote(date, noteDraft.trim())}
+            >
+              <IconCheck size={16} />
+              {t('day.session.noteSave')}
+            </button>
+          ) : null}
+        </div>
+
         {planned.map(({ schedule, workout }) => {
           const isOpen = expanded === schedule.id
           return (
