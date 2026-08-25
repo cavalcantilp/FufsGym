@@ -222,6 +222,7 @@ const fr = {
 
   'exercise.back-pullup': 'Tractions',
   'exercise.back-lat-pulldown': 'Tirage vertical',
+  'exercise.back-lat-pulldown-life-fitness': 'Pulldown (Life Fitness)',
   'exercise.back-barbell-row': 'Rowing barre',
   'exercise.back-dumbbell-row': 'Rowing haltère',
   'exercise.back-seated-row': 'Tirage horizontal',
@@ -506,6 +507,7 @@ const pt: Dict = {
 
   'exercise.back-pullup': 'Barra fixa',
   'exercise.back-lat-pulldown': 'Puxada alta',
+  'exercise.back-lat-pulldown-life-fitness': 'Pulldown (Life Fitness)',
   'exercise.back-barbell-row': 'Remada curvada com barra',
   'exercise.back-dumbbell-row': 'Remada unilateral com halter',
   'exercise.back-seated-row': 'Remada sentada',
@@ -787,6 +789,7 @@ const es: Dict = {
 
   'exercise.back-pullup': 'Dominadas',
   'exercise.back-lat-pulldown': 'Jalón al pecho',
+  'exercise.back-lat-pulldown-life-fitness': 'Pulldown (Life Fitness)',
   'exercise.back-barbell-row': 'Remo con barra',
   'exercise.back-dumbbell-row': 'Remo con mancuerna',
   'exercise.back-seated-row': 'Remo sentado en polea',
@@ -1068,6 +1071,7 @@ const en: Dict = {
 
   'exercise.back-pullup': 'Pull-ups',
   'exercise.back-lat-pulldown': 'Lat pulldown',
+  'exercise.back-lat-pulldown-life-fitness': 'Pulldown (Life Fitness)',
   'exercise.back-barbell-row': 'Barbell row',
   'exercise.back-dumbbell-row': 'Dumbbell row',
   'exercise.back-seated-row': 'Seated cable row',
@@ -1349,6 +1353,7 @@ const it: Dict = {
 
   'exercise.back-pullup': 'Trazioni alla sbarra',
   'exercise.back-lat-pulldown': 'Lat machine',
+  'exercise.back-lat-pulldown-life-fitness': 'Pulldown (Life Fitness)',
   'exercise.back-barbell-row': 'Rematore con bilanciere',
   'exercise.back-dumbbell-row': 'Rematore con manubrio',
   'exercise.back-seated-row': 'Rematore al cavo basso',

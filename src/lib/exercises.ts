@@ -64,6 +64,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   // Dos
   ex('back-pullup', 'Tractions', 'back', 'bodyweight'),
   ex('back-lat-pulldown', 'Tirage vertical', 'back', 'cable'),
+  ex('back-lat-pulldown-life-fitness', 'Pulldown (Life Fitness)', 'back', 'machine'),
   ex('back-barbell-row', 'Rowing barre', 'back', 'barbell'),
   ex('back-dumbbell-row', 'Rowing haltère', 'back', 'dumbbell'),
   ex('back-seated-row', 'Tirage horizontal', 'back', 'cable'),
