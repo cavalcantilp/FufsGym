@@ -3,9 +3,13 @@ import { useApp } from '../state/AppContext'
 import { NumberField } from './NumberField'
 import { HoldTimer } from './HoldTimer'
 import { ExerciseInfoButton } from './ExerciseInfoButton'
+import { MuscleDiagram } from './MuscleDiagram'
 import { IconCheck, IconChevronDown, IconPlay, IconPlus, IconTrash } from './icons'
 import { exerciseName, isDurationBased } from '../lib/exercises'
+import { EXERCISE_ACTIVATION } from '../lib/exerciseActivation'
+import { ACTIVATION_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
 import { DEFAULT_REST_SEC, MIN_REST_SEC, REST_STEP_SEC, formatRestTime } from '../lib/rest'
+import { displayWeightValue, fromDisplayWeight } from '../lib/weightUnit'
 import type { Session, SessionExercise } from '../lib/types'
 
 interface ExerciseCardProps {
@@ -21,6 +25,7 @@ interface ExerciseCardProps {
 export function ExerciseCard({ session, sessionExercise, onSetCompleted, triggersRest = false }: ExerciseCardProps) {
   const {
     t,
+    units,
     exerciseById,
     lastPerformance,
     addSet,
@@ -42,10 +47,15 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
   )
   const restSec = sessionExercise.restSec ?? DEFAULT_REST_SEC
   const doneCount = sessionExercise.sets.filter((set) => set.done).length
+  const activation = EXERCISE_ACTIVATION[sessionExercise.exerciseId]
+  const colorForMuscle = (muscleId: string) => {
+    const intensity = activation?.[muscleId] ?? 0
+    return intensity > 0 ? interpolateColor(ACTIVATION_STOPS, intensity) : NEUTRAL_MUSCLE_COLOR
+  }
 
   const formatSet = (set: (typeof sessionExercise.sets)[number]) => {
     if (isHold) return formatRestTime(set.durationSec ?? 0)
-    if (!isCardio) return `${set.weight}kg×${set.reps}`
+    if (!isCardio) return `${displayWeightValue(set.weight, units.weight)}${units.weight}×${set.reps}`
     const parts: string[] = []
     if (set.durationMin) parts.push(`${set.durationMin} min`)
     if (set.distanceKm) parts.push(`${set.distanceKm} km`)
@@ -80,6 +90,17 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
           <p className="hint" style={{ padding: '10px 16px 0' }}>
             {last ? t('train.lastTime', { sets: last.map(formatSet).join(', ') }) : t('train.firstTime')}
           </p>
+
+          {activation ? (
+            <div className="info-section" style={{ padding: '10px 16px 0' }}>
+              <MuscleDiagram colorFor={colorForMuscle} />
+              <div className="legend">
+                <span className="legend-label">{t('exerciseInfo.legendLow')}</span>
+                <span className="legend-bar" />
+                <span className="legend-label">{t('exerciseInfo.legendHigh')}</span>
+              </div>
+            </div>
+          ) : null}
 
           <div className="rest-control">
             <span className="rest-control-label">{t('train.restBetweenSets')}</span>
@@ -170,9 +191,13 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
                   <>
                     <NumberField
                       id={`${set.id}-w`}
-                      value={set.weight}
-                      onCommit={(weight) => updateSet(session.id, sessionExercise.id, set.id, { weight })}
-                      placeholder="kg"
+                      value={displayWeightValue(set.weight, units.weight)}
+                      onCommit={(value) =>
+                        updateSet(session.id, sessionExercise.id, set.id, {
+                          weight: fromDisplayWeight(value, units.weight),
+                        })
+                      }
+                      placeholder={units.weight}
                       inputMode="decimal"
                     />
                     <NumberField
