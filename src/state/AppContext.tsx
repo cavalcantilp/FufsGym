@@ -52,6 +52,8 @@ interface AppState {
   renameWorkout: (id: string, name: string) => void
   removeWorkout: (id: string) => void
   addExercise: (workoutId: string, entry: Omit<PlanExercise, 'id'>) => PlanExercise
+  /** Remplace intégralement les exercices d'un entraînement existant, en conservant son id (et donc sa programmation). */
+  replaceWorkoutExercises: (workoutId: string, exercises: Omit<PlanExercise, 'id'>[]) => void
   updateExercise: (workoutId: string, entryId: string, patch: Partial<PlanExercise>) => void
   removeExercise: (workoutId: string, entryId: string) => void
   setSupersetLink: (workoutId: string, exerciseId: string, linked: boolean) => void
@@ -180,6 +182,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     [],
   )
+
+  const replaceWorkoutExercises = useCallback((workoutId: string, exercises: Omit<PlanExercise, 'id'>[]) => {
+    setWorkouts((current) =>
+      current.map((w) =>
+        w.id !== workoutId ? w : { ...w, exercises: exercises.map((entry) => ({ ...entry, id: newId() })) },
+      ),
+    )
+  }, [])
 
   const removeExercise = useCallback((workoutId: string, entryId: string) => {
     setWorkouts((current) =>
@@ -433,6 +443,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       renameWorkout,
       removeWorkout,
       addExercise,
+      replaceWorkoutExercises,
       updateExercise,
       removeExercise,
       setSupersetLink,
@@ -473,6 +484,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       renameWorkout,
       removeWorkout,
       addExercise,
+      replaceWorkoutExercises,
       updateExercise,
       removeExercise,
       setSupersetLink,

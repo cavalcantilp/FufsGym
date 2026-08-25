@@ -1,14 +1,68 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { ExerciseCard } from '../components/ExerciseCard'
 import { RestTimer } from '../components/RestTimer'
+import { Sheet } from '../components/Sheet'
 import { IconCheck, IconDumbbell, IconPlus, IconTimer } from '../components/icons'
 import { todayKey, formatDay } from '../lib/date'
+import { isDurationBased } from '../lib/exercises'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
+import { formatRestTime } from '../lib/rest'
 import { groupBySuperset } from '../lib/superset'
 import { round1, sessionSetCount, sessionVolume } from '../lib/stats'
-import type { Session, Workout } from '../lib/types'
+import type { Exercise, PlanExercise, Session, Workout } from '../lib/types'
+import type { TranslationKey } from '../i18n/translations'
+
+/** Reconstitue les objectifs (séries × reps, repos) d'un entraînement à partir d'une séance en cours. */
+function buildPlanExercises(
+  session: Session,
+  workouts: Workout[],
+  exerciseById: (id: string) => Exercise | undefined,
+  t: (key: TranslationKey, vars?: Record<string, string | number>) => string,
+): Omit<PlanExercise, 'id'>[] {
+  const sourceWorkout = session.workoutId ? workouts.find((w) => w.id === session.workoutId) : undefined
+  return session.exercises.map((sessionExercise) => {
+    const original = sourceWorkout?.exercises.find((entry) => entry.exerciseId === sessionExercise.exerciseId)
+    const info = exerciseById(sessionExercise.exerciseId)
+    const isCardio = info?.muscle === 'cardio'
+    const isHold = Boolean(info && isDurationBased(info) && !isCardio)
+    const firstSet = sessionExercise.sets[0]
+
+    let reps = original?.reps
+    if (!reps) {
+      if (isHold) {
+        reps = firstSet?.durationSec ? formatRestTime(firstSet.durationSec) : t('planEx.holdDurationPlaceholder')
+      } else if (isCardio) {
+        if (firstSet?.durationMin) reps = `${firstSet.durationMin} min`
+        else if (firstSet?.distanceKm) reps = `${firstSet.distanceKm} km`
+        else reps = t('planEx.durationPlaceholder')
+      } else {
+        reps = firstSet?.reps ? String(firstSet.reps) : t('planEx.repsPlaceholder')
+      }
+    }
+
+    return {
+      exerciseId: sessionExercise.exerciseId,
+      sets: isCardio ? 1 : sessionExercise.sets.length,
+      reps,
+      restSec: sessionExercise.restSec,
+      linkedToNext: sessionExercise.linkedToNext,
+    }
+  })
+}
+
+/** Premier suffixe "_1", "_2"… libre pour ce nom, en cas de conflit refusé par l'utilisateur. */
+function nextAvailableName(base: string, workouts: Workout[]): string {
+  const existing = new Set(workouts.map((w) => w.name.trim().toLowerCase()))
+  let index = 1
+  let candidate = `${base}_${index}`
+  while (existing.has(candidate.toLowerCase())) {
+    index += 1
+    candidate = `${base}_${index}`
+  }
+  return candidate
+}
 
 interface StartViewProps {
   onStart: (workout?: Workout | null) => void
@@ -143,7 +197,19 @@ function ActiveSessionView({
   session: Session
   onFinish: (sessionId: string) => void
 }) {
-  const { t, lang, addSessionExercise, finishSession, deleteSession, renameSession } = useApp()
+  const {
+    t,
+    lang,
+    workouts,
+    exerciseById,
+    addSessionExercise,
+    finishSession,
+    deleteSession,
+    renameSession,
+    addWorkout,
+    addExercise,
+    replaceWorkoutExercises,
+  } = useApp()
   const [picking, setPicking] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
   const [restTimer, setRestTimer] = useState<{ key: number; seconds: number } | null>(null)
@@ -151,6 +217,46 @@ function ActiveSessionView({
   const isFreeSession = !session.workoutId
   const currentName = session.workoutName ?? t('train.freeSession')
   const [nameDraft, setNameDraft] = useState(currentName)
+
+  const [saveSheetOpen, setSaveSheetOpen] = useState(false)
+  const [saveNameDraft, setSaveNameDraft] = useState('')
+  const [conflict, setConflict] = useState<{ name: string; workout: Workout } | null>(null)
+  const [savedToast, setSavedToast] = useState(false)
+
+  useEffect(() => {
+    if (!savedToast) return
+    const timeout = setTimeout(() => setSavedToast(false), 1800)
+    return () => clearTimeout(timeout)
+  }, [savedToast])
+
+  const openSaveSheet = () => {
+    setSaveNameDraft(session.workoutName ?? '')
+    setSaveSheetOpen(true)
+  }
+
+  const performSave = (name: string, overwriteId?: string) => {
+    const planExercises = buildPlanExercises(session, workouts, exerciseById, t)
+    if (overwriteId) {
+      replaceWorkoutExercises(overwriteId, planExercises)
+    } else {
+      const created = addWorkout(name)
+      planExercises.forEach((entry) => addExercise(created.id, entry))
+    }
+    setSaveSheetOpen(false)
+    setConflict(null)
+    setSavedToast(true)
+  }
+
+  const handleSaveSubmit = () => {
+    const trimmed = saveNameDraft.trim()
+    if (!trimmed) return
+    const match = workouts.find((w) => w.name.trim().toLowerCase() === trimmed.toLowerCase())
+    if (match) {
+      setConflict({ name: trimmed, workout: match })
+    } else {
+      performSave(trimmed)
+    }
+  }
 
   const volume = round1(sessionVolume(session))
   const setCount = sessionSetCount(session)
@@ -244,6 +350,11 @@ function ActiveSessionView({
         {t('train.addExercise')}
       </button>
 
+      <button type="button" className="btn secondary" onClick={openSaveSheet}>
+        <IconCheck size={18} />
+        {t('train.saveAsWorkout')}
+      </button>
+
       <div className="grid-2">
         <button type="button" className="btn danger" onClick={() => setConfirmEnd(true)}>
           {t('train.cancelSession')}
@@ -291,6 +402,50 @@ function ActiveSessionView({
       ) : null}
 
       {restTimer ? <RestTimer key={restTimer.key} seconds={restTimer.seconds} onClose={() => setRestTimer(null)} /> : null}
+
+      {saveSheetOpen ? (
+        <Sheet title={t('train.saveWorkoutTitle')} onClose={() => setSaveSheetOpen(false)}>
+          <div className="stack">
+            <div className="field">
+              <label htmlFor="save-workout-name">{t('workout.newName')}</label>
+              <input
+                id="save-workout-name"
+                type="text"
+                value={saveNameDraft}
+                onChange={(event) => setSaveNameDraft(event.target.value)}
+                placeholder={t('workout.newName')}
+              />
+            </div>
+            <button type="button" className="btn" onClick={handleSaveSubmit}>
+              {t('train.saveWorkoutConfirm')}
+            </button>
+          </div>
+        </Sheet>
+      ) : null}
+
+      {conflict ? (
+        <Sheet title={t('train.saveWorkoutConflictTitle')} onClose={() => setConflict(null)}>
+          <div className="stack">
+            <p className="hint">{t('train.saveWorkoutConflictBody', { name: conflict.name })}</p>
+            <button
+              type="button"
+              className="btn danger"
+              onClick={() => performSave(conflict.name, conflict.workout.id)}
+            >
+              {t('train.saveWorkoutOverwrite')}
+            </button>
+            <button
+              type="button"
+              className="btn secondary"
+              onClick={() => performSave(nextAvailableName(conflict.name, workouts))}
+            >
+              {t('train.saveWorkoutKeepBoth')}
+            </button>
+          </div>
+        </Sheet>
+      ) : null}
+
+      {savedToast ? <div className="toast">{t('train.saveWorkoutSuccess')}</div> : null}
     </div>
   )
 }
