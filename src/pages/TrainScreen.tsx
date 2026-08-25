@@ -6,63 +6,11 @@ import { RestTimer } from '../components/RestTimer'
 import { Sheet } from '../components/Sheet'
 import { IconCheck, IconDumbbell, IconPlus, IconTimer } from '../components/icons'
 import { todayKey, formatDay } from '../lib/date'
-import { isDurationBased } from '../lib/exercises'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
-import { formatRestTime } from '../lib/rest'
 import { groupBySuperset } from '../lib/superset'
+import { buildPlanExercises, nextAvailableName } from '../lib/saveWorkout'
 import { round1, sessionSetCount, sessionVolume } from '../lib/stats'
-import type { Exercise, PlanExercise, Session, Workout } from '../lib/types'
-import type { TranslationKey } from '../i18n/translations'
-
-/** Reconstitue les objectifs (séries × reps, repos) d'un entraînement à partir d'une séance en cours. */
-function buildPlanExercises(
-  session: Session,
-  workouts: Workout[],
-  exerciseById: (id: string) => Exercise | undefined,
-  t: (key: TranslationKey, vars?: Record<string, string | number>) => string,
-): Omit<PlanExercise, 'id'>[] {
-  const sourceWorkout = session.workoutId ? workouts.find((w) => w.id === session.workoutId) : undefined
-  return session.exercises.map((sessionExercise) => {
-    const original = sourceWorkout?.exercises.find((entry) => entry.exerciseId === sessionExercise.exerciseId)
-    const info = exerciseById(sessionExercise.exerciseId)
-    const isCardio = info?.muscle === 'cardio'
-    const isHold = Boolean(info && isDurationBased(info) && !isCardio)
-    const firstSet = sessionExercise.sets[0]
-
-    let reps = original?.reps
-    if (!reps) {
-      if (isHold) {
-        reps = firstSet?.durationSec ? formatRestTime(firstSet.durationSec) : t('planEx.holdDurationPlaceholder')
-      } else if (isCardio) {
-        if (firstSet?.durationMin) reps = `${firstSet.durationMin} min`
-        else if (firstSet?.distanceKm) reps = `${firstSet.distanceKm} km`
-        else reps = t('planEx.durationPlaceholder')
-      } else {
-        reps = firstSet?.reps ? String(firstSet.reps) : t('planEx.repsPlaceholder')
-      }
-    }
-
-    return {
-      exerciseId: sessionExercise.exerciseId,
-      sets: isCardio ? 1 : sessionExercise.sets.length,
-      reps,
-      restSec: sessionExercise.restSec,
-      linkedToNext: sessionExercise.linkedToNext,
-    }
-  })
-}
-
-/** Premier suffixe "_1", "_2"… libre pour ce nom, en cas de conflit refusé par l'utilisateur. */
-function nextAvailableName(base: string, workouts: Workout[]): string {
-  const existing = new Set(workouts.map((w) => w.name.trim().toLowerCase()))
-  let index = 1
-  let candidate = `${base}_${index}`
-  while (existing.has(candidate.toLowerCase())) {
-    index += 1
-    candidate = `${base}_${index}`
-  }
-  return candidate
-}
+import type { Session, Workout } from '../lib/types'
 
 interface StartViewProps {
   onStart: (workout?: Workout | null) => void

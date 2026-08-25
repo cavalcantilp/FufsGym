@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { LineChart, RANGE_LABEL, RANGE_ORDER, type RangeKey } from '../components/LineChart'
 import { FormPage } from '../components/FormPage'
@@ -8,6 +8,7 @@ import { ExerciseCard } from '../components/ExerciseCard'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
 import { formatLong, formatShort, todayKey } from '../lib/date'
 import { groupBySuperset } from '../lib/superset'
+import { buildPlanExercises, nextAvailableName } from '../lib/saveWorkout'
 import { IconCheck, IconChevronRight, IconDumbbell, IconFlame, IconHeart, IconPlus } from '../components/icons'
 import {
   bestEstimate1RM,
@@ -22,7 +23,7 @@ import {
   trainingStreak,
   volumeSeries,
 } from '../lib/stats'
-import type { Session } from '../lib/types'
+import type { Session, Workout } from '../lib/types'
 
 function RangePicker({ range, onChange }: { range: RangeKey; onChange: (range: RangeKey) => void }) {
   const { t } = useApp()
@@ -97,11 +98,62 @@ function HistoryScreen({ onBack, onSelect }: { onBack: () => void; onSelect: (se
 }
 
 function SessionEditScreen({ session, onBack }: { session: Session; onBack: () => void }) {
-  const { t, lang, addSessionExercise, deleteSession, renameSession } = useApp()
+  const {
+    t,
+    lang,
+    workouts,
+    exerciseById,
+    addSessionExercise,
+    deleteSession,
+    renameSession,
+    addWorkout,
+    addExercise,
+    replaceWorkoutExercises,
+  } = useApp()
   const [picking, setPicking] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const currentName = session.workoutName ?? t('train.freeSession')
   const [nameDraft, setNameDraft] = useState(currentName)
+
+  const [saveSheetOpen, setSaveSheetOpen] = useState(false)
+  const [saveNameDraft, setSaveNameDraft] = useState('')
+  const [conflict, setConflict] = useState<{ name: string; workout: Workout } | null>(null)
+  const [savedToast, setSavedToast] = useState(false)
+
+  useEffect(() => {
+    if (!savedToast) return
+    const timeout = setTimeout(() => setSavedToast(false), 1800)
+    return () => clearTimeout(timeout)
+  }, [savedToast])
+
+  const openSaveSheet = () => {
+    setSaveNameDraft(session.workoutName ?? '')
+    setSaveSheetOpen(true)
+  }
+
+  const performSave = (name: string, overwriteId?: string) => {
+    const planExercises = buildPlanExercises(session, workouts, exerciseById, t)
+    if (overwriteId) {
+      replaceWorkoutExercises(overwriteId, planExercises)
+    } else {
+      const created = addWorkout(name)
+      planExercises.forEach((entry) => addExercise(created.id, entry))
+    }
+    setSaveSheetOpen(false)
+    setConflict(null)
+    setSavedToast(true)
+  }
+
+  const handleSaveSubmit = () => {
+    const trimmed = saveNameDraft.trim()
+    if (!trimmed) return
+    const match = workouts.find((w) => w.name.trim().toLowerCase() === trimmed.toLowerCase())
+    if (match) {
+      setConflict({ name: trimmed, workout: match })
+    } else {
+      performSave(trimmed)
+    }
+  }
 
   const volume = round1(sessionVolume(session))
   const setCount = sessionSetCount(session)
@@ -172,6 +224,11 @@ function SessionEditScreen({ session, onBack }: { session: Session; onBack: () =
           {t('train.addExercise')}
         </button>
 
+        <button type="button" className="btn secondary" onClick={openSaveSheet}>
+          <IconCheck size={18} />
+          {t('train.saveAsWorkout')}
+        </button>
+
         <button type="button" className="btn danger" onClick={() => setConfirmDelete(true)}>
           {t('history.deleteSession')}
         </button>
@@ -206,6 +263,50 @@ function SessionEditScreen({ session, onBack }: { session: Session; onBack: () =
           </div>
         </Sheet>
       ) : null}
+
+      {saveSheetOpen ? (
+        <Sheet title={t('train.saveWorkoutTitle')} onClose={() => setSaveSheetOpen(false)}>
+          <div className="stack">
+            <div className="field">
+              <label htmlFor="history-save-workout-name">{t('workout.newName')}</label>
+              <input
+                id="history-save-workout-name"
+                type="text"
+                value={saveNameDraft}
+                onChange={(event) => setSaveNameDraft(event.target.value)}
+                placeholder={t('workout.newName')}
+              />
+            </div>
+            <button type="button" className="btn" onClick={handleSaveSubmit}>
+              {t('train.saveWorkoutConfirm')}
+            </button>
+          </div>
+        </Sheet>
+      ) : null}
+
+      {conflict ? (
+        <Sheet title={t('train.saveWorkoutConflictTitle')} onClose={() => setConflict(null)}>
+          <div className="stack">
+            <p className="hint">{t('train.saveWorkoutConflictBody', { name: conflict.name })}</p>
+            <button
+              type="button"
+              className="btn danger"
+              onClick={() => performSave(conflict.name, conflict.workout.id)}
+            >
+              {t('train.saveWorkoutOverwrite')}
+            </button>
+            <button
+              type="button"
+              className="btn secondary"
+              onClick={() => performSave(nextAvailableName(conflict.name, workouts))}
+            >
+              {t('train.saveWorkoutKeepBoth')}
+            </button>
+          </div>
+        </Sheet>
+      ) : null}
+
+      {savedToast ? <div className="toast">{t('train.saveWorkoutSuccess')}</div> : null}
     </FormPage>
   )
 }
