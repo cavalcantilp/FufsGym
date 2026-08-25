@@ -43,6 +43,14 @@ function WorkoutDetail({
     renameWorkout(workout.id, trimmedDraft)
   }
 
+  /** Retour sans garder de trace : un entraînement fraîchement créé, jamais renommé ni complété, ne doit pas polluer la liste. */
+  const handleBack = () => {
+    if (workout.exercises.length === 0 && workout.name === t('workout.new')) {
+      removeWorkout(workout.id)
+    }
+    onBack()
+  }
+
   const nameField = (
     <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <input
@@ -68,7 +76,7 @@ function WorkoutDetail({
       title={nameField}
       backLabel={workout.name}
       subtitle={`${workout.exercises.length} ${t('unit.exercise')}`}
-      onBack={onBack}
+      onBack={handleBack}
     >
       <div className="stack">
         <div className="day-card">
