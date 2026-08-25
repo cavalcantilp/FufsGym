@@ -63,12 +63,14 @@ function MuscleDetailScreen({
   sessions,
   range,
   onRangeChange,
+  onSelectMuscle,
   onBack,
 }: {
   baseMuscleId: string
   sessions: Session[]
   range: RangeKey
   onRangeChange: (range: RangeKey) => void
+  onSelectMuscle: (baseMuscleId: string) => void
   onBack: () => void
 }) {
   const { t, exerciseById } = useApp()
@@ -106,7 +108,7 @@ function MuscleDetailScreen({
       <div className="stack">
         <RangePicker range={range} onChange={onRangeChange} />
 
-        <MuscleDiagram colorFor={colorFor} />
+        <MuscleDiagram colorFor={colorFor} onMuscleClick={(id) => onSelectMuscle(muscleBaseId(id))} />
 
         <div className="info-section-title">{t('muscleMap.performedTitle')}</div>
         {sortedPerformed.length ? (
@@ -205,6 +207,7 @@ export function MuscleMapScreen({ onBack }: { onBack: () => void }) {
         sessions={sessions}
         range={range}
         onRangeChange={setRange}
+        onSelectMuscle={setSelectedMuscle}
         onBack={() => setSelectedMuscle(null)}
       />
     )
