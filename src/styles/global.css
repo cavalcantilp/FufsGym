@@ -750,6 +750,18 @@ select {
   animation: rise 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.sheet-backdrop.centered {
+  align-items: center;
+  padding: 24px;
+}
+
+.sheet.centered {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  max-width: 420px;
+  animation: fade 0.18s ease;
+}
+
 .sheet-head {
   display: flex;
   align-items: flex-start;

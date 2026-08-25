@@ -20,7 +20,7 @@ export function ExerciseInfoButton({ exercise }: { exercise: Exercise }) {
         <IconInfo size={17} />
       </button>
       {open ? (
-        <Sheet title={exerciseName(exercise, t)} onClose={() => setOpen(false)}>
+        <Sheet title={exerciseName(exercise, t)} onClose={() => setOpen(false)} centered>
           <div className="exercise-info-images">
             {images.map((src) => (
               <img key={src} src={src} alt="" loading="lazy" />

@@ -6,10 +6,12 @@ interface SheetProps {
   subtitle?: string
   onClose: () => void
   children: ReactNode
+  /** Centrée à l'écran façon boîte de dialogue, plutôt qu'ancrée en bas (par défaut). */
+  centered?: boolean
 }
 
-/** Feuille modale ancrée en bas d'écran, fermable par Échap ou par l'arrière-plan. */
-export function Sheet({ title, subtitle, onClose, children }: SheetProps) {
+/** Feuille modale ancrée en bas d'écran (ou centrée si `centered`), fermable par Échap ou par l'arrière-plan. */
+export function Sheet({ title, subtitle, onClose, children, centered = false }: SheetProps) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose()
@@ -25,13 +27,13 @@ export function Sheet({ title, subtitle, onClose, children }: SheetProps) {
 
   return (
     <div
-      className="sheet-backdrop"
+      className={`sheet-backdrop${centered ? ' centered' : ''}`}
       role="presentation"
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose()
       }}
     >
-      <div className="sheet" role="dialog" aria-modal="true" aria-label={title}>
+      <div className={`sheet${centered ? ' centered' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
         <div className="sheet-head">
           <div>
             <h2>{title}</h2>
