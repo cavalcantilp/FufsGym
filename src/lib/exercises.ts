@@ -86,6 +86,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('legs-hip-adduction', 'Adducteurs (machine)', 'legs', 'machine'),
   ex('legs-hip-abduction', 'Abducteurs (machine)', 'legs', 'machine'),
   ex('legs-hip-thrust', 'Hip thrust', 'legs', 'barbell'),
+  ex('legs-hip-thrust-machine', 'Hip thrust à la machine', 'legs', 'machine'),
 
   // Épaules
   ex('shoulders-military-press', 'Développé militaire', 'shoulders', 'barbell'),

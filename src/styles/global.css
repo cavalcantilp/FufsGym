@@ -819,6 +819,16 @@ select {
   filter: grayscale(1);
 }
 
+.exercise-info-tip {
+  font-size: 0.85rem;
+  color: var(--text-main);
+  line-height: 1.5;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+
 /* ---------- Schéma d'activation musculaire ---------- */
 
 .body-views {

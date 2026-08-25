@@ -6,6 +6,7 @@ import { IconInfo } from './icons'
 import { exerciseMediaImages } from '../lib/exerciseMedia'
 import { EXERCISE_ACTIVATION } from '../lib/exerciseActivation'
 import { exerciseName } from '../lib/exercises'
+import type { TranslationKey } from '../i18n/translations'
 import type { Exercise } from '../lib/types'
 
 /** Bouton "i" ouvrant le schéma d'activation musculaire et/ou des photos d'exécution ; masqué si aucun n'existe pour cet exercice. */
@@ -46,6 +47,7 @@ export function ExerciseInfoButton({ exercise }: { exercise: Exercise }) {
                   <img key={src} src={src} alt="" loading="lazy" className="grayscale" />
                 ))}
               </div>
+              <p className="exercise-info-tip">{t(`exerciseTip.${exercise.id}` as TranslationKey)}</p>
               <p className="hint">{t('exerciseInfo.credit')}</p>
             </div>
           ) : null}

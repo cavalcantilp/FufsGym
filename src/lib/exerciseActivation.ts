@@ -214,6 +214,11 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
     bi('abs-lower', 0.2),
     bi('abs-upper', 0.2),
   ),
+  'legs-hip-thrust-machine': merge(
+    bi('gluteus-maximus', 1),
+    bi('hamstrings-medial', 0.35),
+    bi('hamstrings-lateral', 0.35),
+  ),
 
   // Épaules
   'shoulders-military-press': merge(

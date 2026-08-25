@@ -58,6 +58,7 @@ export const EXERCISE_MEDIA: Record<string, string> = {
   'legs-hip-abduction': 'Thigh_Abductor',
   'legs-hip-adduction': 'Thigh_Adductor',
   'legs-hip-thrust': 'Barbell_Hip_Thrust',
+  'legs-hip-thrust-machine': 'Barbell_Hip_Thrust',
   'legs-leg-curl': 'Lying_Leg_Curls',
   'legs-leg-extension': 'Leg_Extensions',
   'legs-leg-press': 'Leg_Press',
