@@ -19,10 +19,18 @@ interface ExerciseCardProps {
   onSetCompleted?: (restSec: number) => void
   /** Faux pour un exercice qui n'est pas le dernier d'un superset : cocher une série y enchaîne directement, sans minuteur. */
   triggersRest?: boolean
+  /** Faux pendant une séance active (S'entraîner) : le schéma musculaire n'y est affiché qu'en correction d'historique. */
+  showMuscleDiagram?: boolean
 }
 
 /** Carte repliable d'un exercice en séance : nom + résumé, détail (dernière fois, repos, séries) sur demande. */
-export function ExerciseCard({ session, sessionExercise, onSetCompleted, triggersRest = false }: ExerciseCardProps) {
+export function ExerciseCard({
+  session,
+  sessionExercise,
+  onSetCompleted,
+  triggersRest = false,
+  showMuscleDiagram = true,
+}: ExerciseCardProps) {
   const {
     t,
     units,
@@ -91,7 +99,7 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
             {last ? t('train.lastTime', { sets: last.map(formatSet).join(', ') }) : t('train.firstTime')}
           </p>
 
-          {activation ? (
+          {activation && showMuscleDiagram ? (
             <div className="info-section" style={{ padding: '10px 16px 0' }}>
               <MuscleDiagram colorFor={colorForMuscle} />
               <div className="legend">

@@ -285,6 +285,7 @@ function ActiveSessionView({
                 sessionExercise={sessionExercise}
                 onSetCompleted={handleSetCompleted}
                 triggersRest={index === group.length - 1}
+                showMuscleDiagram={false}
               />
             ))}
           </div>
@@ -295,6 +296,7 @@ function ActiveSessionView({
             sessionExercise={group[0]}
             onSetCompleted={handleSetCompleted}
             triggersRest
+            showMuscleDiagram={false}
           />
         ),
       )}
