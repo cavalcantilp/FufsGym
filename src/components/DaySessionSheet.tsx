@@ -3,7 +3,7 @@ import { useApp } from '../state/AppContext'
 import { Sheet } from './Sheet'
 import { MuscleDiagram } from './MuscleDiagram'
 import { IconCheck, IconChevronDown, IconTrash } from './icons'
-import { formatLong } from '../lib/date'
+import { formatLong, formatNumeric } from '../lib/date'
 import { exerciseName } from '../lib/exercises'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { sessionSetCount, sessionVolume } from '../lib/stats'
@@ -69,7 +69,9 @@ export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProp
 
         {maxLoad > 0 ? (
           <div className="card">
-            <div className="card-title">{t('day.session.musclesTitle')}</div>
+            <div className="card-title">
+              {t('day.session.musclesTitle', { date: formatNumeric(date, lang) })}
+            </div>
             <MuscleDiagram colorFor={colorForMuscle} />
             <div className="legend">
               <span className="legend-label">{t('muscleMap.legendLow')}</span>

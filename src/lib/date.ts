@@ -43,6 +43,11 @@ export function formatShort(key: string, lang: Lang): string {
   return fromKey(key).toLocaleDateString(LOCALES[lang], { day: '2-digit', month: '2-digit' })
 }
 
+/** jj/mm/aaaa (ou équivalent local), pour référencer une date précise dans un libellé. */
+export function formatNumeric(key: string, lang: Lang): string {
+  return fromKey(key).toLocaleDateString(LOCALES[lang], { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
 export function formatLong(key: string, lang: Lang): string {
   return fromKey(key).toLocaleDateString(LOCALES[lang], {
     weekday: 'long',
