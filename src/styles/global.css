@@ -33,6 +33,9 @@
   /* Calendrier : pictogrammes de type de séance sur un jour entraîné. */
   --type-cardio: #a78bfa;
 
+  /* Schéma d'activation musculaire : muscle non sollicité, dans le dégradé de la légende. */
+  --neutral-fill: #64748b;
+
   --radius: 16px;
   --radius-lg: 24px;
   --tabbar-height: 64px;
@@ -781,6 +784,24 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-section + .info-section {
+  margin-top: 14px;
+}
+
+.info-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-sub);
+}
+
 .exercise-info-images {
   display: flex;
   gap: 8px;
@@ -792,6 +813,69 @@ select {
   background: var(--input-bg);
   object-fit: cover;
   aspect-ratio: 3 / 2;
+}
+
+.exercise-info-images img.grayscale {
+  filter: grayscale(1);
+}
+
+/* ---------- Schéma d'activation musculaire ---------- */
+
+.body-views {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  background: rgba(2, 6, 23, 0.35);
+  border-radius: var(--radius);
+  padding: 14px 10px 8px;
+}
+
+.body-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.body-view svg {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+}
+
+.body-view .view-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-sub);
+}
+
+.muscle-path {
+  stroke: var(--bg-elevated);
+  stroke-width: 0.12;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--neutral-fill) 0%, #ec4899 50%, var(--accent) 100%);
+}
+
+.legend-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  white-space: nowrap;
 }
 
 /* ---------- Page de formulaire ---------- */

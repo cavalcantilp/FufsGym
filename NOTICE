@@ -1,0 +1,21 @@
+FufsGym uses third-party assets under the following licenses:
+
+---
+
+Body Muscles
+Copyright 2024 Ivan Vulović
+
+This product includes software developed by Ivan Vulović.
+https://github.com/vulovix/body-muscles
+
+Licensed under the Apache License, Version 2.0. Anatomical muscle SVG
+path data (src/lib/muscleData.ts) is derived from this package and used
+to render the muscle-activation diagrams in the exercise info sheet.
+
+---
+
+free-exercise-db
+https://github.com/yuhonas/free-exercise-db
+
+Public domain (Unlicense). Exercise demonstration photos in
+public/exercise-media/ are sourced from this dataset.
