@@ -68,6 +68,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('back-barbell-row', 'Rowing barre', 'back', 'barbell'),
   ex('back-dumbbell-row', 'Rowing haltère', 'back', 'dumbbell'),
   ex('back-seated-row', 'Tirage horizontal', 'back', 'cable'),
+  ex('back-seated-row-life-fitness', 'Cable Row (Life Fitness)', 'back', 'machine'),
   ex('back-deadlift', 'Soulevé de terre', 'back', 'barbell'),
   ex('back-hyperextension', 'Extension lombaire', 'back', 'bodyweight'),
   ex('back-assisted-pullup', 'Tractions assistées', 'back', 'machine'),
