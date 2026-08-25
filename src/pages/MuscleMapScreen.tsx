@@ -27,6 +27,10 @@ function muscleDisplayName(baseId: string, t: TFn): string {
   return t(`muscleName.${baseId}` as TranslationKey)
 }
 
+/** Seuls les muscles ayant au moins un exercice (tête, mains, pieds, tibias... exclus) sont sélectionnables. */
+const CLICKABLE_BASE_MUSCLES = new Set(ALL_BASE_MUSCLES)
+const isMuscleClickable = (muscleId: string) => CLICKABLE_BASE_MUSCLES.has(muscleBaseId(muscleId))
+
 type SortColumn = 'volume' | 'sessions' | 'maxLoad' | 'estRM' | 'engagement'
 type SortDirection = 'asc' | 'desc'
 
@@ -108,7 +112,11 @@ function MuscleDetailScreen({
       <div className="stack">
         <RangePicker range={range} onChange={onRangeChange} />
 
-        <MuscleDiagram colorFor={colorFor} onMuscleClick={(id) => onSelectMuscle(muscleBaseId(id))} />
+        <MuscleDiagram
+          colorFor={colorFor}
+          onMuscleClick={(id) => onSelectMuscle(muscleBaseId(id))}
+          isClickable={isMuscleClickable}
+        />
 
         <div className="info-section-title">{t('muscleMap.performedTitle')}</div>
         {sortedPerformed.length ? (
@@ -222,7 +230,11 @@ export function MuscleMapScreen({ onBack }: { onBack: () => void }) {
           <div className="card-title">{t('muscleMap.diagramTitle')}</div>
           {hasAnyData ? (
             <>
-              <MuscleDiagram colorFor={colorFor} onMuscleClick={(id) => setSelectedMuscle(muscleBaseId(id))} />
+              <MuscleDiagram
+                colorFor={colorFor}
+                onMuscleClick={(id) => setSelectedMuscle(muscleBaseId(id))}
+                isClickable={isMuscleClickable}
+              />
               <div className="legend">
                 <span className="legend-label">{t('muscleMap.legendLow')}</span>
                 <span className="legend-bar heat" />
