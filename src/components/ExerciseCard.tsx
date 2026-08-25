@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { NumberField } from './NumberField'
 import { HoldTimer } from './HoldTimer'
+import { ExerciseInfoButton } from './ExerciseInfoButton'
 import { IconCheck, IconChevronDown, IconPlay, IconPlus, IconTrash } from './icons'
 import { exerciseName, isDurationBased } from '../lib/exercises'
 import { DEFAULT_REST_SEC, MIN_REST_SEC, REST_STEP_SEC, formatRestTime } from '../lib/rest'
@@ -63,6 +64,7 @@ export function ExerciseCard({ session, sessionExercise, onSetCompleted, trigger
           </span>
           <IconChevronDown open={expanded} size={16} />
         </button>
+        {info ? <ExerciseInfoButton exercise={info} /> : null}
         <button
           type="button"
           className="icon-btn danger"

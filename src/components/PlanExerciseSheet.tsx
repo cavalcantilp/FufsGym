@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { Sheet } from './Sheet'
 import { NumberField } from './NumberField'
+import { ExerciseInfoButton } from './ExerciseInfoButton'
+import { exerciseMediaImages } from '../lib/exerciseMedia'
 import { exerciseName } from '../lib/exercises'
 import { DEFAULT_REST_SEC, REST_STEP_SEC, MIN_REST_SEC, formatRestTime } from '../lib/rest'
 import type { Exercise, PlanExercise } from '../lib/types'
@@ -59,6 +61,11 @@ export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: Pla
   return (
     <Sheet title={exerciseName(exercise, t)} subtitle={t('planEx.subtitle')} onClose={onClose}>
       <div className="stack">
+        {exerciseMediaImages(exercise.id) ? (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: -8 }}>
+            <ExerciseInfoButton exercise={exercise} />
+          </div>
+        ) : null}
         {isCardio ? (
           durationField
         ) : isHold ? (

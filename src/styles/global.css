@@ -768,6 +768,19 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+.exercise-info-images {
+  display: flex;
+  gap: 8px;
+}
+
+.exercise-info-images img {
+  width: 50%;
+  border-radius: 12px;
+  background: var(--input-bg);
+  object-fit: cover;
+  aspect-ratio: 3 / 2;
+}
+
 /* ---------- Page de formulaire ---------- */
 
 .form-page-head {
