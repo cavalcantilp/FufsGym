@@ -954,10 +954,11 @@ select {
 .exercise-list {
   display: flex;
   flex-direction: column;
+  height: min(50vh, 420px);
+  overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card-bg);
-  overflow: hidden;
 }
 
 .exercise-row {
