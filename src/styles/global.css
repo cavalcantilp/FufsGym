@@ -608,7 +608,7 @@ select {
 
 .quick-timer-fab {
   position: fixed;
-  left: 16px;
+  right: 16px;
   bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 16px);
   z-index: 9;
   display: grid;
@@ -620,6 +620,8 @@ select {
   color: var(--accent-ink);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
   transition: transform 0.15s ease, background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 .quick-timer-fab:active {
