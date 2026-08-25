@@ -18,7 +18,6 @@ const fr = {
   'settings.resetWarning':
     'Cette action supprime définitivement vos programmes, séances et exercices personnalisés, sur cet appareil.',
   'settings.resetConfirm': 'Confirmer la réinitialisation',
-  'settings.cancel': 'Annuler',
   'settings.units': 'Unités',
   'settings.weightUnit': 'Poids',
   'settings.lengthUnit': 'Longueur',
@@ -460,7 +459,6 @@ const pt: Dict = {
   'settings.resetWarning':
     'Esta ação apaga definitivamente os seus programas, treinos e exercícios personalizados, neste dispositivo.',
   'settings.resetConfirm': 'Confirmar a reposição',
-  'settings.cancel': 'Cancelar',
   'settings.units': 'Unidades',
   'settings.weightUnit': 'Peso',
   'settings.lengthUnit': 'Comprimento',
@@ -899,7 +897,6 @@ const es: Dict = {
   'settings.resetWarning':
     'Esta acción elimina definitivamente tus programas, entrenamientos y ejercicios personalizados, en este dispositivo.',
   'settings.resetConfirm': 'Confirmar el restablecimiento',
-  'settings.cancel': 'Cancelar',
   'settings.units': 'Unidades',
   'settings.weightUnit': 'Peso',
   'settings.lengthUnit': 'Longitud',
@@ -1338,7 +1335,6 @@ const en: Dict = {
   'settings.resetWarning':
     'This permanently deletes your programs, workouts and custom exercises, on this device.',
   'settings.resetConfirm': 'Confirm reset',
-  'settings.cancel': 'Cancel',
   'settings.units': 'Units',
   'settings.weightUnit': 'Weight',
   'settings.lengthUnit': 'Length',
@@ -1777,7 +1773,6 @@ const it: Dict = {
   'settings.resetWarning':
     'Questa azione elimina definitivamente i tuoi programmi, allenamenti ed esercizi personalizzati, su questo dispositivo.',
   'settings.resetConfirm': 'Conferma il ripristino',
-  'settings.cancel': 'Annulla',
   'settings.units': 'Unità',
   'settings.weightUnit': 'Peso',
   'settings.lengthUnit': 'Lunghezza',

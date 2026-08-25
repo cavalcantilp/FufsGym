@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../state/AppContext'
+import { Sheet } from '../components/Sheet'
 import { LANGS } from '../i18n/translations'
 import type { Lang, LengthUnit, WeightUnit } from '../lib/types'
 
@@ -55,8 +56,14 @@ export function SettingsScreen() {
       </div>
 
       <div className="stack">
-        {confirmReset ? (
-          <>
+        <button type="button" className="btn danger" onClick={() => setConfirmReset(true)}>
+          {t('settings.resetAll')}
+        </button>
+      </div>
+
+      {confirmReset ? (
+        <Sheet title={t('settings.resetAll')} onClose={() => setConfirmReset(false)}>
+          <div className="stack">
             <p className="hint">{t('settings.resetWarning')}</p>
             <button
               type="button"
@@ -68,16 +75,9 @@ export function SettingsScreen() {
             >
               {t('settings.resetConfirm')}
             </button>
-            <button type="button" className="btn secondary" onClick={() => setConfirmReset(false)}>
-              {t('settings.cancel')}
-            </button>
-          </>
-        ) : (
-          <button type="button" className="btn danger" onClick={() => setConfirmReset(true)}>
-            {t('settings.resetAll')}
-          </button>
-        )}
-      </div>
+          </div>
+        </Sheet>
+      ) : null}
     </div>
   )
 }
