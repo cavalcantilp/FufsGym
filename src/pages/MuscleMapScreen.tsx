@@ -3,6 +3,7 @@ import { useApp } from '../state/AppContext'
 import { FormPage } from '../components/FormPage'
 import { RangePicker } from '../components/RangePicker'
 import { MuscleDiagram } from '../components/MuscleDiagram'
+import { ExerciseInfoButton } from '../components/ExerciseInfoButton'
 import { rangeStartDate, type RangeKey } from '../components/LineChart'
 import { HEAT_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
 import {
@@ -156,6 +157,7 @@ function MuscleDetailScreen({
                   <span className="muscle-rank-bar-fill" style={{ width: `${pct}%`, background: 'var(--accent)' }} />
                 </span>
                 <span className="pct">{pct}%</span>
+                {info ? <ExerciseInfoButton exercise={info} /> : null}
               </div>
             )
           })}
