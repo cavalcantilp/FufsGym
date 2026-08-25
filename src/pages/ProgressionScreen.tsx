@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
-import { LineChart, RANGE_LABEL, RANGE_ORDER, type RangeKey } from '../components/LineChart'
+import { LineChart, type RangeKey } from '../components/LineChart'
+import { RangePicker } from '../components/RangePicker'
 import { FormPage } from '../components/FormPage'
 import { Sheet } from '../components/Sheet'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { ExerciseCard } from '../components/ExerciseCard'
+import { MuscleMapScreen } from './MuscleMapScreen'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
 import { formatLong, formatShort, todayKey } from '../lib/date'
 import { groupBySuperset } from '../lib/superset'
@@ -24,24 +26,6 @@ import {
   volumeSeries,
 } from '../lib/stats'
 import type { Session, Workout } from '../lib/types'
-
-function RangePicker({ range, onChange }: { range: RangeKey; onChange: (range: RangeKey) => void }) {
-  const { t } = useApp()
-  return (
-    <div className="chart-ranges">
-      {RANGE_ORDER.map((key) => (
-        <button
-          key={key}
-          type="button"
-          className={`chart-range${range === key ? ' active' : ''}`}
-          onClick={() => onChange(key)}
-        >
-          {t(RANGE_LABEL[key])}
-        </button>
-      ))}
-    </div>
-  )
-}
 
 function HistoryScreen({ onBack, onSelect }: { onBack: () => void; onSelect: (sessionId: string) => void }) {
   const { t, lang, sessions, exerciseById } = useApp()
@@ -314,7 +298,7 @@ function SessionEditScreen({ session, onBack }: { session: Session; onBack: () =
 export function ProgressionScreen() {
   const { t, lang, sessions, exerciseById } = useApp()
   const [range, setRange] = useState<RangeKey>('3m')
-  const [screen, setScreen] = useState<'main' | 'history'>('main')
+  const [screen, setScreen] = useState<'main' | 'history' | 'muscles'>('main')
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null)
   const trainedIds = useMemo(() => trainedExerciseIds(sessions), [sessions])
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -359,6 +343,10 @@ export function ProgressionScreen() {
     )
   }
 
+  if (screen === 'muscles') {
+    return <MuscleMapScreen onBack={() => setScreen('main')} />
+  }
+
   return (
     <div className="screen">
       <div>
@@ -372,6 +360,14 @@ export function ProgressionScreen() {
           <IconChevronRight size={18} />
         </div>
         <span className="days-sub">{t('history.subtitle')}</span>
+      </button>
+
+      <button type="button" className="plan-card" onClick={() => setScreen('muscles')}>
+        <div className="plan-card-head">
+          <span className="name">{t('muscleMap.title')}</span>
+          <IconChevronRight size={18} />
+        </div>
+        <span className="days-sub">{t('muscleMap.subtitle')}</span>
       </button>
 
       <div className="card">

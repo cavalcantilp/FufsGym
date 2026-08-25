@@ -881,11 +881,83 @@ select {
   background: linear-gradient(90deg, var(--neutral-fill) 0%, #ec4899 50%, var(--accent) 100%);
 }
 
+.legend-bar.heat {
+  background: linear-gradient(90deg, #facc15 0%, #34d399 33%, #38bdf8 66%, #a855f7 100%);
+}
+
 .legend-label {
   font-size: 0.62rem;
   font-weight: 700;
   color: var(--text-sub);
   white-space: nowrap;
+}
+
+.muscle-path.clickable {
+  cursor: pointer;
+}
+
+/* ---------- Carte musculaire (heat map d'entraînement) ---------- */
+
+.muscle-rank-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  overflow: hidden;
+}
+
+.muscle-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  width: 100%;
+  text-align: left;
+}
+
+.muscle-rank-row + .muscle-rank-row {
+  border-top: 1px solid rgba(71, 85, 105, 0.25);
+}
+
+.muscle-rank-row .name {
+  flex: 1.1;
+  min-width: 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.muscle-rank-bar-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--input-bg);
+  overflow: hidden;
+}
+
+.muscle-rank-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.muscle-rank-row .pct {
+  flex: none;
+  width: 38px;
+  text-align: right;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+.muscle-rank-row.zero .name,
+.muscle-rank-row.zero .pct {
+  opacity: 0.5;
 }
 
 /* ---------- Page de formulaire ---------- */

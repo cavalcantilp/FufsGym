@@ -32,6 +32,12 @@ export const RANGE_LABEL: Record<RangeKey, TranslationKey> = {
   all: 'chart.rangeAll',
 }
 
+/** Première date (YYYY-MM-DD) couverte par une période, ou `null` pour 'all' (aucune borne basse). */
+export function rangeStartDate(range: RangeKey): string | null {
+  if (range === 'all') return null
+  return shiftDay(todayKey(), -RANGE_DAYS[range])
+}
+
 const WIDTH = 320
 const HEIGHT = 180
 const PAD = { top: 14, right: 34, bottom: 20, left: 8 }

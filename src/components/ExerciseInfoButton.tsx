@@ -6,6 +6,7 @@ import { IconInfo } from './icons'
 import { exerciseMediaImages } from '../lib/exerciseMedia'
 import { EXERCISE_ACTIVATION } from '../lib/exerciseActivation'
 import { exerciseName } from '../lib/exercises'
+import { ACTIVATION_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
 import type { TranslationKey } from '../i18n/translations'
 import type { Exercise } from '../lib/types'
 
@@ -18,6 +19,11 @@ export function ExerciseInfoButton({ exercise }: { exercise: Exercise }) {
 
   if (!images && !activation) return null
 
+  const colorFor = (muscleId: string) => {
+    const intensity = activation?.[muscleId] ?? 0
+    return intensity > 0 ? interpolateColor(ACTIVATION_STOPS, intensity) : NEUTRAL_MUSCLE_COLOR
+  }
+
   return (
     <>
       <button type="button" className="icon-btn" onClick={() => setOpen(true)} aria-label={t('exerciseInfo.aria')}>
@@ -28,7 +34,7 @@ export function ExerciseInfoButton({ exercise }: { exercise: Exercise }) {
           {activation ? (
             <div className="info-section">
               <span className="info-section-title">{t('exerciseInfo.muscleTitle')}</span>
-              <MuscleDiagram activation={activation} />
+              <MuscleDiagram colorFor={colorFor} />
               <div className="legend">
                 <span className="legend-label">{t('exerciseInfo.legendLow')}</span>
                 <span className="legend-bar" />
