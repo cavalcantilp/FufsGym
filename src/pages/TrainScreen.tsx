@@ -9,7 +9,8 @@ import { todayKey, formatDay } from '../lib/date'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { groupBySuperset } from '../lib/superset'
 import { buildPlanExercises, nextAvailableName } from '../lib/saveWorkout'
-import { round1, sessionSetCount, sessionVolume } from '../lib/stats'
+import { sessionSetCount, sessionVolume } from '../lib/stats'
+import { displayWeightValue } from '../lib/weightUnit'
 import type { Session, Workout } from '../lib/types'
 
 interface StartViewProps {
@@ -101,8 +102,8 @@ function StartView({ onStart }: StartViewProps) {
 }
 
 function SessionSummaryView({ session, onClose }: { session: Session; onClose: () => void }) {
-  const { t, lang } = useApp()
-  const volume = round1(sessionVolume(session))
+  const { t, lang, units } = useApp()
+  const volume = displayWeightValue(sessionVolume(session), units.weight)
   const setCount = sessionSetCount(session)
 
   return (
@@ -126,7 +127,9 @@ function SessionSummaryView({ session, onClose }: { session: Session; onClose: (
           </div>
           <div className="stat">
             <div className="label">{t('train.volume')}</div>
-            <div className="value accent">{volume} kg</div>
+            <div className="value accent">
+              {volume} {units.weight}
+            </div>
           </div>
         </div>
       </div>
@@ -148,6 +151,7 @@ function ActiveSessionView({
   const {
     t,
     lang,
+    units,
     workouts,
     exerciseById,
     addSessionExercise,
@@ -206,7 +210,7 @@ function ActiveSessionView({
     }
   }
 
-  const volume = round1(sessionVolume(session))
+  const volume = displayWeightValue(sessionVolume(session), units.weight)
   const setCount = sessionSetCount(session)
 
   const trimmedDraft = nameDraft.trim()
@@ -263,7 +267,9 @@ function ActiveSessionView({
           </div>
           <div className="stat">
             <div className="label">{t('train.volume')}</div>
-            <div className="value accent">{volume} kg</div>
+            <div className="value accent">
+              {volume} {units.weight}
+            </div>
           </div>
         </div>
       </div>

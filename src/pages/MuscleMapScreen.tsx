@@ -17,7 +17,7 @@ import {
   type MuscleLoadCriterion,
 } from '../lib/muscleLoad'
 import { exerciseName } from '../lib/exercises'
-import { round1 } from '../lib/stats'
+import { displayWeightValue } from '../lib/weightUnit'
 import { todayKey } from '../lib/date'
 import type { TranslationKey } from '../i18n/translations'
 import type { Session } from '../lib/types'
@@ -85,7 +85,7 @@ function MuscleDetailScreen({
   onSelectMuscle: (baseMuscleId: string) => void
   onBack: () => void
 }) {
-  const { t, exerciseById } = useApp()
+  const { t, units, exerciseById } = useApp()
   const [sort, setSort] = useState<{ column: SortColumn; direction: SortDirection }>({
     column: 'volume',
     direction: 'desc',
@@ -146,10 +146,12 @@ function MuscleDetailScreen({
                   return (
                     <tr key={row.exerciseId}>
                       <td className="name-cell">{info ? exerciseName(info, t) : row.exerciseId}</td>
-                      <td>{round1(row.volume)}</td>
+                      <td>
+                        {displayWeightValue(row.volume, units.weight)} {units.weight}
+                      </td>
                       <td>{row.sessionsCount}</td>
-                      <td>{row.maxLoad ? round1(row.maxLoad) : '—'}</td>
-                      <td>{row.estRM ? round1(row.estRM) : '—'}</td>
+                      <td>{row.maxLoad ? `${displayWeightValue(row.maxLoad, units.weight)} ${units.weight}` : '—'}</td>
+                      <td>{row.estRM ? `${displayWeightValue(row.estRM, units.weight)} ${units.weight}` : '—'}</td>
                       <td>{Math.round(row.engagementPct)}%</td>
                     </tr>
                   )

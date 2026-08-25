@@ -5,7 +5,8 @@ import { IconCheck, IconChevronDown, IconTrash } from './icons'
 import { formatLong } from '../lib/date'
 import { exerciseName } from '../lib/exercises'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
-import { sessionSetCount, sessionVolume, round1 } from '../lib/stats'
+import { sessionSetCount, sessionVolume } from '../lib/stats'
+import { displayWeightValue } from '../lib/weightUnit'
 import type { DaySchedule, Session, Workout } from '../lib/types'
 
 interface DaySessionSheetProps {
@@ -16,7 +17,7 @@ interface DaySessionSheetProps {
 
 /** Détail en lecture d'un jour, ouvert depuis le calendrier : entraînement prévu, puis séances déjà journalisées. */
 export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProps) {
-  const { t, lang, workouts, schedules, exerciseById, deleteSession, dayNotes, setDayNote } = useApp()
+  const { t, lang, units, workouts, schedules, exerciseById, deleteSession, dayNotes, setDayNote } = useApp()
   const [expanded, setExpanded] = useState<string | null>(null)
   const savedNote = dayNotes[date] ?? ''
   const [noteDraft, setNoteDraft] = useState(savedNote)
@@ -132,7 +133,9 @@ export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProp
                 </div>
                 <div className="stat">
                   <div className="label">{t('day.session.volume')}</div>
-                  <div className="value accent">{round1(sessionVolume(session))} kg</div>
+                  <div className="value accent">
+                    {displayWeightValue(sessionVolume(session), units.weight)} {units.weight}
+                  </div>
                 </div>
               </div>
               <div className="disclosure-body">
@@ -144,7 +147,9 @@ export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProp
                     <div className="day-session-card" key={exercise.id}>
                       <span style={{ flex: 1 }}>{info ? exerciseName(info, t) : ''}</span>
                       <span className="hint">
-                        {doneSets.map((set) => `${set.weight}kg×${set.reps}`).join(', ')}
+                        {doneSets
+                          .map((set) => `${displayWeightValue(set.weight, units.weight)}${units.weight}×${set.reps}`)
+                          .join(', ')}
                       </span>
                     </div>
                   )

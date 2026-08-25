@@ -17,7 +17,6 @@ import {
   bestWeight,
   longestTrainingStreak,
   oneRepMaxSeries,
-  round1,
   sessionSetCount,
   sessionTypes,
   sessionVolume,
@@ -25,10 +24,11 @@ import {
   trainingStreak,
   volumeSeries,
 } from '../lib/stats'
+import { displayWeightValue } from '../lib/weightUnit'
 import type { Session, Workout } from '../lib/types'
 
 function HistoryScreen({ onBack, onSelect }: { onBack: () => void; onSelect: (sessionId: string) => void }) {
-  const { t, lang, sessions, exerciseById } = useApp()
+  const { t, lang, units, sessions, exerciseById } = useApp()
 
   const finished = useMemo(
     () =>
@@ -47,7 +47,7 @@ function HistoryScreen({ onBack, onSelect }: { onBack: () => void; onSelect: (se
           </div>
         ) : (
           finished.map((session) => {
-            const volume = round1(sessionVolume(session))
+            const volume = displayWeightValue(sessionVolume(session), units.weight)
             const setCount = sessionSetCount(session)
             const types = sessionTypes(session, exerciseById)
             return (
@@ -66,7 +66,7 @@ function HistoryScreen({ onBack, onSelect }: { onBack: () => void; onSelect: (se
                     {session.workoutName ?? t('train.freeSession')}
                   </span>
                   <span className="value accent" style={{ fontSize: '0.9rem' }}>
-                    {volume} kg
+                    {volume} {units.weight}
                   </span>
                 </div>
                 <span className="days-sub">
@@ -85,6 +85,7 @@ function SessionEditScreen({ session, onBack }: { session: Session; onBack: () =
   const {
     t,
     lang,
+    units,
     workouts,
     exerciseById,
     addSessionExercise,
@@ -139,7 +140,7 @@ function SessionEditScreen({ session, onBack }: { session: Session; onBack: () =
     }
   }
 
-  const volume = round1(sessionVolume(session))
+  const volume = displayWeightValue(sessionVolume(session), units.weight)
   const setCount = sessionSetCount(session)
 
   const trimmedDraft = nameDraft.trim()
@@ -185,7 +186,9 @@ function SessionEditScreen({ session, onBack }: { session: Session; onBack: () =
             </div>
             <div className="stat">
               <div className="label">{t('train.volume')}</div>
-              <div className="value accent">{volume} kg</div>
+              <div className="value accent">
+                {volume} {units.weight}
+              </div>
             </div>
           </div>
         </div>
@@ -296,7 +299,7 @@ function SessionEditScreen({ session, onBack }: { session: Session; onBack: () =
 }
 
 export function ProgressionScreen() {
-  const { t, lang, sessions, exerciseById } = useApp()
+  const { t, lang, units, sessions, exerciseById } = useApp()
   const [range, setRange] = useState<RangeKey>('3m')
   const [screen, setScreen] = useState<'main' | 'history' | 'muscles'>('main')
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null)
@@ -309,10 +312,17 @@ export function ProgressionScreen() {
   const streak = useMemo(() => trainingStreak(sessions, todayKey()), [sessions])
   const bestStreak = useMemo(() => longestTrainingStreak(sessions), [sessions])
 
-  const volumePoints = useMemo(() => volumeSeries(sessions), [sessions])
+  const volumePoints = useMemo(
+    () => volumeSeries(sessions).map((point) => ({ ...point, value: displayWeightValue(point.value, units.weight) })),
+    [sessions, units.weight],
+  )
   const oneRmPoints = useMemo(
-    () => (activeExerciseId ? oneRepMaxSeries(sessions, activeExerciseId) : []),
-    [sessions, activeExerciseId],
+    () =>
+      (activeExerciseId ? oneRepMaxSeries(sessions, activeExerciseId) : []).map((point) => ({
+        ...point,
+        value: displayWeightValue(point.value, units.weight),
+      })),
+    [sessions, activeExerciseId, units.weight],
   )
   const best1RM = activeExerciseId ? bestEstimate1RM(sessions, activeExerciseId) : null
   const bestW = activeExerciseId ? bestWeight(sessions, activeExerciseId) : null
@@ -394,7 +404,7 @@ export function ProgressionScreen() {
       <div className="card">
         <div className="card-title">{t('progress.volumeTitle')}</div>
         {volumePoints.length ? (
-          <LineChart points={volumePoints} unit="kg" color="var(--accent)" range={range} aggregate="sum" />
+          <LineChart points={volumePoints} unit={units.weight} color="var(--accent)" range={range} aggregate="sum" />
         ) : (
           <p className="hint">{t('progress.volumeEmpty')}</p>
         )}
@@ -424,11 +434,15 @@ export function ProgressionScreen() {
           <div className="stat-row" style={{ marginTop: 14 }}>
             <div className="stat">
               <div className="label">{t('progress.oneRmEstimate')}</div>
-              <div className="value accent">{best1RM ? `${best1RM.value} kg` : '—'}</div>
+              <div className="value accent">
+                {best1RM ? `${displayWeightValue(best1RM.value, units.weight)} ${units.weight}` : '—'}
+              </div>
             </div>
             <div className="stat">
               <div className="label">{t('progress.maxWeight')}</div>
-              <div className="value">{bestW ? `${round1(bestW.value)} kg` : '—'}</div>
+              <div className="value">
+                {bestW ? `${displayWeightValue(bestW.value, units.weight)} ${units.weight}` : '—'}
+              </div>
             </div>
             <div className="stat">
               <div className="label">{t('progress.recordDate')}</div>
@@ -438,7 +452,7 @@ export function ProgressionScreen() {
 
           <div style={{ marginTop: 14 }}>
             {oneRmPoints.length ? (
-              <LineChart points={oneRmPoints} unit="kg" color="var(--accent)" range={range} />
+              <LineChart points={oneRmPoints} unit={units.weight} color="var(--accent)" range={range} />
             ) : (
               <p className="hint">{t('progress.oneRmEmpty')}</p>
             )}
@@ -461,7 +475,9 @@ export function ProgressionScreen() {
                   <span className="name">{exerciseName(info, t)}</span>
                   <span className="date">{formatShort(best.date, lang)}</span>
                 </span>
-                <span className="value">{best.value} kg</span>
+                <span className="value">
+                  {displayWeightValue(best.value, units.weight)} {units.weight}
+                </span>
               </div>
             ))}
           </div>
