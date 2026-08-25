@@ -606,6 +606,27 @@ select {
   animation: fade 0.2s ease;
 }
 
+.quick-timer-fab {
+  position: fixed;
+  left: 16px;
+  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 9;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.quick-timer-fab:active {
+  background: var(--accent-hover);
+  transform: scale(0.94);
+}
+
 .onboarding {
   min-height: 100vh;
   min-height: 100dvh;

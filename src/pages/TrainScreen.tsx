@@ -3,7 +3,7 @@ import { useApp } from '../state/AppContext'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { ExerciseCard } from '../components/ExerciseCard'
 import { RestTimer } from '../components/RestTimer'
-import { IconCheck, IconDumbbell, IconPlus } from '../components/icons'
+import { IconCheck, IconDumbbell, IconPlus, IconTimer } from '../components/icons'
 import { todayKey, formatDay } from '../lib/date'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { groupBySuperset } from '../lib/superset'
@@ -296,23 +296,50 @@ function ActiveSessionView({
 }
 
 export function TrainScreen() {
-  const { sessions, sessionsFor, startSession } = useApp()
+  const { t, sessions, sessionsFor, startSession } = useApp()
   const today = todayKey()
   const [justFinishedId, setJustFinishedId] = useState<string | null>(null)
+  const [quickTimerSeconds, setQuickTimerSeconds] = useState<number | null>(null)
 
   const justFinished = justFinishedId ? sessions.find((s) => s.id === justFinishedId) : undefined
+  const current = sessionsFor(today).find((s) => !s.finishedAt)
+
+  let body: React.ReactNode
   if (justFinished) {
-    return <SessionSummaryView session={justFinished} onClose={() => setJustFinishedId(null)} />
+    body = <SessionSummaryView session={justFinished} onClose={() => setJustFinishedId(null)} />
+  } else if (current) {
+    body = <ActiveSessionView session={current} onFinish={setJustFinishedId} />
+  } else {
+    body = (
+      <StartView
+        onStart={(workout) => {
+          startSession(today, workout ?? null)
+        }}
+      />
+    )
   }
 
-  const current = sessionsFor(today).find((s) => !s.finishedAt)
-  if (current) return <ActiveSessionView session={current} onFinish={setJustFinishedId} />
-
   return (
-    <StartView
-      onStart={(workout) => {
-        startSession(today, workout ?? null)
-      }}
-    />
+    <>
+      {body}
+
+      <button
+        type="button"
+        className="quick-timer-fab"
+        onClick={() => setQuickTimerSeconds(60)}
+        aria-label={t('train.quickTimerAria')}
+      >
+        <IconTimer size={26} />
+      </button>
+
+      {quickTimerSeconds !== null ? (
+        <RestTimer
+          seconds={quickTimerSeconds}
+          onClose={() => setQuickTimerSeconds(null)}
+          label={t('train.quickTimerLabel')}
+          skipLabel={t('train.quickTimerSkip')}
+        />
+      ) : null}
+    </>
   )
 }

@@ -7,6 +7,10 @@ import { useWakeLock } from '../hooks/useWakeLock'
 interface RestTimerProps {
   seconds: number
   onClose: () => void
+  /** Libellé affiché au-dessus du cadran : "Repos" par défaut, personnalisable pour un minuteur autonome. */
+  label?: string
+  /** Libellé du bouton de fermeture du bas : "Passer le repos" par défaut. */
+  skipLabel?: string
 }
 
 const RADIUS = 90
@@ -56,7 +60,7 @@ function playChime() {
  * circonférence se remplit au fil du temps (0 au départ, complète à
  * l'échéance) plutôt que de se vider, pour un repère visuel de progression.
  */
-export function RestTimer({ seconds, onClose }: RestTimerProps) {
+export function RestTimer({ seconds, onClose, label, skipLabel }: RestTimerProps) {
   const { t } = useApp()
   useWakeLock()
   const [totalMs, setTotalMs] = useState(() => Math.max(1, seconds) * 1000)
@@ -92,14 +96,15 @@ export function RestTimer({ seconds, onClose }: RestTimerProps) {
   const minutes = Math.floor(remainingSeconds / 60)
   const secs = remainingSeconds % 60
   const digits = `${minutes}:${String(secs).padStart(2, '0')}`
+  const displayLabel = label ?? t('train.restTimerLabel')
 
   return (
-    <div className="rest-timer-overlay" role="dialog" aria-modal="true" aria-label={t('train.restTimerLabel')}>
+    <div className="rest-timer-overlay" role="dialog" aria-modal="true" aria-label={displayLabel}>
       <button type="button" className="rest-timer-close" onClick={onClose} aria-label={t('train.restCloseAria')}>
         <IconClose size={22} />
       </button>
 
-      <div className="rest-timer-label">{t('train.restTimerLabel')}</div>
+      <div className="rest-timer-label">{displayLabel}</div>
 
       <div className="rest-timer-ring">
         <svg viewBox="0 0 200 200" className="rest-timer-svg">
@@ -138,7 +143,7 @@ export function RestTimer({ seconds, onClose }: RestTimerProps) {
       </div>
 
       <button type="button" className="rest-timer-skip" onClick={onClose}>
-        {t('train.restSkip')}
+        {skipLabel ?? t('train.restSkip')}
       </button>
     </div>
   )
