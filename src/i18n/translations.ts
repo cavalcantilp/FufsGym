@@ -284,6 +284,7 @@ const fr = {
   'schedule.edit': 'Modifier la planification',
 
   'day.session.planDetails': "Détail de l'entraînement",
+  'day.session.musclesTitle': "Muscles travaillés aujourd'hui",
 
   'exercise.unknown': 'Exercice',
   'exercise.chest-bench-press': 'Développé couché',
@@ -725,6 +726,7 @@ const pt: Dict = {
   'schedule.edit': 'Editar o planeamento',
 
   'day.session.planDetails': 'Detalhe do treino',
+  'day.session.musclesTitle': 'Músculos trabalhados hoje',
 
   'exercise.unknown': 'Exercício',
   'exercise.chest-bench-press': 'Supino reto',
@@ -1163,6 +1165,7 @@ const es: Dict = {
   'schedule.edit': 'Editar la planificación',
 
   'day.session.planDetails': 'Detalle del entrenamiento',
+  'day.session.musclesTitle': 'Músculos trabajados hoy',
 
   'exercise.unknown': 'Ejercicio',
   'exercise.chest-bench-press': 'Press de banca',
@@ -1601,6 +1604,7 @@ const en: Dict = {
   'schedule.edit': 'Edit schedule',
 
   'day.session.planDetails': 'Workout details',
+  'day.session.musclesTitle': 'Muscles worked today',
 
   'exercise.unknown': 'Exercise',
   'exercise.chest-bench-press': 'Bench press',
@@ -2039,6 +2043,7 @@ const it: Dict = {
   'schedule.edit': 'Modifica la pianificazione',
 
   'day.session.planDetails': 'Dettaglio allenamento',
+  'day.session.musclesTitle': 'Muscoli coinvolti oggi',
 
   'exercise.unknown': 'Esercizio',
   'exercise.chest-bench-press': 'Panca piana',

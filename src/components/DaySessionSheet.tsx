@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { Sheet } from './Sheet'
+import { MuscleDiagram } from './MuscleDiagram'
 import { IconCheck, IconChevronDown, IconTrash } from './icons'
 import { formatLong } from '../lib/date'
 import { exerciseName } from '../lib/exercises'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { sessionSetCount, sessionVolume } from '../lib/stats'
 import { displayWeightValue } from '../lib/weightUnit'
+import { computeMuscleLoad } from '../lib/muscleLoad'
+import { HEAT_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
 import type { DaySchedule, Session, Workout } from '../lib/types'
 
 interface DaySessionSheetProps {
@@ -29,6 +32,13 @@ export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProp
       return workout ? { schedule, workout } : null
     })
     .filter((entry): entry is { schedule: DaySchedule; workout: Workout } => entry !== null)
+
+  const { byMuscle } = useMemo(() => computeMuscleLoad(sessions, date, date, 'sets'), [sessions, date])
+  const maxLoad = useMemo(() => Object.values(byMuscle).reduce((max, v) => Math.max(max, v), 0), [byMuscle])
+  const colorForMuscle = (muscleId: string) => {
+    const value = byMuscle[muscleId] ?? 0
+    return value > 0 ? interpolateColor(HEAT_STOPS, value / maxLoad) : NEUTRAL_MUSCLE_COLOR
+  }
 
   return (
     <Sheet title={formatLong(date, lang)} onClose={onClose}>
@@ -56,6 +66,18 @@ export function DaySessionSheet({ date, sessions, onClose }: DaySessionSheetProp
             </button>
           ) : null}
         </div>
+
+        {maxLoad > 0 ? (
+          <div className="card">
+            <div className="card-title">{t('day.session.musclesTitle')}</div>
+            <MuscleDiagram colorFor={colorForMuscle} />
+            <div className="legend">
+              <span className="legend-label">{t('muscleMap.legendLow')}</span>
+              <span className="legend-bar heat" />
+              <span className="legend-label">{t('muscleMap.legendHigh')}</span>
+            </div>
+          </div>
+        ) : null}
 
         {planned.map(({ schedule, workout }) => {
           const isOpen = expanded === schedule.id
