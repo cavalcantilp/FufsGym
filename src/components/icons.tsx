@@ -195,6 +195,16 @@ export function IconInfo({ size = 18 }: IconProps) {
   )
 }
 
+/** Petit post-it jaune, pour signaler un commentaire sur un jour du calendrier. */
+export function IconStickyNote({ size = 12 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 3h13l7 7v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="#facc15" />
+      <path d="M17 3v5a2 2 0 0 0 2 2h5" fill="#eab308" />
+    </svg>
+  )
+}
+
 export function Logo({ size = 84 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 96 96" aria-hidden="true">

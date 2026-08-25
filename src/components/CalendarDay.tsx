@@ -1,4 +1,4 @@
-import { IconDumbbell, IconHeart } from './icons'
+import { IconDumbbell, IconHeart, IconStickyNote } from './icons'
 
 interface DayLetter {
   letter: string
@@ -16,6 +16,8 @@ interface CalendarDayProps {
   dayTypes: ('strength' | 'cardio')[]
   /** Lettres des jours de programme planifiés ce jour-là (3 maximum). */
   letters: DayLetter[]
+  /** Un commentaire libre existe pour ce jour. */
+  hasNote: boolean
   onSelect: (date: string) => void
 }
 
@@ -28,6 +30,7 @@ export function CalendarDay({
   trained,
   dayTypes,
   letters,
+  hasNote,
   onSelect,
 }: CalendarDayProps) {
   const classes = [
@@ -60,6 +63,11 @@ export function CalendarDay({
               {type === 'strength' ? <IconDumbbell size={14} /> : <IconHeart size={14} />}
             </span>
           ))}
+        </span>
+      ) : null}
+      {hasNote ? (
+        <span className="day-note-icon">
+          <IconStickyNote size={12} />
         </span>
       ) : null}
     </button>

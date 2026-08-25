@@ -16,7 +16,7 @@ function startOfGrid(year: number, month: number): Date {
 }
 
 export function CalendarScreen() {
-  const { t, lang, sessions, schedules, workouts, exerciseById } = useApp()
+  const { t, lang, sessions, schedules, workouts, exerciseById, dayNotes } = useApp()
   const today = todayKey()
   const [cursor, setCursor] = useState(() => {
     const current = fromKey(today)
@@ -152,6 +152,7 @@ export function CalendarScreen() {
                 trained={Boolean(daySessions?.length)}
                 dayTypes={dayTypes ?? []}
                 letters={letters}
+                hasNote={Boolean(dayNotes[key]?.trim())}
                 onSelect={setOpened}
               />
             )

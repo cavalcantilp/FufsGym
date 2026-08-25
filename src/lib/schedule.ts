@@ -32,6 +32,7 @@ export function weekdayOf(dateKey: string): Weekday {
 export function isScheduledOn(schedule: DaySchedule, dateKey: string): boolean {
   if (!schedule.weekdays.includes(weekdayOf(dateKey))) return false
   if (schedule.startDate && dateKey < schedule.startDate) return false
+  if (schedule.createdAt && dateKey < schedule.createdAt) return false
   if (schedule.endDate && dateKey > schedule.endDate) return false
   return true
 }

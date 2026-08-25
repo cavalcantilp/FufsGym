@@ -62,6 +62,13 @@ export interface DaySchedule {
   /** Date au format YYYY-MM-DD ; illimité si absente. */
   startDate?: string
   endDate?: string
+  /**
+   * Date de création (YYYY-MM-DD) : les lettres n'apparaissent sur le calendrier
+   * qu'à partir de ce jour, même sans `startDate` explicite, pour ne pas
+   * marquer rétroactivement des jours passés avant la planification. Absente
+   * sur les programmations créées avant l'introduction de ce champ.
+   */
+  createdAt?: string
 }
 
 export interface SetLog {

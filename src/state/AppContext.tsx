@@ -10,6 +10,7 @@ import {
 import { BUILTIN_EXERCISES } from '../lib/exercises'
 import { load, save, clearAll, STORAGE_KEYS } from '../lib/storage'
 import { nextFreeLetter } from '../lib/schedule'
+import { todayKey } from '../lib/date'
 import { DEFAULT_REST_SEC } from '../lib/rest'
 import { detectLang, TRANSLATIONS, type TranslationKey } from '../i18n/translations'
 import type {
@@ -231,7 +232,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (workoutId: string) => {
       const letter = nextFreeLetter(schedules)
       if (!letter) return null
-      const created: DaySchedule = { id: newId(), workoutId, letter, weekdays: [] }
+      const created: DaySchedule = { id: newId(), workoutId, letter, weekdays: [], createdAt: todayKey() }
       setSchedules((current) => [...current, created])
       return created
     },

@@ -1867,6 +1867,14 @@ select {
   color: var(--type-cardio);
 }
 
+.day-note-icon {
+  position: absolute;
+  bottom: 3px;
+  right: 4px;
+  display: inline-flex;
+  line-height: 0;
+}
+
 .session-type-icons {
   display: inline-flex;
   align-items: center;
