@@ -892,7 +892,7 @@ select {
 }
 
 .legend-bar.heat {
-  background: linear-gradient(90deg, #facc15 0%, #34d399 33%, #38bdf8 66%, #a855f7 100%);
+  background: linear-gradient(90deg, #4ade80 0%, #facc15 33%, #fb923c 66%, #ef4444 100%);
 }
 
 .legend-label {

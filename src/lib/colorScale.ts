@@ -32,12 +32,12 @@ export const ACTIVATION_STOPS: ColorStop[] = [
   [1, [239, 68, 68]],
 ]
 
-/** Jaune → vert → bleu → violet : intensité d'entraînement d'un muscle sur une période (heat map). */
+/** Vert → jaune → orange → rouge : intensité d'entraînement d'un muscle sur une période (heat map). */
 export const HEAT_STOPS: ColorStop[] = [
-  [0, [250, 204, 21]],
-  [0.33, [52, 211, 153]],
-  [0.66, [56, 189, 248]],
-  [1, [168, 85, 247]],
+  [0, [74, 222, 128]],
+  [0.33, [250, 204, 21]],
+  [0.66, [251, 146, 60]],
+  [1, [239, 68, 68]],
 ]
 
 export const NEUTRAL_MUSCLE_COLOR = 'var(--neutral-fill)'
