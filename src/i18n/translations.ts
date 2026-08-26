@@ -124,6 +124,8 @@ const fr = {
 
   'day.editAria': 'Modifier',
   'day.removeAria': 'Retirer',
+  'day.moveUpAria': 'Monter',
+  'day.moveDownAria': 'Descendre',
 
   'train.title': "S'entraîner",
   'train.startSuggested': 'Commencer cette séance',
@@ -280,6 +282,7 @@ const fr = {
   'schedule.endDate': 'Date de fin',
   'schedule.maxPerDay': 'Maximum {max} entraînements le même jour.',
   'schedule.noLettersLeft': 'Les dix lettres disponibles sont déjà utilisées.',
+  'schedule.save': 'Enregistrer la planification',
   'schedule.removeDay': 'Retirer cet entraînement de la planification',
   'schedule.edit': 'Modifier la planification',
 
@@ -566,6 +569,8 @@ const pt: Dict = {
 
   'day.editAria': 'Editar',
   'day.removeAria': 'Remover',
+  'day.moveUpAria': 'Subir',
+  'day.moveDownAria': 'Descer',
 
   'train.title': 'Treinar',
   'train.startSuggested': 'Começar este treino',
@@ -722,6 +727,7 @@ const pt: Dict = {
   'schedule.endDate': 'Data de fim',
   'schedule.maxPerDay': 'Máximo de {max} treinos no mesmo dia.',
   'schedule.noLettersLeft': 'As dez letras disponíveis já estão em uso.',
+  'schedule.save': 'Guardar o planeamento',
   'schedule.removeDay': 'Remover este treino do planeamento',
   'schedule.edit': 'Editar o planeamento',
 
@@ -1005,6 +1011,8 @@ const es: Dict = {
 
   'day.editAria': 'Modificar',
   'day.removeAria': 'Quitar',
+  'day.moveUpAria': 'Subir',
+  'day.moveDownAria': 'Bajar',
 
   'train.title': 'Entrenar',
   'train.startSuggested': 'Empezar este entrenamiento',
@@ -1161,6 +1169,7 @@ const es: Dict = {
   'schedule.endDate': 'Fecha de fin',
   'schedule.maxPerDay': 'Máximo {max} entrenamientos el mismo día.',
   'schedule.noLettersLeft': 'Las diez letras disponibles ya están en uso.',
+  'schedule.save': 'Guardar la planificación',
   'schedule.removeDay': 'Quitar este entrenamiento de la planificación',
   'schedule.edit': 'Editar la planificación',
 
@@ -1444,6 +1453,8 @@ const en: Dict = {
 
   'day.editAria': 'Edit',
   'day.removeAria': 'Remove',
+  'day.moveUpAria': 'Move up',
+  'day.moveDownAria': 'Move down',
 
   'train.title': 'Train',
   'train.startSuggested': 'Start this workout',
@@ -1600,6 +1611,7 @@ const en: Dict = {
   'schedule.endDate': 'End date',
   'schedule.maxPerDay': 'Maximum {max} workouts on the same day.',
   'schedule.noLettersLeft': 'All ten available letters are already in use.',
+  'schedule.save': 'Save the schedule',
   'schedule.removeDay': 'Remove this workout from the schedule',
   'schedule.edit': 'Edit schedule',
 
@@ -1883,6 +1895,8 @@ const it: Dict = {
 
   'day.editAria': 'Modifica',
   'day.removeAria': 'Rimuovi',
+  'day.moveUpAria': 'Sposta su',
+  'day.moveDownAria': 'Sposta giù',
 
   'train.title': 'Allenati',
   'train.startSuggested': 'Inizia questo allenamento',
@@ -2039,6 +2053,7 @@ const it: Dict = {
   'schedule.endDate': 'Data di fine',
   'schedule.maxPerDay': 'Massimo {max} allenamenti nello stesso giorno.',
   'schedule.noLettersLeft': 'Le dieci lettere disponibili sono già in uso.',
+  'schedule.save': 'Salva la pianificazione',
   'schedule.removeDay': 'Rimuovi questo allenamento dalla pianificazione',
   'schedule.edit': 'Modifica la pianificazione',
 

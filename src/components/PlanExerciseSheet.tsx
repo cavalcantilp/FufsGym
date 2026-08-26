@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../state/AppContext'
-import { Sheet } from './Sheet'
+import { FormPage } from './FormPage'
 import { NumberField } from './NumberField'
 import { ExerciseInfoButton } from './ExerciseInfoButton'
 import { exerciseMediaImages } from '../lib/exerciseMedia'
@@ -18,7 +18,8 @@ interface PlanExerciseSheetProps {
 /**
  * Objectif d'un exercice au sein d'un jour de programme. Trois formes : séries
  * + répétitions (force), une seule durée sans notion de séries (cardio), ou
- * séries + durée de maintien cible (planche, gainage…).
+ * séries + durée de maintien cible (planche, gainage…). Page à part entière
+ * (plutôt qu'une feuille modale) pour éviter les sauts au clavier virtuel.
  */
 export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: PlanExerciseSheetProps) {
   const { t } = useApp()
@@ -59,7 +60,7 @@ export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: Pla
   )
 
   return (
-    <Sheet title={exerciseName(exercise, t)} subtitle={t('planEx.subtitle')} onClose={onClose}>
+    <FormPage title={exerciseName(exercise, t)} subtitle={t('planEx.subtitle')} onBack={onClose}>
       <div className="stack">
         {exerciseMediaImages(exercise.id) ? (
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: -8 }}>
@@ -118,6 +119,6 @@ export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: Pla
           {initial ? t('planEx.update') : t('planEx.add')}
         </button>
       </div>
-    </Sheet>
+    </FormPage>
   )
 }

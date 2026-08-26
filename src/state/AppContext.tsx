@@ -10,6 +10,7 @@ import {
 import { BUILTIN_EXERCISES } from '../lib/exercises'
 import { load, save, clearAll, STORAGE_KEYS } from '../lib/storage'
 import { nextFreeLetter } from '../lib/schedule'
+import { moveGroup } from '../lib/superset'
 import { todayKey } from '../lib/date'
 import { DEFAULT_REST_SEC } from '../lib/rest'
 import { detectLang, TRANSLATIONS, type TranslationKey } from '../i18n/translations'
@@ -58,6 +59,7 @@ interface AppState {
   updateExercise: (workoutId: string, entryId: string, patch: Partial<PlanExercise>) => void
   removeExercise: (workoutId: string, entryId: string) => void
   setSupersetLink: (workoutId: string, exerciseId: string, linked: boolean) => void
+  moveExercise: (workoutId: string, entryId: string, direction: 'up' | 'down') => void
 
   schedules: DaySchedule[]
   scheduleForWorkout: (workoutId: string) => DaySchedule | undefined
@@ -76,6 +78,7 @@ interface AppState {
   startSession: (date: string, workout?: Workout | null) => Session
   addSessionExercise: (sessionId: string, exerciseId: string) => void
   removeSessionExercise: (sessionId: string, sessionExerciseId: string) => void
+  moveSessionExercise: (sessionId: string, sessionExerciseId: string, direction: 'up' | 'down') => void
   addSet: (sessionId: string, sessionExerciseId: string, set?: Partial<SetLog>) => void
   updateSet: (sessionId: string, sessionExerciseId: string, setId: string, patch: Partial<SetLog>) => void
   removeSet: (sessionId: string, sessionExerciseId: string, setId: string) => void
@@ -244,6 +247,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     )
   }, [])
 
+  const moveExercise = useCallback((workoutId: string, entryId: string, direction: 'up' | 'down') => {
+    setWorkouts((current) =>
+      current.map((w) => (w.id !== workoutId ? w : { ...w, exercises: moveGroup(w.exercises, entryId, direction) })),
+    )
+  }, [])
+
   const scheduleForWorkout = useCallback(
     (workoutId: string) => schedules.find((s) => s.workoutId === workoutId),
     [schedules],
@@ -343,6 +352,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .map((e, i) => (idx > 0 && i === idx - 1 ? { ...e, linkedToNext: false } : e))
         return { ...s, exercises }
       }),
+    )
+  }, [])
+
+  const moveSessionExercise = useCallback((sessionId: string, sessionExerciseId: string, direction: 'up' | 'down') => {
+    setSessions((current) =>
+      current.map((s) =>
+        s.id !== sessionId ? s : { ...s, exercises: moveGroup(s.exercises, sessionExerciseId, direction) },
+      ),
     )
   }, [])
 
@@ -507,6 +524,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateExercise,
       removeExercise,
       setSupersetLink,
+      moveExercise,
       schedules,
       scheduleForWorkout,
       addSchedule,
@@ -519,6 +537,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       startSession,
       addSessionExercise,
       removeSessionExercise,
+      moveSessionExercise,
       addSet,
       updateSet,
       removeSet,
@@ -550,6 +569,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateExercise,
       removeExercise,
       setSupersetLink,
+      moveExercise,
       schedules,
       scheduleForWorkout,
       addSchedule,
@@ -562,6 +582,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       startSession,
       addSessionExercise,
       removeSessionExercise,
+      moveSessionExercise,
       addSet,
       updateSet,
       removeSet,

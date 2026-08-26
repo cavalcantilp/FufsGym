@@ -274,8 +274,10 @@ function ActiveSessionView({
         </div>
       </div>
 
-      {groupBySuperset(session.exercises).map((group) =>
-        group.length > 1 ? (
+      {groupBySuperset(session.exercises).map((group, groupIndex, groups) => {
+        const canMoveUp = groupIndex > 0
+        const canMoveDown = groupIndex < groups.length - 1
+        return group.length > 1 ? (
           <div className="superset-block" key={group[0].id}>
             <div className="superset-block-label">{t('train.supersetLabel', { count: group.length })}</div>
             {group.map((sessionExercise, index) => (
@@ -286,6 +288,9 @@ function ActiveSessionView({
                 onSetCompleted={handleSetCompleted}
                 triggersRest={index === group.length - 1}
                 showMuscleDiagram={false}
+                showReorder
+                canMoveUp={canMoveUp}
+                canMoveDown={canMoveDown}
               />
             ))}
           </div>
@@ -297,9 +302,12 @@ function ActiveSessionView({
             onSetCompleted={handleSetCompleted}
             triggersRest
             showMuscleDiagram={false}
+            showReorder
+            canMoveUp={canMoveUp}
+            canMoveDown={canMoveDown}
           />
-        ),
-      )}
+        )
+      })}
 
       <button type="button" className="btn secondary" onClick={() => setPicking(true)}>
         <IconPlus size={18} />

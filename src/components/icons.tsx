@@ -86,6 +86,22 @@ export function IconChevronDown({ size = 18, open = false }: IconProps & { open?
   )
 }
 
+export function IconArrowUp({ size = 16 }: IconProps) {
+  return (
+    <svg {...base(size)} aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7" />
+    </svg>
+  )
+}
+
+export function IconArrowDown({ size = 16 }: IconProps) {
+  return (
+    <svg {...base(size)} aria-hidden="true">
+      <path d="M12 5v14M19 12l-7 7-7-7" />
+    </svg>
+  )
+}
+
 export function IconClose({ size = 20 }: IconProps) {
   return (
     <svg {...base(size)} aria-hidden="true">

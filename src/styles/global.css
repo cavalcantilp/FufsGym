@@ -327,6 +327,16 @@ select {
   border: 1px solid rgba(248, 113, 113, 0.4);
 }
 
+.btn.success {
+  background: var(--positive);
+  color: #04231a;
+}
+
+.btn.success:active {
+  background: var(--positive);
+  opacity: 0.85;
+}
+
 .btn.small {
   width: auto;
   padding: 8px 14px;
@@ -1105,6 +1115,24 @@ select {
 
 .icon-btn.accent {
   color: var(--accent);
+}
+
+.icon-btn:disabled {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.reorder-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: none;
+}
+
+.reorder-btns .icon-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
 }
 
 .list-head {

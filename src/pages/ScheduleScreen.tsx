@@ -95,6 +95,10 @@ export function ScheduleScreen({ workout, onBack }: ScheduleScreenProps) {
           </div>
         ) : null}
 
+        <button type="button" className="btn success" onClick={onBack}>
+          {t('schedule.save')}
+        </button>
+
         {existing ? (
           <button type="button" className="btn danger" onClick={() => removeSchedule(existing.id)}>
             {t('schedule.removeDay')}

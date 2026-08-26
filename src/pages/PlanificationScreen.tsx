@@ -11,7 +11,7 @@ import { aggregateActivation } from '../lib/exerciseActivation'
 import { ACTIVATION_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
 import { DEFAULT_REST_SEC, formatRestTime } from '../lib/rest'
 import { groupBySuperset } from '../lib/superset'
-import { IconCalendarCheck, IconCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
+import { IconArrowDown, IconArrowUp, IconCalendarCheck, IconCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
 import type { Exercise, PlanExercise, Workout } from '../lib/types'
 
 interface EditingEntry {
@@ -27,8 +27,17 @@ function WorkoutDetail({
   onBack: () => void
   onSchedule: () => void
 }) {
-  const { t, scheduleForWorkout, renameWorkout, removeWorkout, addExercise, updateExercise, removeExercise, exerciseById } =
-    useApp()
+  const {
+    t,
+    scheduleForWorkout,
+    renameWorkout,
+    removeWorkout,
+    addExercise,
+    updateExercise,
+    removeExercise,
+    moveExercise,
+    exerciseById,
+  } = useApp()
 
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -83,6 +92,31 @@ function WorkoutDetail({
     </span>
   )
 
+  if (pendingPick) {
+    return (
+      <PlanExerciseSheet
+        exercise={pendingPick}
+        onConfirm={(target) => addExercise(workout.id, { exerciseId: pendingPick.id, ...target })}
+        onClose={() => setPendingPick(null)}
+      />
+    )
+  }
+
+  if (editingEntry) {
+    return (
+      <PlanExerciseSheet
+        exercise={exerciseById(editingEntry.entry.exerciseId) ?? { id: '', name: t('exercise.unknown'), muscle: 'chest', custom: true }}
+        initial={editingEntry.entry}
+        onConfirm={(target) => updateExercise(workout.id, editingEntry.entry.id, target)}
+        onClose={() => setEditingEntry(null)}
+      />
+    )
+  }
+
+  if (addingSuperset) {
+    return <AddSupersetFlow workoutId={workout.id} onClose={() => setAddingSuperset(false)} />
+  }
+
   return (
     <FormPage
       title={nameField}
@@ -95,7 +129,9 @@ function WorkoutDetail({
           {workout.exercises.length === 0 ? (
             <p className="empty">{t('workout.noExercises')}</p>
           ) : (
-            groupBySuperset(workout.exercises).map((group) => {
+            groupBySuperset(workout.exercises).map((group, groupIndex, groups) => {
+              const isFirstGroup = groupIndex === 0
+              const isLastGroup = groupIndex === groups.length - 1
               const rows = group.map((entry) => {
                 const info = exerciseById(entry.exerciseId)
                 return (
@@ -108,6 +144,26 @@ function WorkoutDetail({
                         {formatRestTime(entry.restSec ?? DEFAULT_REST_SEC)}
                         {entry.note ? ` · ${entry.note}` : ''}
                       </span>
+                    </span>
+                    <span className="reorder-btns">
+                      <button
+                        type="button"
+                        className="icon-btn"
+                        disabled={isFirstGroup}
+                        onClick={() => moveExercise(workout.id, entry.id, 'up')}
+                        aria-label={t('day.moveUpAria')}
+                      >
+                        <IconArrowUp size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        className="icon-btn"
+                        disabled={isLastGroup}
+                        onClick={() => moveExercise(workout.id, entry.id, 'down')}
+                        aria-label={t('day.moveDownAria')}
+                      >
+                        <IconArrowDown size={14} />
+                      </button>
                     </span>
                     <button
                       type="button"
@@ -179,25 +235,6 @@ function WorkoutDetail({
           }}
         />
       ) : null}
-
-      {pendingPick ? (
-        <PlanExerciseSheet
-          exercise={pendingPick}
-          onConfirm={(target) => addExercise(workout.id, { exerciseId: pendingPick.id, ...target })}
-          onClose={() => setPendingPick(null)}
-        />
-      ) : null}
-
-      {editingEntry ? (
-        <PlanExerciseSheet
-          exercise={exerciseById(editingEntry.entry.exerciseId) ?? { id: '', name: t('exercise.unknown'), muscle: 'chest', custom: true }}
-          initial={editingEntry.entry}
-          onConfirm={(target) => updateExercise(workout.id, editingEntry.entry.id, target)}
-          onClose={() => setEditingEntry(null)}
-        />
-      ) : null}
-
-      {addingSuperset ? <AddSupersetFlow workoutId={workout.id} onClose={() => setAddingSuperset(false)} /> : null}
 
       {confirmDelete ? (
         <Sheet title={t('workout.deleteConfirmTitle')} subtitle={workout.name} onClose={() => setConfirmDelete(false)}>

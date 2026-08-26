@@ -4,7 +4,7 @@ import { NumberField } from './NumberField'
 import { HoldTimer } from './HoldTimer'
 import { ExerciseInfoButton } from './ExerciseInfoButton'
 import { MuscleDiagram } from './MuscleDiagram'
-import { IconCheck, IconChevronDown, IconPlay, IconPlus, IconTrash } from './icons'
+import { IconArrowDown, IconArrowUp, IconCheck, IconChevronDown, IconPlay, IconPlus, IconTrash } from './icons'
 import { exerciseName, isDurationBased } from '../lib/exercises'
 import { EXERCISE_ACTIVATION } from '../lib/exerciseActivation'
 import { ACTIVATION_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
@@ -21,6 +21,10 @@ interface ExerciseCardProps {
   triggersRest?: boolean
   /** Faux pendant une séance active (S'entraîner) : le schéma musculaire n'y est affiché qu'en correction d'historique. */
   showMuscleDiagram?: boolean
+  /** Vrai pendant une séance active : affiche des flèches pour réordonner les exercices. */
+  showReorder?: boolean
+  canMoveUp?: boolean
+  canMoveDown?: boolean
 }
 
 /** Carte repliable d'un exercice en séance : nom + résumé, détail (dernière fois, repos, séries) sur demande. */
@@ -30,6 +34,9 @@ export function ExerciseCard({
   onSetCompleted,
   triggersRest = false,
   showMuscleDiagram = true,
+  showReorder = false,
+  canMoveUp = false,
+  canMoveDown = false,
 }: ExerciseCardProps) {
   const {
     t,
@@ -40,6 +47,7 @@ export function ExerciseCard({
     updateSet,
     removeSet,
     removeSessionExercise,
+    moveSessionExercise,
     updateSessionExerciseRest,
     updateSessionExerciseCardioUnit,
   } = useApp()
@@ -83,6 +91,28 @@ export function ExerciseCard({
           <IconChevronDown open={expanded} size={16} />
         </button>
         {info ? <ExerciseInfoButton exercise={info} /> : null}
+        {showReorder ? (
+          <span className="reorder-btns">
+            <button
+              type="button"
+              className="icon-btn"
+              disabled={!canMoveUp}
+              onClick={() => moveSessionExercise(session.id, sessionExercise.id, 'up')}
+              aria-label={t('day.moveUpAria')}
+            >
+              <IconArrowUp size={14} />
+            </button>
+            <button
+              type="button"
+              className="icon-btn"
+              disabled={!canMoveDown}
+              onClick={() => moveSessionExercise(session.id, sessionExercise.id, 'down')}
+              aria-label={t('day.moveDownAria')}
+            >
+              <IconArrowDown size={14} />
+            </button>
+          </span>
+        ) : null}
         <button
           type="button"
           className="icon-btn danger"
