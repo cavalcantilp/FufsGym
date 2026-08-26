@@ -1117,6 +1117,14 @@ select {
   color: var(--accent);
 }
 
+.favorite-btn {
+  color: var(--text-sub);
+}
+
+.favorite-btn.active {
+  color: #fbbf24;
+}
+
 .icon-btn:disabled {
   opacity: 0.25;
   pointer-events: none;

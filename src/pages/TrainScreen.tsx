@@ -226,6 +226,19 @@ function ActiveSessionView({
     setRestTimer({ key: restKeyRef.current, seconds: restSec })
   }
 
+  if (picking) {
+    return (
+      <ExercisePicker
+        title={t('picker.addTitle')}
+        onClose={() => setPicking(false)}
+        onPick={(exercise) => {
+          addSessionExercise(session.id, exercise.id)
+          setPicking(false)
+        }}
+      />
+    )
+  }
+
   return (
     <div className="screen">
       <div className="form-page-head" style={{ alignItems: 'center' }}>
@@ -334,17 +347,6 @@ function ActiveSessionView({
           {t('train.finishSession')}
         </button>
       </div>
-
-      {picking ? (
-        <ExercisePicker
-          title={t('picker.addTitle')}
-          onClose={() => setPicking(false)}
-          onPick={(exercise) => {
-            addSessionExercise(session.id, exercise.id)
-            setPicking(false)
-          }}
-        />
-      ) : null}
 
       {confirmEnd ? (
         <div className="sheet-backdrop" role="presentation" onClick={(e) => e.target === e.currentTarget && setConfirmEnd(false)}>

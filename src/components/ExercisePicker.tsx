@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
-import { Sheet } from './Sheet'
+import { FormPage } from './FormPage'
 import { ExerciseInfoButton } from './ExerciseInfoButton'
 import { MUSCLE_COLOR, MUSCLE_GROUPS, equipmentLabel, exerciseName, muscleLabel } from '../lib/exercises'
-import { IconPlus } from './icons'
+import { IconPlus, IconStar } from './icons'
 import type { Exercise, MuscleGroup } from '../lib/types'
 
 interface ExercisePickerProps {
@@ -12,9 +12,13 @@ interface ExercisePickerProps {
   onClose: () => void
 }
 
-/** Feuille de recherche/sélection d'exercice, avec filtre par groupe musculaire et création rapide. */
+/**
+ * Page plein écran de recherche/sélection d'exercice (plutôt qu'une feuille
+ * modale) pour éviter les sauts au clavier virtuel. Filtre par groupe
+ * musculaire, favoris en tête de liste, création rapide.
+ */
 export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) {
-  const { t, exercises, addCustomExercise } = useApp()
+  const { t, exercises, addCustomExercise, favoriteExerciseIds, toggleFavoriteExercise } = useApp()
   const [query, setQuery] = useState('')
   const [muscle, setMuscle] = useState<MuscleGroup | 'all'>('all')
   const [creating, setCreating] = useState(false)
@@ -27,8 +31,13 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
       .filter((exercise) => muscle === 'all' || exercise.muscle === muscle)
       .map((exercise) => ({ exercise, label: exerciseName(exercise, t) }))
       .filter(({ label }) => !q || label.toLowerCase().includes(q))
-      .sort((a, b) => a.label.localeCompare(b.label))
-  }, [exercises, muscle, query, t])
+      .sort((a, b) => {
+        const favA = favoriteExerciseIds.includes(a.exercise.id)
+        const favB = favoriteExerciseIds.includes(b.exercise.id)
+        if (favA !== favB) return favA ? -1 : 1
+        return a.label.localeCompare(b.label)
+      })
+  }, [exercises, muscle, query, t, favoriteExerciseIds])
 
   const handleCreate = () => {
     const name = newName.trim()
@@ -38,7 +47,7 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
   }
 
   return (
-    <Sheet title={title} onClose={onClose}>
+    <FormPage title={title} onBack={onClose}>
       <div className="stack">
         <input
           type="text"
@@ -98,21 +107,32 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
           <>
             <div className="exercise-list">
               {results.length ? (
-                results.map(({ exercise, label }) => (
-                  <div key={exercise.id} className="exercise-row">
-                    <button type="button" className="exercise-row-main" onClick={() => onPick(exercise)}>
-                      <span className="muscle-dot" style={{ background: MUSCLE_COLOR[exercise.muscle] }} />
-                      <span className="info">
-                        <span className="name">{label}</span>
-                        <span className="muscle">
-                          {muscleLabel(exercise.muscle, t)}
-                          {exercise.equipment ? ` · ${equipmentLabel(exercise.equipment, t)}` : ''}
+                results.map(({ exercise, label }) => {
+                  const isFavorite = favoriteExerciseIds.includes(exercise.id)
+                  return (
+                    <div key={exercise.id} className="exercise-row">
+                      <button type="button" className="exercise-row-main" onClick={() => onPick(exercise)}>
+                        <span className="muscle-dot" style={{ background: MUSCLE_COLOR[exercise.muscle] }} />
+                        <span className="info">
+                          <span className="name">{label}</span>
+                          <span className="muscle">
+                            {muscleLabel(exercise.muscle, t)}
+                            {exercise.equipment ? ` · ${equipmentLabel(exercise.equipment, t)}` : ''}
+                          </span>
                         </span>
-                      </span>
-                    </button>
-                    <ExerciseInfoButton exercise={exercise} />
-                  </div>
-                ))
+                      </button>
+                      <button
+                        type="button"
+                        className={`icon-btn favorite-btn${isFavorite ? ' active' : ''}`}
+                        onClick={() => toggleFavoriteExercise(exercise.id)}
+                        aria-label={isFavorite ? t('picker.unfavorite') : t('picker.favorite')}
+                      >
+                        <IconStar size={17} filled={isFavorite} />
+                      </button>
+                      <ExerciseInfoButton exercise={exercise} />
+                    </div>
+                  )
+                })
               ) : (
                 <p className="empty">{t('picker.empty')}</p>
               )}
@@ -124,6 +144,6 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
           </>
         )}
       </div>
-    </Sheet>
+    </FormPage>
   )
 }

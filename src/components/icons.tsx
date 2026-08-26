@@ -102,6 +102,14 @@ export function IconArrowDown({ size = 16 }: IconProps) {
   )
 }
 
+export function IconStar({ size = 18, filled = false }: IconProps & { filled?: boolean }) {
+  return (
+    <svg {...base(size)} fill={filled ? 'currentColor' : 'none'} aria-hidden="true">
+      <path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" />
+    </svg>
+  )
+}
+
 export function IconClose({ size = 20 }: IconProps) {
   return (
     <svg {...base(size)} aria-hidden="true">

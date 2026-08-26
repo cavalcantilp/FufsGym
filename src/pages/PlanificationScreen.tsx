@@ -92,6 +92,19 @@ function WorkoutDetail({
     </span>
   )
 
+  if (pickerOpen) {
+    return (
+      <ExercisePicker
+        title={t('picker.addTitle')}
+        onClose={() => setPickerOpen(false)}
+        onPick={(exercise) => {
+          setPendingPick(exercise)
+          setPickerOpen(false)
+        }}
+      />
+    )
+  }
+
   if (pendingPick) {
     return (
       <PlanExerciseSheet
@@ -224,17 +237,6 @@ function WorkoutDetail({
           {t('workout.deleteThis')}
         </button>
       </div>
-
-      {pickerOpen ? (
-        <ExercisePicker
-          title={t('picker.addTitle')}
-          onClose={() => setPickerOpen(false)}
-          onPick={(exercise) => {
-            setPendingPick(exercise)
-            setPickerOpen(false)
-          }}
-        />
-      ) : null}
 
       {confirmDelete ? (
         <Sheet title={t('workout.deleteConfirmTitle')} subtitle={workout.name} onClose={() => setConfirmDelete(false)}>

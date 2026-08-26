@@ -37,6 +37,7 @@ export const STORAGE_KEYS = {
   schedules: 'schedules',
   sessions: 'sessions',
   customExercises: 'customExercises',
+  favoriteExercises: 'favoriteExercises',
   onboarded: 'onboarded',
   ui: 'ui',
   lang: 'lang',

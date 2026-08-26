@@ -47,6 +47,9 @@ interface AppState {
   customExercises: Exercise[]
   addCustomExercise: (exercise: Omit<Exercise, 'id' | 'custom'>) => Exercise
   removeCustomExercise: (id: string) => void
+  /** Exercices favoris (par id), affichés en tête de liste dans le sélecteur d'exercice. */
+  favoriteExerciseIds: string[]
+  toggleFavoriteExercise: (id: string) => void
   exerciseById: (id: string) => Exercise | undefined
 
   workouts: Workout[]
@@ -124,6 +127,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [customExercises, setCustomExercises] = useState<Exercise[]>(() =>
     load(STORAGE_KEYS.customExercises, []),
   )
+  const [favoriteExerciseIds, setFavoriteExerciseIds] = useState<string[]>(() =>
+    load(STORAGE_KEYS.favoriteExercises, []),
+  )
   const [workouts, setWorkouts] = useState<Workout[]>(() => load(STORAGE_KEYS.workouts, []))
   const [schedules, setSchedules] = useState<DaySchedule[]>(() => load(STORAGE_KEYS.schedules, []))
   const [sessions, setSessions] = useState<Session[]>(() => load(STORAGE_KEYS.sessions, []))
@@ -141,6 +147,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => save(STORAGE_KEYS.units, units), [units])
   useEffect(() => save(STORAGE_KEYS.onboarded, onboarded), [onboarded])
   useEffect(() => save(STORAGE_KEYS.customExercises, customExercises), [customExercises])
+  useEffect(() => save(STORAGE_KEYS.favoriteExercises, favoriteExerciseIds), [favoriteExerciseIds])
   useEffect(() => save(STORAGE_KEYS.workouts, workouts), [workouts])
   useEffect(() => save(STORAGE_KEYS.schedules, schedules), [schedules])
   useEffect(() => save(STORAGE_KEYS.sessions, sessions), [sessions])
@@ -177,6 +184,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const removeCustomExercise = useCallback((id: string) => {
     setCustomExercises((current) => current.filter((e) => e.id !== id))
+  }, [])
+
+  const toggleFavoriteExercise = useCallback((id: string) => {
+    setFavoriteExerciseIds((current) =>
+      current.includes(id) ? current.filter((favId) => favId !== id) : [...current, id],
+    )
   }, [])
 
   const addWorkout = useCallback((name: string) => {
@@ -494,6 +507,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     clearAll()
     setOnboarded(false)
     setCustomExercises([])
+    setFavoriteExerciseIds([])
     setWorkouts([])
     setSchedules([])
     setSessions([])
@@ -514,6 +528,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       customExercises,
       addCustomExercise,
       removeCustomExercise,
+      favoriteExerciseIds,
+      toggleFavoriteExercise,
       exerciseById,
       workouts,
       addWorkout,
@@ -559,6 +575,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       customExercises,
       addCustomExercise,
       removeCustomExercise,
+      favoriteExerciseIds,
+      toggleFavoriteExercise,
       exerciseById,
       workouts,
       addWorkout,

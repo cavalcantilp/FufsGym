@@ -171,6 +171,19 @@ function SessionEditScreen({ session, onBack }: { session: Session; onBack: () =
     </span>
   )
 
+  if (picking) {
+    return (
+      <ExercisePicker
+        title={t('picker.addTitle')}
+        onClose={() => setPicking(false)}
+        onPick={(exercise) => {
+          addSessionExercise(session.id, exercise.id)
+          setPicking(false)
+        }}
+      />
+    )
+  }
+
   return (
     <FormPage title={nameField} backLabel={currentName} subtitle={formatLong(session.date, lang)} onBack={onBack}>
       <div className="stack">
@@ -220,17 +233,6 @@ function SessionEditScreen({ session, onBack }: { session: Session; onBack: () =
           {t('history.deleteSession')}
         </button>
       </div>
-
-      {picking ? (
-        <ExercisePicker
-          title={t('picker.addTitle')}
-          onClose={() => setPicking(false)}
-          onPick={(exercise) => {
-            addSessionExercise(session.id, exercise.id)
-            setPicking(false)
-          }}
-        />
-      ) : null}
 
       {confirmDelete ? (
         <Sheet title={t('history.deleteConfirmTitle')} onClose={() => setConfirmDelete(false)}>
