@@ -32,6 +32,9 @@ function newId(): string {
 
 const DEFAULT_UNITS: Units = { weight: 'kg', length: 'cm' }
 
+/** Champs de valeur d'une série (hors `done`) : modifier l'un d'eux répercute la même valeur sur les séries suivantes non encore validées. */
+const CASCADE_SET_KEYS = ['weight', 'reps', 'durationSec', 'durationMin', 'distanceKm'] as const satisfies readonly (keyof SetLog)[]
+
 interface AppState {
   lang: Lang
   setLang: (lang: Lang) => void
@@ -402,17 +405,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateSet = useCallback(
     (sessionId: string, sessionExerciseId: string, setId: string, patch: Partial<SetLog>) => {
+      const cascade: Partial<SetLog> = {}
+      for (const key of CASCADE_SET_KEYS) {
+        if (patch[key] !== undefined) cascade[key] = patch[key]
+      }
+      const hasCascade = Object.keys(cascade).length > 0
+
       setSessions((current) =>
         current.map((s) =>
           s.id !== sessionId
             ? s
             : {
                 ...s,
-                exercises: s.exercises.map((e) =>
-                  e.id !== sessionExerciseId
-                    ? e
-                    : { ...e, sets: e.sets.map((set) => (set.id === setId ? { ...set, ...patch } : set)) },
-                ),
+                exercises: s.exercises.map((e) => {
+                  if (e.id !== sessionExerciseId) return e
+                  const idx = e.sets.findIndex((set) => set.id === setId)
+                  if (idx === -1) return e
+                  return {
+                    ...e,
+                    sets: e.sets.map((set, i) => {
+                      if (set.id === setId) return { ...set, ...patch }
+                      /** Gagner en vitesse de saisie : une série tenue pour acquise (répétée) hérite de la valeur qu'on vient de rentrer, tant qu'elle n'a pas déjà été validée. */
+                      if (hasCascade && i > idx && !set.done) return { ...set, ...cascade }
+                      return set
+                    }),
+                  }
+                }),
               },
         ),
       )
