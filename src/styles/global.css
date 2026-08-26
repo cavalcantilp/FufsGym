@@ -1078,6 +1078,18 @@ select {
   animation: fade 0.15s ease;
 }
 
+.exercise-complete-badge {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--positive);
+  color: #04231a;
+  flex: none;
+  animation: fade 0.15s ease;
+}
+
 .name-save-btn:active {
   transform: scale(0.9);
 }

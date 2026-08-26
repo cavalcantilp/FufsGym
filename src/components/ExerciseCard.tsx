@@ -63,6 +63,7 @@ export function ExerciseCard({
   )
   const restSec = sessionExercise.restSec ?? DEFAULT_REST_SEC
   const doneCount = sessionExercise.sets.filter((set) => set.done).length
+  const allSetsDone = sessionExercise.sets.length > 0 && doneCount === sessionExercise.sets.length
   const activation = EXERCISE_ACTIVATION[sessionExercise.exerciseId]
   const colorForMuscle = (muscleId: string) => {
     const intensity = activation?.[muscleId] ?? 0
@@ -88,6 +89,11 @@ export function ExerciseCard({
               {doneCount}/{sessionExercise.sets.length} {t('unit.set')} · {formatRestTime(restSec)}
             </span>
           </span>
+          {allSetsDone ? (
+            <span className="exercise-complete-badge" aria-label={t('train.exerciseComplete')}>
+              <IconCheck size={13} />
+            </span>
+          ) : null}
           <IconChevronDown open={expanded} size={16} />
         </button>
         {info ? <ExerciseInfoButton exercise={info} /> : null}
