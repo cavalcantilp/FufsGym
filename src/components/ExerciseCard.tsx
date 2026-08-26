@@ -89,13 +89,13 @@ export function ExerciseCard({
               {doneCount}/{sessionExercise.sets.length} {t('unit.set')} · {formatRestTime(restSec)}
             </span>
           </span>
-          {allSetsDone ? (
-            <span className="exercise-complete-badge" aria-label={t('train.exerciseComplete')}>
-              <IconCheck size={13} />
-            </span>
-          ) : null}
           <IconChevronDown open={expanded} size={16} />
         </button>
+        {allSetsDone ? (
+          <span className="exercise-complete-badge" aria-label={t('train.exerciseComplete')}>
+            <IconCheck size={13} />
+          </span>
+        ) : null}
         {info ? <ExerciseInfoButton exercise={info} /> : null}
         {showReorder ? (
           <span className="reorder-btns">
