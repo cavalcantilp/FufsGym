@@ -233,6 +233,10 @@ function WorkoutDetail({
           {hasSchedule ? t('schedule.edit') : t('workout.activate')}
         </button>
 
+        <button type="button" className="btn success" onClick={handleBack}>
+          {t('workout.save')}
+        </button>
+
         <button type="button" className="btn danger" onClick={() => setConfirmDelete(true)}>
           {t('workout.deleteThis')}
         </button>
@@ -278,6 +282,18 @@ export function PlanificationScreen() {
     )
   }
 
+  if (pickerForNew) {
+    return (
+      <NewWorkoutPicker
+        workoutId={pickerForNew}
+        onClose={() => {
+          setSelectedId(pickerForNew)
+          setPickerForNew(null)
+        }}
+      />
+    )
+  }
+
   const workoutHasSchedule = (workoutId: string) => schedules.some((s) => s.workoutId === workoutId)
 
   const handleCreate = () => {
@@ -320,16 +336,6 @@ export function PlanificationScreen() {
         <IconPlus size={18} />
         {t('workout.new')}
       </button>
-
-      {pickerForNew ? (
-        <NewWorkoutPicker
-          workoutId={pickerForNew}
-          onClose={() => {
-            setSelectedId(pickerForNew)
-            setPickerForNew(null)
-          }}
-        />
-      ) : null}
     </div>
   )
 }
