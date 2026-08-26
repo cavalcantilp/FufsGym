@@ -54,7 +54,6 @@ export function ExercisePicker({ title, onPick, onClose }: ExercisePickerProps) 
           placeholder={t('picker.search')}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          autoFocus
         />
 
         <div className="chips">
