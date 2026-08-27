@@ -359,6 +359,7 @@ const fr = {
   'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
   'exercise.arms-iso-lateral-biceps-curl': 'Curl biceps iso-latéral (Hammer Strength)',
   'exercise.arms-iso-lateral-triceps-dip': 'Dips triceps iso-latéral (Hammer Strength)',
+  'exercise.arms-seated-dip-hammer-strength': 'Seated Dip (Hammer Strength)',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Planche',
@@ -813,6 +814,7 @@ const pt: Dict = {
   'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
   'exercise.arms-iso-lateral-biceps-curl': 'Rosca bíceps iso-lateral (Hammer Strength)',
   'exercise.arms-iso-lateral-triceps-dip': 'Mergulho tríceps iso-lateral (Hammer Strength)',
+  'exercise.arms-seated-dip-hammer-strength': 'Seated Dip (Hammer Strength)',
 
   'exercise.core-crunch': 'Abdominal crunch',
   'exercise.core-plank': 'Prancha',
@@ -1264,6 +1266,7 @@ const es: Dict = {
   'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
   'exercise.arms-iso-lateral-biceps-curl': 'Curl de bíceps iso-lateral (Hammer Strength)',
   'exercise.arms-iso-lateral-triceps-dip': 'Fondos de tríceps iso-lateral (Hammer Strength)',
+  'exercise.arms-seated-dip-hammer-strength': 'Seated Dip (Hammer Strength)',
 
   'exercise.core-crunch': 'Encogimientos abdominales',
   'exercise.core-plank': 'Plancha',
@@ -1715,6 +1718,7 @@ const en: Dict = {
   'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
   'exercise.arms-iso-lateral-biceps-curl': 'Iso-lateral biceps curl (Hammer Strength)',
   'exercise.arms-iso-lateral-triceps-dip': 'Iso-lateral triceps dip (Hammer Strength)',
+  'exercise.arms-seated-dip-hammer-strength': 'Seated Dip (Hammer Strength)',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Plank',
@@ -2166,6 +2170,7 @@ const it: Dict = {
   'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
   'exercise.arms-iso-lateral-biceps-curl': 'Curl bicipiti iso-laterale (Hammer Strength)',
   'exercise.arms-iso-lateral-triceps-dip': 'Dip tricipiti iso-laterale (Hammer Strength)',
+  'exercise.arms-seated-dip-hammer-strength': 'Seated Dip (Hammer Strength)',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Plank',

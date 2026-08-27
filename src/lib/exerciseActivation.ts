@@ -308,6 +308,12 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
     bi('chest-lower', 0.2),
     bi('shoulder-front', 0.15),
   ),
+  'arms-seated-dip-hammer-strength': merge(
+    bi('triceps-long', 1),
+    bi('triceps-lateral', 0.9),
+    bi('chest-lower', 0.25),
+    bi('shoulder-front', 0.2),
+  ),
 
   // Abdominaux
   'core-crunch': merge(bi('abs-upper', 1), bi('abs-lower', 0.3)),

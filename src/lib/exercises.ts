@@ -120,6 +120,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('arms-triceps-press-life-fitness', 'Triceps press (Life Fitness)', 'arms', 'machine'),
   ex('arms-iso-lateral-biceps-curl', 'Curl biceps iso-latéral (Hammer Strength)', 'arms', 'machine'),
   ex('arms-iso-lateral-triceps-dip', 'Dips triceps iso-latéral (Hammer Strength)', 'arms', 'machine'),
+  ex('arms-seated-dip-hammer-strength', 'Seated Dip (Hammer Strength)', 'arms', 'machine'),
 
   // Abdominaux
   ex('core-crunch', 'Crunch', 'core', 'bodyweight'),
