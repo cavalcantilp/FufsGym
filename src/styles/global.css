@@ -123,6 +123,11 @@ select {
   touch-action: pan-y;
 }
 
+/** Onglet S'entraîner : le bouton flottant du minuteur rapide y est toujours affiché, donc plus de marge en bas pour qu'il ne recouvre jamais le dernier bouton de la page. */
+.screen.train-screen {
+  padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 96px);
+}
+
 .app-header {
   position: sticky;
   top: 0;

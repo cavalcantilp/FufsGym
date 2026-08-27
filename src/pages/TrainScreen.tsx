@@ -36,7 +36,7 @@ function StartView({ onStart }: StartViewProps) {
   }, [workouts, options])
 
   return (
-    <div className="screen">
+    <div className="screen train-screen">
       <div>
         <h2 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{t('train.title')}</h2>
         <p className="hint" style={{ marginTop: 4 }}>{formatDay(today, lang)}</p>
@@ -107,7 +107,7 @@ function SessionSummaryView({ session, onClose }: { session: Session; onClose: (
   const setCount = sessionSetCount(session)
 
   return (
-    <div className="screen summary-screen">
+    <div className="screen summary-screen train-screen">
       <div className="summary-badge">
         <IconCheck size={44} />
       </div>
@@ -212,6 +212,9 @@ function ActiveSessionView({
 
   const volume = displayWeightValue(sessionVolume(session), units.weight)
   const setCount = sessionSetCount(session)
+  const allSessionSetsDone =
+    session.exercises.length > 0 &&
+    session.exercises.every((exercise) => exercise.sets.length > 0 && exercise.sets.every((set) => set.done))
 
   const trimmedDraft = nameDraft.trim()
   const nameDirty = trimmedDraft !== '' && trimmedDraft !== currentName
@@ -240,7 +243,7 @@ function ActiveSessionView({
   }
 
   return (
-    <div className="screen">
+    <div className="screen train-screen">
       <div className="form-page-head" style={{ alignItems: 'center' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           {isFreeSession ? (
@@ -338,7 +341,7 @@ function ActiveSessionView({
         </button>
         <button
           type="button"
-          className="btn"
+          className={allSessionSetsDone ? 'btn success' : 'btn'}
           onClick={() => {
             finishSession(session.id)
             onFinish(session.id)

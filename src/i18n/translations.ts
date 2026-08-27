@@ -144,7 +144,7 @@ const fr = {
   'train.addSet': 'Ajouter une série',
   'train.completeAllSets': 'Tout valider',
   'train.addExercise': 'Ajouter un exercice',
-  'train.saveAsWorkout': 'Enregistrer comme entraînement',
+  'train.saveAsWorkout': 'Enregistrer cet entraînement',
   'train.saveWorkoutTitle': "Enregistrer l'entraînement",
   'train.saveWorkoutConfirm': 'Enregistrer',
   'train.saveWorkoutConflictTitle': 'Un entraînement du même nom existe déjà',
