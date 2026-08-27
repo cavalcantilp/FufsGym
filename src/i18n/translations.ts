@@ -303,6 +303,7 @@ const fr = {
   'exercise.chest-cable-crossover': 'Écarté à la poulie',
   'exercise.chest-machine-press': 'Développé à la machine',
   'exercise.chest-pec-deck': 'Écarté à la machine (pec deck)',
+  'exercise.chest-iso-lateral-incline-press': 'Développé incliné iso-latéral (Hammer Strength)',
 
   'exercise.back-pullup': 'Tractions',
   'exercise.back-lat-pulldown': 'Tirage vertical',
@@ -314,6 +315,8 @@ const fr = {
   'exercise.back-deadlift': 'Soulevé de terre',
   'exercise.back-hyperextension': 'Extension lombaire',
   'exercise.back-assisted-pullup': 'Tractions assistées',
+  'exercise.back-iso-lateral-high-row': 'Tirage haut iso-latéral (Hammer Strength)',
+  'exercise.back-iso-lateral-low-row': 'Tirage bas iso-latéral (Hammer Strength)',
 
   'exercise.legs-squat': 'Squat',
   'exercise.legs-front-squat': 'Squat avant',
@@ -354,6 +357,8 @@ const fr = {
   'exercise.arms-preacher-curl': 'Curl pupitre',
   'exercise.arms-triceps-extension-machine': 'Extension triceps à la machine',
   'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
+  'exercise.arms-iso-lateral-biceps-curl': 'Curl biceps iso-latéral (Hammer Strength)',
+  'exercise.arms-iso-lateral-triceps-dip': 'Dips triceps iso-latéral (Hammer Strength)',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Planche',
@@ -752,6 +757,7 @@ const pt: Dict = {
   'exercise.chest-cable-crossover': 'Crossover no cabo',
   'exercise.chest-machine-press': 'Supino na máquina',
   'exercise.chest-pec-deck': 'Peck deck (voador)',
+  'exercise.chest-iso-lateral-incline-press': 'Supino inclinado iso-lateral (Hammer Strength)',
 
   'exercise.back-pullup': 'Barra fixa',
   'exercise.back-lat-pulldown': 'Puxada alta',
@@ -763,6 +769,8 @@ const pt: Dict = {
   'exercise.back-deadlift': 'Levantamento terra',
   'exercise.back-hyperextension': 'Extensão lombar',
   'exercise.back-assisted-pullup': 'Barra assistida',
+  'exercise.back-iso-lateral-high-row': 'Puxada alta iso-lateral (Hammer Strength)',
+  'exercise.back-iso-lateral-low-row': 'Remada baixa iso-lateral (Hammer Strength)',
 
   'exercise.legs-squat': 'Agachamento',
   'exercise.legs-front-squat': 'Agachamento frontal',
@@ -803,6 +811,8 @@ const pt: Dict = {
   'exercise.arms-preacher-curl': 'Rosca scott',
   'exercise.arms-triceps-extension-machine': 'Extensão de tríceps na máquina',
   'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
+  'exercise.arms-iso-lateral-biceps-curl': 'Rosca bíceps iso-lateral (Hammer Strength)',
+  'exercise.arms-iso-lateral-triceps-dip': 'Mergulho tríceps iso-lateral (Hammer Strength)',
 
   'exercise.core-crunch': 'Abdominal crunch',
   'exercise.core-plank': 'Prancha',
@@ -1198,6 +1208,7 @@ const es: Dict = {
   'exercise.chest-cable-crossover': 'Cruce de poleas',
   'exercise.chest-machine-press': 'Press en máquina',
   'exercise.chest-pec-deck': 'Contractor (pec deck)',
+  'exercise.chest-iso-lateral-incline-press': 'Press inclinado iso-lateral (Hammer Strength)',
 
   'exercise.back-pullup': 'Dominadas',
   'exercise.back-lat-pulldown': 'Jalón al pecho',
@@ -1209,6 +1220,8 @@ const es: Dict = {
   'exercise.back-deadlift': 'Peso muerto',
   'exercise.back-hyperextension': 'Hiperextensiones lumbares',
   'exercise.back-assisted-pullup': 'Dominadas asistidas',
+  'exercise.back-iso-lateral-high-row': 'Jalón alto iso-lateral (Hammer Strength)',
+  'exercise.back-iso-lateral-low-row': 'Remo bajo iso-lateral (Hammer Strength)',
 
   'exercise.legs-squat': 'Sentadilla',
   'exercise.legs-front-squat': 'Sentadilla frontal',
@@ -1249,6 +1262,8 @@ const es: Dict = {
   'exercise.arms-preacher-curl': 'Curl en banco Scott',
   'exercise.arms-triceps-extension-machine': 'Extensión de tríceps en máquina',
   'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
+  'exercise.arms-iso-lateral-biceps-curl': 'Curl de bíceps iso-lateral (Hammer Strength)',
+  'exercise.arms-iso-lateral-triceps-dip': 'Fondos de tríceps iso-lateral (Hammer Strength)',
 
   'exercise.core-crunch': 'Encogimientos abdominales',
   'exercise.core-plank': 'Plancha',
@@ -1644,6 +1659,7 @@ const en: Dict = {
   'exercise.chest-cable-crossover': 'Cable crossover',
   'exercise.chest-machine-press': 'Machine chest press',
   'exercise.chest-pec-deck': 'Pec deck flye',
+  'exercise.chest-iso-lateral-incline-press': 'Iso-lateral incline press (Hammer Strength)',
 
   'exercise.back-pullup': 'Pull-ups',
   'exercise.back-lat-pulldown': 'Lat pulldown',
@@ -1655,6 +1671,8 @@ const en: Dict = {
   'exercise.back-deadlift': 'Deadlift',
   'exercise.back-hyperextension': 'Back extension',
   'exercise.back-assisted-pullup': 'Assisted pull-up',
+  'exercise.back-iso-lateral-high-row': 'Iso-lateral high row (Hammer Strength)',
+  'exercise.back-iso-lateral-low-row': 'Iso-lateral low row (Hammer Strength)',
 
   'exercise.legs-squat': 'Squat',
   'exercise.legs-front-squat': 'Front squat',
@@ -1695,6 +1713,8 @@ const en: Dict = {
   'exercise.arms-preacher-curl': 'Preacher curl',
   'exercise.arms-triceps-extension-machine': 'Machine triceps extension',
   'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
+  'exercise.arms-iso-lateral-biceps-curl': 'Iso-lateral biceps curl (Hammer Strength)',
+  'exercise.arms-iso-lateral-triceps-dip': 'Iso-lateral triceps dip (Hammer Strength)',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Plank',
@@ -2090,6 +2110,7 @@ const it: Dict = {
   'exercise.chest-cable-crossover': 'Croci ai cavi',
   'exercise.chest-machine-press': 'Chest press macchina',
   'exercise.chest-pec-deck': 'Pectoral machine (pec deck)',
+  'exercise.chest-iso-lateral-incline-press': 'Panca inclinata iso-laterale (Hammer Strength)',
 
   'exercise.back-pullup': 'Trazioni alla sbarra',
   'exercise.back-lat-pulldown': 'Lat machine',
@@ -2101,6 +2122,8 @@ const it: Dict = {
   'exercise.back-deadlift': 'Stacco da terra',
   'exercise.back-hyperextension': 'Iperestensioni lombari',
   'exercise.back-assisted-pullup': 'Trazioni assistite',
+  'exercise.back-iso-lateral-high-row': 'Tirata alta iso-laterale (Hammer Strength)',
+  'exercise.back-iso-lateral-low-row': 'Rematore basso iso-laterale (Hammer Strength)',
 
   'exercise.legs-squat': 'Squat',
   'exercise.legs-front-squat': 'Front squat',
@@ -2141,6 +2164,8 @@ const it: Dict = {
   'exercise.arms-preacher-curl': 'Curl alla panca Scott',
   'exercise.arms-triceps-extension-machine': 'Estensione tricipiti macchina',
   'exercise.arms-triceps-press-life-fitness': 'Triceps press (Life Fitness)',
+  'exercise.arms-iso-lateral-biceps-curl': 'Curl bicipiti iso-laterale (Hammer Strength)',
+  'exercise.arms-iso-lateral-triceps-dip': 'Dip tricipiti iso-laterale (Hammer Strength)',
 
   'exercise.core-crunch': 'Crunch',
   'exercise.core-plank': 'Plank',

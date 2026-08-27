@@ -60,6 +60,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('chest-cable-crossover', 'Écarté à la poulie', 'chest', 'cable'),
   ex('chest-machine-press', 'Développé à la machine', 'chest', 'machine'),
   ex('chest-pec-deck', 'Écarté à la machine (pec deck)', 'chest', 'machine'),
+  ex('chest-iso-lateral-incline-press', 'Développé incliné iso-latéral (Hammer Strength)', 'chest', 'machine'),
 
   // Dos
   ex('back-pullup', 'Tractions', 'back', 'bodyweight'),
@@ -72,6 +73,8 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('back-deadlift', 'Soulevé de terre', 'back', 'barbell'),
   ex('back-hyperextension', 'Extension lombaire', 'back', 'bodyweight'),
   ex('back-assisted-pullup', 'Tractions assistées', 'back', 'machine'),
+  ex('back-iso-lateral-high-row', 'Tirage haut iso-latéral (Hammer Strength)', 'back', 'machine'),
+  ex('back-iso-lateral-low-row', 'Tirage bas iso-latéral (Hammer Strength)', 'back', 'machine'),
 
   // Jambes
   ex('legs-squat', 'Squat', 'legs', 'barbell'),
@@ -115,6 +118,8 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('arms-preacher-curl', 'Curl pupitre', 'arms', 'machine'),
   ex('arms-triceps-extension-machine', 'Extension triceps à la machine', 'arms', 'machine'),
   ex('arms-triceps-press-life-fitness', 'Triceps press (Life Fitness)', 'arms', 'machine'),
+  ex('arms-iso-lateral-biceps-curl', 'Curl biceps iso-latéral (Hammer Strength)', 'arms', 'machine'),
+  ex('arms-iso-lateral-triceps-dip', 'Dips triceps iso-latéral (Hammer Strength)', 'arms', 'machine'),
 
   // Abdominaux
   ex('core-crunch', 'Crunch', 'core', 'bodyweight'),

@@ -66,6 +66,13 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
     bi('triceps-lateral', 0.4),
   ),
   'chest-pec-deck': merge(bi('chest-lower', 0.9), bi('chest-upper', 0.9), bi('shoulder-front', 0.2)),
+  'chest-iso-lateral-incline-press': merge(
+    bi('chest-upper', 1),
+    bi('chest-lower', 0.35),
+    bi('shoulder-front', 0.5),
+    bi('triceps-long', 0.4),
+    bi('triceps-lateral', 0.4),
+  ),
 
   // Dos
   'back-pullup': merge(
@@ -151,6 +158,22 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
     bi('lats-lower', 0.7),
     bi('biceps', 0.45),
     bi('traps-mid', 0.25),
+  ),
+  'back-iso-lateral-high-row': merge(
+    bi('lats-upper', 1),
+    bi('lats-mid', 0.9),
+    bi('lats-lower', 0.7),
+    bi('biceps', 0.45),
+    bi('traps-mid', 0.3),
+    bi('deltoid-rear', 0.3),
+  ),
+  'back-iso-lateral-low-row': merge(
+    bi('lats-mid', 0.85),
+    bi('lats-lower', 0.6),
+    bi('traps-mid', 0.5),
+    bi('traps-lower', 0.4),
+    bi('deltoid-rear', 0.4),
+    bi('biceps', 0.4),
   ),
 
   // Jambes
@@ -278,6 +301,13 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
   'arms-preacher-curl': merge(bi('biceps', 1), bi('forearm', 0.3)),
   'arms-triceps-extension-machine': merge(bi('triceps-long', 1), bi('triceps-lateral', 0.9)),
   'arms-triceps-press-life-fitness': merge(bi('triceps-long', 1), bi('triceps-lateral', 0.9)),
+  'arms-iso-lateral-biceps-curl': merge(bi('biceps', 1), bi('forearm', 0.4), bi('shoulder-front', 0.15)),
+  'arms-iso-lateral-triceps-dip': merge(
+    bi('triceps-long', 1),
+    bi('triceps-lateral', 0.9),
+    bi('chest-lower', 0.2),
+    bi('shoulder-front', 0.15),
+  ),
 
   // Abdominaux
   'core-crunch': merge(bi('abs-upper', 1), bi('abs-lower', 0.3)),
