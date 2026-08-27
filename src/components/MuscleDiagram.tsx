@@ -31,13 +31,13 @@ export function MuscleDiagram({ colorFor, onMuscleClick, isClickable }: MuscleDi
     <div className="body-views">
       <div className="body-view">
         <span className="view-label">{t('exerciseInfo.viewFront')}</span>
-        <svg viewBox="0 0 35 93" aria-hidden="true">
+        <svg viewBox="-1.73 0 35 93" aria-hidden="true">
           {FRONT_MUSCLES.map(renderMuscle)}
         </svg>
       </div>
       <div className="body-view">
         <span className="view-label">{t('exerciseInfo.viewBack')}</span>
-        <svg viewBox="37 0 35 93" aria-hidden="true">
+        <svg viewBox="35.01 0 35 93" aria-hidden="true">
           {BACK_MUSCLES.map(renderMuscle)}
         </svg>
       </div>
