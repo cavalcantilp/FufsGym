@@ -1620,6 +1620,25 @@ select {
   border-top: 1px solid rgba(71, 85, 105, 0.25);
 }
 
+.set-add-row {
+  display: flex;
+}
+
+.set-add-row .set-add {
+  flex: 1;
+  justify-content: center;
+}
+
+.set-add-row .set-add.accent {
+  color: var(--positive);
+  border-left: 1px solid rgba(71, 85, 105, 0.25);
+}
+
+.set-add-row .set-add:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .session-summary {
   display: flex;
   align-items: center;

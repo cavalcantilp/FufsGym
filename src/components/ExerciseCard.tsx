@@ -70,6 +70,12 @@ export function ExerciseCard({
     return intensity > 0 ? interpolateColor(ACTIVATION_STOPS, intensity) : NEUTRAL_MUSCLE_COLOR
   }
 
+  const completeAllSets = () => {
+    const pending = sessionExercise.sets.filter((set) => !set.done)
+    pending.forEach((set) => updateSet(session.id, sessionExercise.id, set.id, { done: true }))
+    if (pending.length && triggersRest) onSetCompleted?.(restSec)
+  }
+
   const formatSet = (set: (typeof sessionExercise.sets)[number]) => {
     if (isHold) return formatRestTime(set.durationSec ?? 0)
     if (!isCardio) return `${displayWeightValue(set.weight, units.weight)}${units.weight}×${set.reps}`
@@ -277,10 +283,16 @@ export function ExerciseCard({
             ))}
           </div>
 
-          <button type="button" className="set-add" onClick={() => addSet(session.id, sessionExercise.id)}>
-            <IconPlus size={15} />
-            {t('train.addSet')}
-          </button>
+          <div className="set-add-row">
+            <button type="button" className="set-add" onClick={() => addSet(session.id, sessionExercise.id)}>
+              <IconPlus size={15} />
+              {t('train.addSet')}
+            </button>
+            <button type="button" className="set-add accent" onClick={completeAllSets} disabled={allSetsDone}>
+              <IconCheck size={15} />
+              {t('train.completeAllSets')}
+            </button>
+          </div>
         </>
       ) : null}
 
