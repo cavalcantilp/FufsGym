@@ -265,10 +265,10 @@ function WorkoutDetail({
 }
 
 export function PlanificationScreen() {
-  const { t, workouts, schedules, addWorkout } = useApp()
+  const { t, workouts, schedules } = useApp()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [schedulingId, setSchedulingId] = useState<string | null>(null)
-  const [pickerForNew, setPickerForNew] = useState<string | null>(null)
+  const [creatingNew, setCreatingNew] = useState(false)
 
   const scheduling = workouts.find((w) => w.id === schedulingId)
   if (scheduling) {
@@ -282,24 +282,19 @@ export function PlanificationScreen() {
     )
   }
 
-  if (pickerForNew) {
+  if (creatingNew) {
     return (
       <NewWorkoutPicker
-        workoutId={pickerForNew}
-        onClose={() => {
-          setSelectedId(pickerForNew)
-          setPickerForNew(null)
+        onDone={(workoutId) => {
+          setCreatingNew(false)
+          setSelectedId(workoutId)
         }}
+        onCancel={() => setCreatingNew(false)}
       />
     )
   }
 
   const workoutHasSchedule = (workoutId: string) => schedules.some((s) => s.workoutId === workoutId)
-
-  const handleCreate = () => {
-    const created = addWorkout(t('workout.new'))
-    setPickerForNew(created.id)
-  }
 
   return (
     <div className="screen">
@@ -332,7 +327,7 @@ export function PlanificationScreen() {
         </div>
       )}
 
-      <button type="button" className="btn" onClick={handleCreate}>
+      <button type="button" className="btn" onClick={() => setCreatingNew(true)}>
         <IconPlus size={18} />
         {t('workout.new')}
       </button>
@@ -340,20 +335,26 @@ export function PlanificationScreen() {
   )
 }
 
-/** Ouvre directement le sélecteur d'exercice pour un entraînement fraîchement créé, sans navigation intermédiaire. */
-function NewWorkoutPicker({ workoutId, onClose }: { workoutId: string; onClose: () => void }) {
-  const { t, addExercise } = useApp()
+/**
+ * Sélecteur d'exercice pour un nouvel entraînement, sans navigation
+ * intermédiaire. L'entraînement n'est créé qu'une fois le premier exercice
+ * confirmé : si l'utilisateur quitte avant (retour, changement d'onglet),
+ * rien n'a été enregistré et aucun entraînement vide ne traîne dans la liste.
+ */
+function NewWorkoutPicker({ onDone, onCancel }: { onDone: (workoutId: string) => void; onCancel: () => void }) {
+  const { t, addWorkout, addExercise } = useApp()
   const [pendingPick, setPendingPick] = useState<Exercise | null>(null)
 
   if (pendingPick) {
     return (
       <PlanExerciseSheet
         exercise={pendingPick}
-        onConfirm={(target) => addExercise(workoutId, { exerciseId: pendingPick.id, ...target })}
-        onClose={() => {
-          setPendingPick(null)
-          onClose()
+        onConfirm={(target) => {
+          const created = addWorkout(t('workout.new'))
+          addExercise(created.id, { exerciseId: pendingPick.id, ...target })
+          onDone(created.id)
         }}
+        onClose={() => setPendingPick(null)}
       />
     )
   }
@@ -361,7 +362,7 @@ function NewWorkoutPicker({ workoutId, onClose }: { workoutId: string; onClose: 
   return (
     <ExercisePicker
       title={t('picker.addTitle')}
-      onClose={onClose}
+      onClose={onCancel}
       onPick={(exercise) => setPendingPick(exercise)}
     />
   )
