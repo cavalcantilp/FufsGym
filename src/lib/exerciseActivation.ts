@@ -73,6 +73,11 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
     bi('triceps-long', 0.4),
     bi('triceps-lateral', 0.4),
   ),
+  'chest-scapular-pushdown-life-fitness': merge(
+    bi('serratus-anterior', 1),
+    bi('chest-lower', 0.15),
+    bi('shoulder-front', 0.1),
+  ),
 
   // Dos
   'back-pullup': merge(
@@ -152,6 +157,12 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
     bi('hamstrings-medial', 0.35),
     bi('hamstrings-lateral', 0.35),
   ),
+  'back-45-degree-back-extension-hammer-strength': merge(
+    bi('lower-back-erectors', 1),
+    bi('gluteus-maximus', 0.5),
+    bi('hamstrings-medial', 0.35),
+    bi('hamstrings-lateral', 0.35),
+  ),
   'back-assisted-pullup': merge(
     bi('lats-upper', 1),
     bi('lats-mid', 0.9),
@@ -204,6 +215,13 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
     bi('hamstrings-medial', 0.25),
     bi('hamstrings-lateral', 0.25),
   ),
+  'legs-iso-lateral-leg-press': merge(
+    bi('quads', 1),
+    bi('gluteus-maximus', 0.6),
+    bi('adductors', 0.3),
+    bi('hamstrings-medial', 0.25),
+    bi('hamstrings-lateral', 0.25),
+  ),
   'legs-lunge': merge(
     bi('quads', 0.9),
     bi('gluteus-maximus', 0.7),
@@ -214,7 +232,14 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
     bi('calves-gastroc-lateral', 0.2),
   ),
   'legs-leg-extension': bi('quads', 1),
+  'legs-leg-extension-life-fitness': bi('quads', 1),
   'legs-leg-curl': merge(
+    bi('hamstrings-medial', 1),
+    bi('hamstrings-lateral', 1),
+    bi('calves-gastroc-medial', 0.2),
+    bi('calves-gastroc-lateral', 0.2),
+  ),
+  'legs-seated-leg-curl-life-fitness': merge(
     bi('hamstrings-medial', 1),
     bi('hamstrings-lateral', 1),
     bi('calves-gastroc-medial', 0.2),
@@ -328,6 +353,14 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
     bi('lower-back-erectors', 0.2),
   ),
   'core-cable-crunch': merge(bi('abs-upper', 1), bi('abs-lower', 0.5)),
+  'core-abdominal-crunch-machine-life-fitness': merge(bi('abs-upper', 1), bi('abs-lower', 0.5)),
+  'core-captains-chair-hammer-strength': merge(
+    bi('abs-lower', 1),
+    bi('abs-upper', 0.4),
+    bi('obliques', 0.5),
+    bi('hip-flexor', 0.4),
+  ),
+  'core-torso-rotation-life-fitness': merge(bi('obliques', 1), bi('abs-upper', 0.2)),
 }
 
 /**

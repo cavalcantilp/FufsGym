@@ -61,6 +61,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('chest-machine-press', 'Développé à la machine', 'chest', 'machine'),
   ex('chest-pec-deck', 'Écarté à la machine (pec deck)', 'chest', 'machine'),
   ex('chest-iso-lateral-incline-press', 'Développé incliné iso-latéral (Hammer Strength)', 'chest', 'machine'),
+  ex('chest-scapular-pushdown-life-fitness', 'Scapular Push-down (Life Fitness)', 'chest', 'machine'),
 
   // Dos
   ex('back-pullup', 'Tractions', 'back', 'bodyweight'),
@@ -72,6 +73,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('back-seated-row-life-fitness', 'Cable Row (Life Fitness)', 'back', 'machine'),
   ex('back-deadlift', 'Soulevé de terre', 'back', 'barbell'),
   ex('back-hyperextension', 'Extension lombaire', 'back', 'bodyweight'),
+  ex('back-45-degree-back-extension-hammer-strength', '45-Degree Back Extension (Hammer Strength)', 'back', 'machine'),
   ex('back-assisted-pullup', 'Tractions assistées', 'back', 'machine'),
   ex('back-iso-lateral-high-row', 'Tirage haut iso-latéral (Hammer Strength)', 'back', 'machine'),
   ex('back-iso-lateral-low-row', 'Tirage bas iso-latéral (Hammer Strength)', 'back', 'machine'),
@@ -90,6 +92,9 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('legs-hip-abduction', 'Abducteurs (machine)', 'legs', 'machine'),
   ex('legs-hip-thrust', 'Hip thrust', 'legs', 'barbell'),
   ex('legs-hip-thrust-machine', 'Hip thrust à la machine', 'legs', 'machine'),
+  ex('legs-iso-lateral-leg-press', 'Presse à cuisses iso-latérale (Hammer Strength)', 'legs', 'machine'),
+  ex('legs-seated-leg-curl-life-fitness', 'Seated Leg Curl (Life Fitness)', 'legs', 'machine'),
+  ex('legs-leg-extension-life-fitness', 'Leg Extension (Life Fitness)', 'legs', 'machine'),
 
   // Épaules
   ex('shoulders-military-press', 'Développé militaire', 'shoulders', 'barbell'),
@@ -129,6 +134,9 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('core-russian-twist', 'Russian twist', 'core', 'bodyweight'),
   ex('core-ab-wheel', 'Roue abdominale', 'core', 'wheel'),
   ex('core-cable-crunch', 'Crunch à la poulie', 'core', 'cable'),
+  ex('core-abdominal-crunch-machine-life-fitness', 'Abdominal Crunch Machine (Life Fitness)', 'core', 'machine'),
+  ex('core-captains-chair-hammer-strength', "Captain's Chair (Hammer Strength)", 'core', 'machine'),
+  ex('core-torso-rotation-life-fitness', 'Torso Rotation (Life Fitness)', 'core', 'machine'),
 
   // Cardio
   ex('cardio-running', 'Course à pied', 'cardio'),
