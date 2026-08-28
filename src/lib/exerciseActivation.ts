@@ -361,6 +361,7 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
     bi('hip-flexor', 0.4),
   ),
   'core-torso-rotation-life-fitness': merge(bi('obliques', 1), bi('abs-upper', 0.2)),
+  'core-leg-lift-life-fitness': merge(bi('abs-lower', 1), bi('abs-upper', 0.3), bi('hip-flexor', 0.4)),
 }
 
 /**

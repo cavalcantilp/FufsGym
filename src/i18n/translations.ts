@@ -387,6 +387,7 @@ const fr = {
   'exercise.core-abdominal-crunch-machine-life-fitness': 'Abdominal Crunch Machine (Life Fitness)',
   'exercise.core-captains-chair-hammer-strength': "Captain's Chair (Hammer Strength)",
   'exercise.core-torso-rotation-life-fitness': 'Torso Rotation (Life Fitness)',
+  'exercise.core-leg-lift-life-fitness': 'Leg Lift (Life Fitness)',
 
   'exercise.cardio-running': 'Course à pied',
   'exercise.cardio-cycling': 'Vélo',
@@ -862,6 +863,7 @@ const pt: Dict = {
   'exercise.core-abdominal-crunch-machine-life-fitness': 'Abdominal Crunch Machine (Life Fitness)',
   'exercise.core-captains-chair-hammer-strength': "Captain's Chair (Hammer Strength)",
   'exercise.core-torso-rotation-life-fitness': 'Torso Rotation (Life Fitness)',
+  'exercise.core-leg-lift-life-fitness': 'Leg Lift (Life Fitness)',
 
   'exercise.cardio-running': 'Corrida',
   'exercise.cardio-cycling': 'Bicicleta',
@@ -1334,6 +1336,7 @@ const es: Dict = {
   'exercise.core-abdominal-crunch-machine-life-fitness': 'Abdominal Crunch Machine (Life Fitness)',
   'exercise.core-captains-chair-hammer-strength': "Captain's Chair (Hammer Strength)",
   'exercise.core-torso-rotation-life-fitness': 'Torso Rotation (Life Fitness)',
+  'exercise.core-leg-lift-life-fitness': 'Leg Lift (Life Fitness)',
 
   'exercise.cardio-running': 'Correr',
   'exercise.cardio-cycling': 'Bicicleta',
@@ -1806,6 +1809,7 @@ const en: Dict = {
   'exercise.core-abdominal-crunch-machine-life-fitness': 'Abdominal Crunch Machine (Life Fitness)',
   'exercise.core-captains-chair-hammer-strength': "Captain's Chair (Hammer Strength)",
   'exercise.core-torso-rotation-life-fitness': 'Torso Rotation (Life Fitness)',
+  'exercise.core-leg-lift-life-fitness': 'Leg Lift (Life Fitness)',
 
   'exercise.cardio-running': 'Running',
   'exercise.cardio-cycling': 'Cycling',
@@ -2278,6 +2282,7 @@ const it: Dict = {
   'exercise.core-abdominal-crunch-machine-life-fitness': 'Abdominal Crunch Machine (Life Fitness)',
   'exercise.core-captains-chair-hammer-strength': "Captain's Chair (Hammer Strength)",
   'exercise.core-torso-rotation-life-fitness': 'Torso Rotation (Life Fitness)',
+  'exercise.core-leg-lift-life-fitness': 'Leg Lift (Life Fitness)',
 
   'exercise.cardio-running': 'Corsa',
   'exercise.cardio-cycling': 'Bicicletta',

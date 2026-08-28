@@ -137,6 +137,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('core-abdominal-crunch-machine-life-fitness', 'Abdominal Crunch Machine (Life Fitness)', 'core', 'machine'),
   ex('core-captains-chair-hammer-strength', "Captain's Chair (Hammer Strength)", 'core', 'machine'),
   ex('core-torso-rotation-life-fitness', 'Torso Rotation (Life Fitness)', 'core', 'machine'),
+  ex('core-leg-lift-life-fitness', 'Leg Lift (Life Fitness)', 'core', 'machine'),
 
   // Cardio
   ex('cardio-running', 'Course à pied', 'cardio'),
