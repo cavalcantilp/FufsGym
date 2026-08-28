@@ -95,7 +95,7 @@ function StartView({ onStart }: StartViewProps) {
       ) : null}
 
       {otherPickerOpen ? (
-        <Sheet title={t('train.chooseWorkoutPlaceholder')} onClose={() => setOtherPickerOpen(false)}>
+        <Sheet title={t('train.chooseWorkoutPlaceholder')} onClose={() => setOtherPickerOpen(false)} centered>
           <div className="stack">
             {otherWorkouts.map((workout) => {
               const schedule = scheduleForWorkoutId(workout.id)

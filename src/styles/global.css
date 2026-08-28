@@ -2020,6 +2020,8 @@ select {
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
+  width: 100%;
+  text-align: left;
 }
 
 .pr-row + .pr-row {
