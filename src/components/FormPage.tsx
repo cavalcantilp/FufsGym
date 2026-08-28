@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { IconChevronLeft } from './icons'
 
 interface FormPageProps {
@@ -19,6 +19,13 @@ interface FormPageProps {
  */
 export function FormPage({ title, subtitle, backLabel, onBack, children }: FormPageProps) {
   const ariaLabel = backLabel ?? (typeof title === 'string' ? title : undefined)
+
+  // La page réutilise le défilement du document : sans ceci, ouvrir une page
+  // depuis une liste déjà scrollée l'affiche à mi-hauteur au lieu du haut.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   return (
     <div className="screen">
       <div className="form-page-head">
