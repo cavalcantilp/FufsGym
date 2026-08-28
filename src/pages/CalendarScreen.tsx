@@ -134,8 +134,19 @@ export function CalendarScreen() {
             const key = toKey(day)
             const daySessions = sessionsByDate.get(key)
             const dayTypes = dayTypesByDate.get(key)
+            /**
+             * Pour un jour passé, la lettre ne reste affichée que si
+             * l'entraînement prévu a bien été réalisé ce jour-là (une séance
+             * terminée pour ce workoutId) — sinon elle disparaît une fois le
+             * jour écoulé. Aujourd'hui et les jours à venir gardent toujours
+             * leur lettre, le jour n'étant pas encore joué.
+             */
             const letters = schedulesForDate(schedules, key)
               .filter((schedule) => workouts.some((w) => w.id === schedule.workoutId))
+              .filter(
+                (schedule) =>
+                  key >= today || (daySessions ?? []).some((s) => s.finishedAt && s.workoutId === schedule.workoutId),
+              )
               .map((schedule) => ({
                 letter: schedule.letter,
                 color: LETTER_COLOR[schedule.letter],
