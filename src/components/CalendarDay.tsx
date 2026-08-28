@@ -47,24 +47,20 @@ export function CalendarDay({
   return (
     <button type="button" className={classes} onClick={() => onSelect(date)}>
       <span className="num">{dayNumber}</span>
-      {letters.length ? (
-        <span className="day-letters">
-          {letters.map((entry, index) => (
-            <span key={index} className="letter-badge small" style={{ background: entry.color }}>
-              {entry.letter}
-            </span>
-          ))}
-        </span>
-      ) : null}
-      {dayTypes.length ? (
-        <span className="day-types">
-          {dayTypes.map((type) => (
-            <span key={type} className={`day-type-icon ${type}`}>
-              {type === 'strength' ? <IconDumbbell size={14} /> : <IconHeart size={14} />}
-            </span>
-          ))}
-        </span>
-      ) : null}
+      <span className="day-letters">
+        {letters.map((entry, index) => (
+          <span key={index} className="letter-badge small" style={{ background: entry.color }}>
+            {entry.letter}
+          </span>
+        ))}
+      </span>
+      <span className="day-types">
+        {dayTypes.map((type) => (
+          <span key={type} className={`day-type-icon ${type}`}>
+            {type === 'strength' ? <IconDumbbell size={14} /> : <IconHeart size={14} />}
+          </span>
+        ))}
+      </span>
       {hasNote ? (
         <span className="day-note-icon">
           <IconStickyNote size={12} />
