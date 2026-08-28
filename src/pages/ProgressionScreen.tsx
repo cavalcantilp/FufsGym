@@ -300,11 +300,70 @@ function SessionEditScreen({ session, onBack }: { session: Session; onBack: () =
   )
 }
 
+function ExerciseProgressScreen({ exerciseId, onBack }: { exerciseId: string; onBack: () => void }) {
+  const { t, lang, units, sessions, exerciseById } = useApp()
+  const [range, setRange] = useState<RangeKey>('3m')
+  const info = exerciseById(exerciseId)
+
+  const best1RM = useMemo(() => bestEstimate1RM(sessions, exerciseId), [sessions, exerciseId])
+  const bestW = useMemo(() => bestWeight(sessions, exerciseId), [sessions, exerciseId])
+  const oneRmPoints = useMemo(
+    () =>
+      oneRepMaxSeries(sessions, exerciseId).map((point) => ({
+        ...point,
+        value: displayWeightValue(point.value, units.weight),
+      })),
+    [sessions, exerciseId, units.weight],
+  )
+
+  return (
+    <FormPage title={info ? exerciseName(info, t) : ''} onBack={onBack}>
+      <div className="stack">
+        <RangePicker range={range} onChange={setRange} />
+
+        <div className="card">
+          <div className="card-title">{t('progress.oneRmTitle')}</div>
+
+          <div className="stat-row">
+            <div className="stat">
+              <div className="label">{t('progress.oneRmEstimate')}</div>
+              <div className="value accent">
+                {best1RM ? `${displayWeightValue(best1RM.value, units.weight)} ${units.weight}` : '—'}
+              </div>
+            </div>
+            <div className="stat">
+              <div className="label">{t('progress.maxWeight')}</div>
+              <div className="value">
+                {bestW ? `${displayWeightValue(bestW.value, units.weight)} ${units.weight}` : '—'}
+              </div>
+            </div>
+            <div className="stat">
+              <div className="label">{t('progress.recordDate')}</div>
+              <div className="value" style={{ fontSize: '0.85rem' }}>
+                {best1RM ? formatShort(best1RM.date, lang) : '—'}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 14 }}>
+            {oneRmPoints.length ? (
+              <LineChart points={oneRmPoints} unit={units.weight} color="var(--accent)" range={range} />
+            ) : (
+              <p className="hint">{t('progress.oneRmEmpty')}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </FormPage>
+  )
+}
+
 export function ProgressionScreen() {
   const { t, lang, units, sessions, exerciseById } = useApp()
   const [range, setRange] = useState<RangeKey>('3m')
   const [screen, setScreen] = useState<'main' | 'history' | 'muscles'>('main')
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null)
+  const [progressExerciseId, setProgressExerciseId] = useState<string | null>(null)
   const trainedIds = useMemo(() => trainedExerciseIds(sessions), [sessions])
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
@@ -357,6 +416,10 @@ export function ProgressionScreen() {
 
   if (screen === 'muscles') {
     return <MuscleMapScreen onBack={() => setScreen('main')} />
+  }
+
+  if (progressExerciseId) {
+    return <ExerciseProgressScreen exerciseId={progressExerciseId} onBack={() => setProgressExerciseId(null)} />
   }
 
   return (
@@ -471,7 +534,12 @@ export function ProgressionScreen() {
           <div className="card-title">{t('progress.records')}</div>
           <div className="pr-list">
             {records.map(({ info, best }) => (
-              <div className="pr-row" key={info.id}>
+              <button
+                type="button"
+                className="pr-row"
+                key={info.id}
+                onClick={() => setProgressExerciseId(info.id)}
+              >
                 <span className="muscle-dot" style={{ width: 8, height: 8, borderRadius: '50%', background: MUSCLE_COLOR[info.muscle] }} />
                 <span className="info">
                   <span className="name">{exerciseName(info, t)}</span>
@@ -480,7 +548,7 @@ export function ProgressionScreen() {
                 <span className="value">
                   {displayWeightValue(best.value, units.weight)} {units.weight}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </div>

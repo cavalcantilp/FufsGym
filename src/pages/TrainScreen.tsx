@@ -22,6 +22,7 @@ interface StartViewProps {
 function StartView({ onStart }: StartViewProps) {
   const { t, lang, workouts, schedules } = useApp()
   const today = todayKey()
+  const [otherPickerOpen, setOtherPickerOpen] = useState(false)
 
   const options = useMemo(() => {
     return schedulesForDate(schedules, today)
@@ -36,6 +37,8 @@ function StartView({ onStart }: StartViewProps) {
     const todayIds = new Set(options.map((entry) => entry.workout.id))
     return workouts.filter((w) => !todayIds.has(w.id))
   }, [workouts, options])
+
+  const scheduleForWorkoutId = (workoutId: string) => schedules.find((s) => s.workoutId === workoutId)
 
   return (
     <div className="screen train-screen">
@@ -78,26 +81,52 @@ function StartView({ onStart }: StartViewProps) {
       {otherWorkouts.length ? (
         <div className="card">
           <div className="field">
-            <label htmlFor="other-workout-select">{t('train.chooseOtherWorkout')}</label>
-            <select
-              id="other-workout-select"
-              defaultValue=""
-              onChange={(event) => {
-                const workout = otherWorkouts.find((w) => w.id === event.target.value)
-                if (workout) onStart(workout)
-              }}
+            <label>{t('train.chooseOtherWorkout')}</label>
+            <button
+              type="button"
+              className="btn secondary"
+              style={{ marginTop: 8 }}
+              onClick={() => setOtherPickerOpen(true)}
             >
-              <option value="" disabled>
-                {t('train.chooseWorkoutPlaceholder')}
-              </option>
-              {otherWorkouts.map((workout) => (
-                <option key={workout.id} value={workout.id}>
-                  {workout.name}
-                </option>
-              ))}
-            </select>
+              {t('train.chooseWorkoutPlaceholder')}
+            </button>
           </div>
         </div>
+      ) : null}
+
+      {otherPickerOpen ? (
+        <Sheet title={t('train.chooseWorkoutPlaceholder')} onClose={() => setOtherPickerOpen(false)}>
+          <div className="stack">
+            {otherWorkouts.map((workout) => {
+              const schedule = scheduleForWorkoutId(workout.id)
+              return (
+                <button
+                  key={workout.id}
+                  type="button"
+                  className="plan-card"
+                  onClick={() => {
+                    setOtherPickerOpen(false)
+                    onStart(workout)
+                  }}
+                >
+                  <div className="plan-card-head">
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {schedule ? (
+                        <span className="letter-badge" style={{ background: LETTER_COLOR[schedule.letter] }}>
+                          {schedule.letter}
+                        </span>
+                      ) : null}
+                      <span className="name">{workout.name}</span>
+                    </span>
+                  </div>
+                  <span className="days-sub">
+                    {workout.exercises.length} {t('unit.exercise')}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </Sheet>
       ) : null}
     </div>
   )
