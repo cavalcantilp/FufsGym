@@ -1773,18 +1773,16 @@ select {
 
 /* ---------- Minuteur de repos (bandeau réduit) ---------- */
 
-.app.has-timer-banner .screen {
-  padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 88px);
-}
-
+/*
+ * Épinglé juste sous l'en-tête (lui-même en position sticky à top: 0) : en
+ * flux normal plutôt qu'en position fixed, il pousse le contenu de l'écran
+ * en dessous de lui sans calcul de marge, et reste visible au défilement.
+ */
 .rest-timer-banner {
-  position: fixed;
-  left: 12px;
-  right: 12px;
-  max-width: 496px;
-  margin: 0 auto;
-  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 10px);
-  z-index: 15;
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 45px);
+  z-index: 4;
+  margin: 10px 16px 0;
   display: flex;
   align-items: stretch;
   background: rgba(22, 34, 60, 0.96);
