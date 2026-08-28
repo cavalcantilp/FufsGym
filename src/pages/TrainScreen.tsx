@@ -9,7 +9,7 @@ import { todayKey, formatDay } from '../lib/date'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { groupBySuperset } from '../lib/superset'
 import { buildPlanExercises, nextAvailableName } from '../lib/saveWorkout'
-import { sessionSetCount, sessionVolume, trainingStreak } from '../lib/stats'
+import { plannedStreak, sessionSetCount, sessionVolume } from '../lib/stats'
 import { displayWeightValue } from '../lib/weightUnit'
 import { aggregateActivation } from '../lib/exerciseActivation'
 import { ACTIVATION_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
@@ -133,10 +133,10 @@ function StartView({ onStart }: StartViewProps) {
 }
 
 function SessionSummaryView({ session, onClose }: { session: Session; onClose: () => void }) {
-  const { t, lang, units, sessions } = useApp()
+  const { t, lang, units, sessions, schedules } = useApp()
   const volume = displayWeightValue(sessionVolume(session), units.weight)
   const setCount = sessionSetCount(session)
-  const streak = useMemo(() => trainingStreak(sessions, session.date), [sessions, session.date])
+  const streak = useMemo(() => plannedStreak(sessions, schedules, session.date), [sessions, schedules, session.date])
 
   const activation = useMemo(
     () => aggregateActivation(session.exercises.map((entry) => entry.exerciseId)),

@@ -15,13 +15,13 @@ import { IconCheck, IconChevronRight, IconDumbbell, IconFlame, IconHeart, IconPl
 import {
   bestEstimate1RM,
   bestWeight,
-  longestTrainingStreak,
+  longestPlannedStreak,
   oneRepMaxSeries,
+  plannedStreak,
   sessionSetCount,
   sessionTypes,
   sessionVolume,
   trainedExerciseIds,
-  trainingStreak,
   volumeSeries,
 } from '../lib/stats'
 import { displayWeightValue } from '../lib/weightUnit'
@@ -359,7 +359,7 @@ function ExerciseProgressScreen({ exerciseId, onBack }: { exerciseId: string; on
 }
 
 export function ProgressionScreen() {
-  const { t, lang, units, sessions, exerciseById } = useApp()
+  const { t, lang, units, sessions, schedules, exerciseById } = useApp()
   const [range, setRange] = useState<RangeKey>('3m')
   const [screen, setScreen] = useState<'main' | 'history' | 'muscles'>('main')
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null)
@@ -370,8 +370,8 @@ export function ProgressionScreen() {
   const activeExerciseId = selectedId ?? trainedIds[0] ?? null
   const activeExercise = activeExerciseId ? exerciseById(activeExerciseId) : undefined
 
-  const streak = useMemo(() => trainingStreak(sessions, todayKey()), [sessions])
-  const bestStreak = useMemo(() => longestTrainingStreak(sessions), [sessions])
+  const streak = useMemo(() => plannedStreak(sessions, schedules, todayKey()), [sessions, schedules])
+  const bestStreak = useMemo(() => longestPlannedStreak(sessions, schedules, todayKey()), [sessions, schedules])
 
   const volumePoints = useMemo(
     () => volumeSeries(sessions).map((point) => ({ ...point, value: displayWeightValue(point.value, units.weight) })),

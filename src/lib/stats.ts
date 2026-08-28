@@ -1,5 +1,5 @@
-import { daysBetween } from './date'
-import type { Exercise, Session, SetLog } from './types'
+import { schedulesForDate } from './schedule'
+import type { DaySchedule, Exercise, Session, SetLog } from './types'
 
 /** Arrondi à une décimale : évite les 62.500000000001 issus des calculs flottants. */
 export function round1(n: number): number {
@@ -124,33 +124,73 @@ export function trainedExerciseIds(sessions: Session[]): string[] {
     .map(([id]) => id)
 }
 
+/** Séances terminées avec entraînement identifié, regroupées par date. */
+function doneWorkoutIdsByDate(sessions: Session[]): Map<string, Set<string>> {
+  const map = new Map<string, Set<string>>()
+  for (const session of sessions) {
+    if (!session.finishedAt || !session.workoutId) continue
+    const set = map.get(session.date) ?? new Set<string>()
+    set.add(session.workoutId)
+    map.set(session.date, set)
+  }
+  return map
+}
+
+/** Un jour est honoré si tous les entraînements programmés ce jour-là ont été réalisés. */
+function isDayHonored(date: string, schedules: DaySchedule[], done: Map<string, Set<string>>): boolean | null {
+  const daySchedules = schedulesForDate(schedules, date)
+  if (daySchedules.length === 0) return null
+  return daySchedules.every((schedule) => done.get(date)?.has(schedule.workoutId) ?? false)
+}
+
 /**
- * Série de jours d'entraînement consécutifs, en remontant depuis aujourd'hui
- * (ou hier si aujourd'hui n'a pas encore de séance). Un jour sans séance
- * casse la série.
+ * Série de jours d'adhésion au programme planifié, en remontant depuis
+ * aujourd'hui. Les jours sans entraînement programmé sont ignorés (ni
+ * casse, ni prolonge la série) ; un jour programmé non honoré casse la
+ * série, sauf s'il s'agit d'aujourd'hui (pas encore terminé).
  */
-export function trainingStreak(sessions: Session[], today: string): number {
-  const trainedDays = new Set(sessions.filter((session) => session.finishedAt).map((session) => session.date))
-  let cursor = trainedDays.has(today) ? today : shiftDayLocal(today, -1)
+export function plannedStreak(sessions: Session[], schedules: DaySchedule[], today: string): number {
+  const done = doneWorkoutIdsByDate(sessions)
+  let cursor = today
   let streak = 0
-  for (let i = 0; i < 366; i++) {
-    if (!trainedDays.has(cursor)) break
+  for (let i = 0; i < 3660; i++) {
+    const honored = isDayHonored(cursor, schedules, done)
+    if (honored === null) {
+      cursor = shiftDayLocal(cursor, -1)
+      continue
+    }
+    if (!honored) {
+      if (cursor === today) {
+        cursor = shiftDayLocal(cursor, -1)
+        continue
+      }
+      break
+    }
     streak += 1
     cursor = shiftDayLocal(cursor, -1)
   }
   return streak
 }
 
-/** Plus longue série de jours d'entraînement consécutifs jamais atteinte. */
-export function longestTrainingStreak(sessions: Session[]): number {
-  const trainedDays = Array.from(new Set(sessions.filter((session) => session.finishedAt).map((session) => session.date))).sort()
+/** Plus longue série d'adhésion au programme planifié jamais atteinte. */
+export function longestPlannedStreak(sessions: Session[], schedules: DaySchedule[], today: string): number {
+  const done = doneWorkoutIdsByDate(sessions)
+  const scheduleDates = schedules.map((s) => s.createdAt || s.startDate).filter((d): d is string => Boolean(d))
+  const sessionDates = sessions.map((s) => s.date)
+  const allDates = [...scheduleDates, ...sessionDates]
+  if (allDates.length === 0) return 0
+  let cursor = allDates.reduce((min, d) => (d < min ? d : min))
   let best = 0
   let current = 0
-  let prevDay: string | null = null
-  for (const day of trainedDays) {
-    current = prevDay && daysBetween(prevDay, day) === 1 ? current + 1 : 1
-    best = Math.max(best, current)
-    prevDay = day
+  for (let i = 0; i < 3660 && cursor <= today; i++) {
+    const honored = isDayHonored(cursor, schedules, done)
+    if (honored === true) {
+      current += 1
+      best = Math.max(best, current)
+    } else if (honored === false && cursor !== today) {
+      current = 0
+    }
+    cursor = shiftDayLocal(cursor, 1)
   }
   return best
 }

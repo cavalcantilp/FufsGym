@@ -5,7 +5,7 @@ import { DaySessionSheet } from '../components/DaySessionSheet'
 import { IconChevronLeft, IconChevronRight, IconFlame } from '../components/icons'
 import { fromKey, localeOf, toKey, todayKey } from '../lib/date'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
-import { trainingStreak } from '../lib/stats'
+import { plannedStreak } from '../lib/stats'
 import type { Session } from '../lib/types'
 
 function startOfGrid(year: number, month: number): Date {
@@ -54,7 +54,7 @@ export function CalendarScreen() {
     return map
   }, [sessionsByDate, exerciseById])
 
-  const streak = useMemo(() => trainingStreak(sessions, today), [sessions, today])
+  const streak = useMemo(() => plannedStreak(sessions, schedules, today), [sessions, schedules, today])
 
   const { days, weeks } = useMemo(() => {
     const start = startOfGrid(cursor.year, cursor.month)
