@@ -116,6 +116,9 @@ const fr = {
 
   'workout.title': 'Entraînements',
   'workout.subtitle': 'Composez vos entraînements : exercices, séries et répétitions visées.',
+  'workout.periodFrom': 'À partir du {date}',
+  'workout.periodUntil': "Jusqu'au {date}",
+  'workout.periodRange': 'Du {start} au {end}',
   'workout.empty': 'Aucun entraînement pour le moment.',
   'workout.new': 'Nouvel entraînement',
   'workout.newName': "Nom de l'entraînement",
@@ -592,6 +595,9 @@ const pt: Dict = {
 
   'workout.title': 'Treinos',
   'workout.subtitle': 'Componha os seus treinos: exercícios, séries e repetições visadas.',
+  'workout.periodFrom': 'A partir de {date}',
+  'workout.periodUntil': 'Até {date}',
+  'workout.periodRange': 'De {start} a {end}',
   'workout.empty': 'Nenhum treino por enquanto.',
   'workout.new': 'Novo treino',
   'workout.newName': 'Nome do treino',
@@ -1065,6 +1071,9 @@ const es: Dict = {
 
   'workout.title': 'Entrenamientos',
   'workout.subtitle': 'Compón tus entrenamientos: ejercicios, series y repeticiones objetivo.',
+  'workout.periodFrom': 'Desde el {date}',
+  'workout.periodUntil': 'Hasta el {date}',
+  'workout.periodRange': 'Del {start} al {end}',
   'workout.empty': 'Ningún entrenamiento por el momento.',
   'workout.new': 'Nuevo entrenamiento',
   'workout.newName': 'Nombre del entrenamiento',
@@ -1538,6 +1547,9 @@ const en: Dict = {
 
   'workout.title': 'Workouts',
   'workout.subtitle': 'Build your workouts: exercises, target sets and reps.',
+  'workout.periodFrom': 'From {date}',
+  'workout.periodUntil': 'Until {date}',
+  'workout.periodRange': '{start} – {end}',
   'workout.empty': 'No workout yet.',
   'workout.new': 'New workout',
   'workout.newName': 'Workout name',
@@ -2011,6 +2023,9 @@ const it: Dict = {
 
   'workout.title': 'Allenamenti',
   'workout.subtitle': 'Componi i tuoi allenamenti: esercizi, serie e ripetizioni target.',
+  'workout.periodFrom': 'Dal {date}',
+  'workout.periodUntil': 'Fino al {date}',
+  'workout.periodRange': 'Dal {start} al {end}',
   'workout.empty': 'Nessun allenamento per il momento.',
   'workout.new': 'Nuovo allenamento',
   'workout.newName': "Nome dell'allenamento",

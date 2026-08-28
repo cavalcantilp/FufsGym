@@ -11,8 +11,30 @@ import { aggregateActivation } from '../lib/exerciseActivation'
 import { ACTIVATION_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
 import { DEFAULT_REST_SEC, formatRestTime } from '../lib/rest'
 import { groupBySuperset } from '../lib/superset'
-import { IconArrowDown, IconArrowUp, IconCalendarCheck, IconCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
-import type { Exercise, PlanExercise, Workout } from '../lib/types'
+import { LETTER_COLOR } from '../lib/schedule'
+import { formatShort } from '../lib/date'
+import { IconArrowDown, IconArrowUp, IconCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
+import type { TranslationKey } from '../i18n/translations'
+import type { DaySchedule, Exercise, Lang, PlanExercise, Workout } from '../lib/types'
+
+type TFn = (key: TranslationKey, vars?: Record<string, string | number>) => string
+
+/** Résumé compact d'une programmation : jours de la semaine, puis période si des bornes sont définies. */
+function scheduleSummary(schedule: DaySchedule, t: TFn, lang: Lang): string {
+  const days = schedule.weekdays.map((day) => t(`weekday.${day}` as TranslationKey)).join(', ')
+  let period = ''
+  if (schedule.startDate && schedule.endDate) {
+    period = t('workout.periodRange', {
+      start: formatShort(schedule.startDate, lang),
+      end: formatShort(schedule.endDate, lang),
+    })
+  } else if (schedule.startDate) {
+    period = t('workout.periodFrom', { date: formatShort(schedule.startDate, lang) })
+  } else if (schedule.endDate) {
+    period = t('workout.periodUntil', { date: formatShort(schedule.endDate, lang) })
+  }
+  return period ? `${days} · ${period}` : days
+}
 
 interface EditingEntry {
   entry: PlanExercise
@@ -265,7 +287,7 @@ function WorkoutDetail({
 }
 
 export function PlanificationScreen() {
-  const { t, workouts, schedules } = useApp()
+  const { t, lang, workouts, schedules } = useApp()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [schedulingId, setSchedulingId] = useState<string | null>(null)
   const [creatingNew, setCreatingNew] = useState(false)
@@ -294,7 +316,7 @@ export function PlanificationScreen() {
     )
   }
 
-  const workoutHasSchedule = (workoutId: string) => schedules.some((s) => s.workoutId === workoutId)
+  const scheduleForWorkoutId = (workoutId: string) => schedules.find((s) => s.workoutId === workoutId)
 
   return (
     <div className="screen">
@@ -309,21 +331,27 @@ export function PlanificationScreen() {
         </div>
       ) : (
         <div className="stack">
-          {workouts.map((workout) => (
-            <button key={workout.id} type="button" className="plan-card" onClick={() => setSelectedId(workout.id)}>
-              <div className="plan-card-head">
-                <span className="name">{workout.name}</span>
-                {workoutHasSchedule(workout.id) ? (
-                  <span className="schedule-indicator" title={t('workout.active')} aria-label={t('workout.active')}>
-                    <IconCalendarCheck size={16} />
+          {workouts.map((workout) => {
+            const schedule = scheduleForWorkoutId(workout.id)
+            return (
+              <button key={workout.id} type="button" className="plan-card" onClick={() => setSelectedId(workout.id)}>
+                <div className="plan-card-head">
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {schedule ? (
+                      <span className="letter-badge" style={{ background: LETTER_COLOR[schedule.letter] }}>
+                        {schedule.letter}
+                      </span>
+                    ) : null}
+                    <span className="name">{workout.name}</span>
                   </span>
-                ) : null}
-              </div>
-              <span className="days-sub">
-                {workout.exercises.length} {t('unit.exercise')}
-              </span>
-            </button>
-          ))}
+                </div>
+                <span className="days-sub">
+                  {workout.exercises.length} {t('unit.exercise')}
+                </span>
+                {schedule ? <span className="days-sub">{scheduleSummary(schedule, t, lang)}</span> : null}
+              </button>
+            )
+          })}
         </div>
       )}
 
