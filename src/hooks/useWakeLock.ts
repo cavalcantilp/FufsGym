@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 
-/** Empêche l'écran de s'éteindre tant que le composant appelant est monté ; ré-acquis si l'onglet redevient visible. */
-export function useWakeLock() {
+/** Empêche l'écran de s'éteindre tant que `enabled` est vrai ; ré-acquis si l'onglet redevient visible. */
+export function useWakeLock(enabled = true) {
   useEffect(() => {
+    if (!enabled) return
     let cancelled = false
     let sentinel: WakeLockSentinel | null = null
 
@@ -32,5 +33,5 @@ export function useWakeLock() {
       document.removeEventListener('visibilitychange', onVisibilityChange)
       sentinel?.release().catch(() => {})
     }
-  }, [])
+  }, [enabled])
 }

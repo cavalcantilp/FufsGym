@@ -8,12 +8,13 @@ import { TrainScreen } from './pages/TrainScreen'
 import { ProgressionScreen } from './pages/ProgressionScreen'
 import { SettingsScreen } from './pages/SettingsScreen'
 import { IconCalendar, IconClipboard, IconDumbbell, IconSettings, IconTrendingUp } from './components/icons'
+import { RestTimerHost } from './components/RestTimerHost'
 import { load, save, STORAGE_KEYS } from './lib/storage'
 
 type Tab = 'calendar' | 'plan' | 'train' | 'progress' | 'settings'
 
 export function App() {
-  const { t, onboarded } = useApp()
+  const { t, onboarded, activeRestTimer } = useApp()
   const [tab, setTab] = useState<Tab>(() => load(STORAGE_KEYS.ui, { tab: 'train' as Tab }).tab)
 
   const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW()
@@ -36,8 +37,10 @@ export function App() {
     { id: 'settings', label: t('header.settings'), icon: <IconSettings /> },
   ]
 
+  const showTimerBanner = Boolean(activeRestTimer?.minimized)
+
   return (
-    <div className="app">
+    <div className={showTimerBanner ? 'app has-timer-banner' : 'app'}>
       <header className="app-header">
         <h1>{t('app.name')}</h1>
       </header>
@@ -60,6 +63,8 @@ export function App() {
       {tab === 'train' ? <TrainScreen /> : null}
       {tab === 'progress' ? <ProgressionScreen /> : null}
       {tab === 'settings' ? <SettingsScreen /> : null}
+
+      <RestTimerHost />
 
       <nav className="tabbar">
         {tabs.map((entry) => (

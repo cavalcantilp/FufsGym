@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { ExerciseCard } from '../components/ExerciseCard'
-import { RestTimer } from '../components/RestTimer'
 import { Sheet } from '../components/Sheet'
 import { IconCheck, IconDumbbell, IconPlus, IconTimer } from '../components/icons'
 import { todayKey, formatDay } from '../lib/date'
@@ -161,11 +160,10 @@ function ActiveSessionView({
     addWorkout,
     addExercise,
     replaceWorkoutExercises,
+    startRestTimer,
   } = useApp()
   const [picking, setPicking] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
-  const [restTimer, setRestTimer] = useState<{ key: number; seconds: number } | null>(null)
-  const restKeyRef = useRef(0)
   const isFreeSession = !session.workoutId
   const currentName = session.workoutName ?? t('train.freeSession')
   const [nameDraft, setNameDraft] = useState(currentName)
@@ -225,8 +223,7 @@ function ActiveSessionView({
   }
 
   const handleSetCompleted = (restSec: number) => {
-    restKeyRef.current += 1
-    setRestTimer({ key: restKeyRef.current, seconds: restSec })
+    startRestTimer(restSec)
   }
 
   if (picking) {
@@ -370,8 +367,6 @@ function ActiveSessionView({
         </div>
       ) : null}
 
-      {restTimer ? <RestTimer key={restTimer.key} seconds={restTimer.seconds} onClose={() => setRestTimer(null)} /> : null}
-
       {saveSheetOpen ? (
         <Sheet title={t('train.saveWorkoutTitle')} onClose={() => setSaveSheetOpen(false)}>
           <div className="stack">
@@ -420,10 +415,9 @@ function ActiveSessionView({
 }
 
 export function TrainScreen() {
-  const { t, sessions, sessionsFor, startSession } = useApp()
+  const { t, sessions, sessionsFor, startSession, activeRestTimer, startRestTimer } = useApp()
   const today = todayKey()
   const [justFinishedId, setJustFinishedId] = useState<string | null>(null)
-  const [quickTimerSeconds, setQuickTimerSeconds] = useState<number | null>(null)
 
   const justFinished = justFinishedId ? sessions.find((s) => s.id === justFinishedId) : undefined
   const current = sessionsFor(today).find((s) => !s.finishedAt)
@@ -447,23 +441,16 @@ export function TrainScreen() {
     <>
       {body}
 
-      <button
-        type="button"
-        className="quick-timer-fab"
-        onClick={() => setQuickTimerSeconds(60)}
-        aria-label={t('train.quickTimerAria')}
-      >
-        <IconTimer size={26} />
-      </button>
-
-      {quickTimerSeconds !== null ? (
-        <RestTimer
-          seconds={quickTimerSeconds}
-          onClose={() => setQuickTimerSeconds(null)}
-          label={t('train.quickTimerLabel')}
-          skipLabel={t('train.quickTimerSkip')}
-        />
-      ) : null}
+      {activeRestTimer ? null : (
+        <button
+          type="button"
+          className="quick-timer-fab"
+          onClick={() => startRestTimer(60, { label: t('train.quickTimerLabel'), skipLabel: t('train.quickTimerSkip') })}
+          aria-label={t('train.quickTimerAria')}
+        >
+          <IconTimer size={26} />
+        </button>
+      )}
     </>
   )
 }

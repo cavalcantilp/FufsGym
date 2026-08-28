@@ -1771,6 +1771,86 @@ select {
   padding: 8px;
 }
 
+/* ---------- Minuteur de repos (bandeau réduit) ---------- */
+
+.app.has-timer-banner .screen {
+  padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 88px);
+}
+
+.rest-timer-banner {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  max-width: 496px;
+  margin: 0 auto;
+  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 10px);
+  z-index: 15;
+  display: flex;
+  align-items: stretch;
+  background: rgba(22, 34, 60, 0.96);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  animation: fade 0.15s ease;
+}
+
+.rest-timer-banner-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  color: var(--accent);
+  text-align: left;
+  min-width: 0;
+}
+
+.rest-timer-banner-label {
+  flex: 1;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-sub);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rest-timer-banner-digits {
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-main);
+  flex: none;
+}
+
+.rest-timer-banner-skip {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  flex: none;
+  color: var(--text-sub);
+  border-left: 1px solid rgba(71, 85, 105, 0.35);
+}
+
+.rest-timer-banner-skip:active {
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.rest-timer-banner-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--accent);
+  transform-origin: left;
+  transition: transform 0.1s linear;
+}
+
 /* ---------- Chronomètre de maintien (planche…) ---------- */
 
 .hold-timer-display {

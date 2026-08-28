@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
   useEffect,
   type ReactNode,
@@ -100,6 +101,27 @@ interface AppState {
   exportData: () => void
   /** Remplace toutes les données par celles d'un export ; renvoie `false` si le contenu est invalide. */
   importData: (data: unknown) => boolean
+
+  /**
+   * Minuteur de repos global : vit au niveau de l'appli (pas d'un écran) pour
+   * survivre à un changement d'onglet. Réduit en bandeau plutôt que fermé, il
+   * continue de décompter jusqu'à son terme.
+   */
+  activeRestTimer: ActiveRestTimer | null
+  startRestTimer: (seconds: number, options?: { label?: string; skipLabel?: string }) => void
+  extendRestTimer: (deltaMs: number) => void
+  minimizeRestTimer: () => void
+  restoreRestTimer: () => void
+  stopRestTimer: () => void
+}
+
+export interface ActiveRestTimer {
+  key: number
+  totalMs: number
+  startedAt: number
+  label?: string
+  skipLabel?: string
+  minimized: boolean
 }
 
 interface AppExportData {
@@ -171,6 +193,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [schedules, setSchedules] = useState<DaySchedule[]>(() => load(STORAGE_KEYS.schedules, []))
   const [sessions, setSessions] = useState<Session[]>(() => load(STORAGE_KEYS.sessions, []))
   const [dayNotes, setDayNotes] = useState<Record<string, string>>(() => load(STORAGE_KEYS.dayNotes, {}))
+  const [activeRestTimer, setActiveRestTimer] = useState<ActiveRestTimer | null>(null)
+  const restTimerKeyRef = useRef(0)
 
   useEffect(() => {
     setSchedules((current) => {
@@ -604,6 +628,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return true
   }, [])
 
+  const startRestTimer = useCallback((seconds: number, options?: { label?: string; skipLabel?: string }) => {
+    restTimerKeyRef.current += 1
+    setActiveRestTimer({
+      key: restTimerKeyRef.current,
+      totalMs: Math.max(1, seconds) * 1000,
+      startedAt: Date.now(),
+      label: options?.label,
+      skipLabel: options?.skipLabel,
+      minimized: false,
+    })
+  }, [])
+
+  const extendRestTimer = useCallback((deltaMs: number) => {
+    setActiveRestTimer((current) => (current ? { ...current, totalMs: Math.max(0, current.totalMs + deltaMs) } : current))
+  }, [])
+
+  const minimizeRestTimer = useCallback(() => {
+    setActiveRestTimer((current) => (current ? { ...current, minimized: true } : current))
+  }, [])
+
+  const restoreRestTimer = useCallback(() => {
+    setActiveRestTimer((current) => (current ? { ...current, minimized: false } : current))
+  }, [])
+
+  const stopRestTimer = useCallback(() => {
+    setActiveRestTimer(null)
+  }, [])
+
   const value = useMemo<AppState>(
     () => ({
       lang,
@@ -655,6 +707,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       resetAll,
       exportData,
       importData,
+      activeRestTimer,
+      startRestTimer,
+      extendRestTimer,
+      minimizeRestTimer,
+      restoreRestTimer,
+      stopRestTimer,
     }),
     [
       lang,
@@ -704,6 +762,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       resetAll,
       exportData,
       importData,
+      activeRestTimer,
+      startRestTimer,
+      extendRestTimer,
+      minimizeRestTimer,
+      restoreRestTimer,
+      stopRestTimer,
     ],
   )
 

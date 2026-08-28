@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { IconClose, IconMinus, IconPlus } from './icons'
 import { REST_STEP_SEC } from '../lib/rest'
-import { useWakeLock } from '../hooks/useWakeLock'
 
 interface RestTimerProps {
-  seconds: number
-  onClose: () => void
+  remainingMs: number
+  progress: number
+  onAdjust: (deltaMs: number) => void
+  onMinimize: () => void
+  onSkip: () => void
   /** Libellé affiché au-dessus du cadran : "Repos" par défaut, personnalisable pour un minuteur autonome. */
   label?: string
   /** Libellé du bouton de fermeture du bas : "Passer le repos" par défaut. */
@@ -22,7 +23,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS
  * de présence qu'une simple sinusoïde) et passe par un compresseur pour pousser
  * le volume perçu sans écrêter.
  */
-function playChime() {
+export function playChime() {
   try {
     const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
     const ctx = new Ctx()
@@ -55,52 +56,29 @@ function playChime() {
   if (navigator.vibrate) navigator.vibrate([120, 60, 120])
 }
 
+export function formatRestDigits(remainingMs: number): string {
+  const remainingSeconds = Math.ceil(remainingMs / 1000)
+  const minutes = Math.floor(remainingSeconds / 60)
+  const secs = remainingSeconds % 60
+  return `${minutes}:${String(secs).padStart(2, '0')}`
+}
+
 /**
  * Minuteur de repos plein écran, déclenché quand une série est cochée. La
  * circonférence se remplit au fil du temps (0 au départ, complète à
  * l'échéance) plutôt que de se vider, pour un repère visuel de progression.
+ * Purement présentationnel : le décompte lui-même vit dans RestTimerHost,
+ * monté au niveau de l'appli, pour survivre à un changement d'onglet — la
+ * croix ne ferme donc pas le minuteur mais le réduit en bandeau.
  */
-export function RestTimer({ seconds, onClose, label, skipLabel }: RestTimerProps) {
+export function RestTimer({ remainingMs, progress, onAdjust, onMinimize, onSkip, label, skipLabel }: RestTimerProps) {
   const { t } = useApp()
-  useWakeLock()
-  const [totalMs, setTotalMs] = useState(() => Math.max(1, seconds) * 1000)
-  const [now, setNow] = useState(() => Date.now())
-  const startedAt = useRef(Date.now())
-  const firedRef = useRef(false)
-  const autoCloseRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 100)
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      if (autoCloseRef.current) clearTimeout(autoCloseRef.current)
-    }
-  }, [])
-
-  const elapsedMs = now - startedAt.current
-  const remainingMs = Math.max(0, totalMs - elapsedMs)
-  const progress = Math.min(1, elapsedMs / totalMs)
-
-  useEffect(() => {
-    if (remainingMs > 0 || firedRef.current) return
-    firedRef.current = true
-    playChime()
-    autoCloseRef.current = setTimeout(onClose, 1400)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [remainingMs === 0])
-
-  const remainingSeconds = Math.ceil(remainingMs / 1000)
-  const minutes = Math.floor(remainingSeconds / 60)
-  const secs = remainingSeconds % 60
-  const digits = `${minutes}:${String(secs).padStart(2, '0')}`
+  const digits = formatRestDigits(remainingMs)
   const displayLabel = label ?? t('train.restTimerLabel')
 
   return (
     <div className="rest-timer-overlay" role="dialog" aria-modal="true" aria-label={displayLabel}>
-      <button type="button" className="rest-timer-close" onClick={onClose} aria-label={t('train.restCloseAria')}>
+      <button type="button" className="rest-timer-close" onClick={onMinimize} aria-label={t('train.restMinimizeAria')}>
         <IconClose size={22} />
       </button>
 
@@ -127,22 +105,18 @@ export function RestTimer({ seconds, onClose, label, skipLabel }: RestTimerProps
         <button
           type="button"
           className="btn secondary rest-timer-add"
-          onClick={() => setTotalMs((t) => Math.max(0, t - REST_STEP_SEC * 1000))}
+          onClick={() => onAdjust(-REST_STEP_SEC * 1000)}
         >
           <IconMinus size={18} />
           {t('train.restSubtract15')}
         </button>
-        <button
-          type="button"
-          className="btn secondary rest-timer-add"
-          onClick={() => setTotalMs((t) => t + REST_STEP_SEC * 1000)}
-        >
+        <button type="button" className="btn secondary rest-timer-add" onClick={() => onAdjust(REST_STEP_SEC * 1000)}>
           <IconPlus size={18} />
           {t('train.restAdd15')}
         </button>
       </div>
 
-      <button type="button" className="rest-timer-skip" onClick={onClose}>
+      <button type="button" className="rest-timer-skip" onClick={onSkip}>
         {skipLabel ?? t('train.restSkip')}
       </button>
     </div>
