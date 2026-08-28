@@ -1,5 +1,5 @@
 import { useApp } from '../state/AppContext'
-import { IconClose, IconMinus, IconPlus } from './icons'
+import { IconMinus, IconPlus } from './icons'
 import { REST_STEP_SEC } from '../lib/rest'
 
 interface RestTimerProps {
@@ -79,7 +79,7 @@ export function RestTimer({ remainingMs, progress, onAdjust, onMinimize, onSkip,
   return (
     <div className="rest-timer-overlay" role="dialog" aria-modal="true" aria-label={displayLabel}>
       <button type="button" className="rest-timer-close" onClick={onMinimize} aria-label={t('train.restMinimizeAria')}>
-        <IconClose size={22} />
+        <IconMinus size={22} />
       </button>
 
       <div className="rest-timer-label">{displayLabel}</div>
