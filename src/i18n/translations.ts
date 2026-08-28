@@ -21,6 +21,16 @@ const fr = {
   'settings.units': 'Unités',
   'settings.weightUnit': 'Poids',
   'settings.lengthUnit': 'Longueur',
+  'settings.dataTitle': 'Données',
+  'settings.dataHint': 'Toutes vos données restent sur cet appareil.',
+  'settings.export': 'Exporter (JSON)',
+  'settings.import': 'Importer',
+  'settings.importConfirmTitle': 'Importer des données ?',
+  'settings.importConfirmBody':
+    "Cela remplacera toutes les données actuelles de l'application (entraînements, séances, notes...). Cette action est irréversible.",
+  'settings.importConfirm': 'Importer et remplacer',
+  'settings.importInvalid': 'Fichier invalide ou corrompu.',
+  'settings.importSuccess': 'Données importées avec succès.',
 
   'pwa.update': 'Mise à jour disponible — appuyez pour actualiser',
 
@@ -477,6 +487,16 @@ const pt: Dict = {
   'settings.units': 'Unidades',
   'settings.weightUnit': 'Peso',
   'settings.lengthUnit': 'Comprimento',
+  'settings.dataTitle': 'Dados',
+  'settings.dataHint': 'Todos os seus dados ficam neste dispositivo.',
+  'settings.export': 'Exportar (JSON)',
+  'settings.import': 'Importar',
+  'settings.importConfirmTitle': 'Importar dados?',
+  'settings.importConfirmBody':
+    'Isto substituirá todos os dados atuais da aplicação (treinos, sessões, notas...). Esta ação é irreversível.',
+  'settings.importConfirm': 'Importar e substituir',
+  'settings.importInvalid': 'Ficheiro inválido ou corrompido.',
+  'settings.importSuccess': 'Dados importados com sucesso.',
 
   'pwa.update': 'Atualização disponível — toque para atualizar',
 
@@ -930,6 +950,16 @@ const es: Dict = {
   'settings.units': 'Unidades',
   'settings.weightUnit': 'Peso',
   'settings.lengthUnit': 'Longitud',
+  'settings.dataTitle': 'Datos',
+  'settings.dataHint': 'Todos tus datos permanecen en este dispositivo.',
+  'settings.export': 'Exportar (JSON)',
+  'settings.import': 'Importar',
+  'settings.importConfirmTitle': "¿Importar datos?",
+  'settings.importConfirmBody':
+    'Esto reemplazará todos los datos actuales de la aplicación (entrenamientos, sesiones, notas...). Esta acción es irreversible.',
+  'settings.importConfirm': 'Importar y reemplazar',
+  'settings.importInvalid': 'Archivo inválido o dañado.',
+  'settings.importSuccess': 'Datos importados correctamente.',
 
   'pwa.update': 'Actualización disponible — toca para actualizar',
 
@@ -1383,6 +1413,16 @@ const en: Dict = {
   'settings.units': 'Units',
   'settings.weightUnit': 'Weight',
   'settings.lengthUnit': 'Length',
+  'settings.dataTitle': 'Data',
+  'settings.dataHint': 'All your data stays on this device.',
+  'settings.export': 'Export (JSON)',
+  'settings.import': 'Import',
+  'settings.importConfirmTitle': 'Import data?',
+  'settings.importConfirmBody':
+    'This will replace all current app data (workouts, sessions, notes...). This action is irreversible.',
+  'settings.importConfirm': 'Import and replace',
+  'settings.importInvalid': 'Invalid or corrupted file.',
+  'settings.importSuccess': 'Data imported successfully.',
 
   'pwa.update': 'Update available — tap to refresh',
 
@@ -1836,6 +1876,16 @@ const it: Dict = {
   'settings.units': 'Unità',
   'settings.weightUnit': 'Peso',
   'settings.lengthUnit': 'Lunghezza',
+  'settings.dataTitle': 'Dati',
+  'settings.dataHint': 'Tutti i tuoi dati restano su questo dispositivo.',
+  'settings.export': 'Esporta (JSON)',
+  'settings.import': 'Importa',
+  'settings.importConfirmTitle': 'Importare i dati?',
+  'settings.importConfirmBody':
+    "Questo sostituirà tutti i dati attuali dell'app (allenamenti, sessioni, note...). Questa azione è irreversibile.",
+  'settings.importConfirm': 'Importa e sostituisci',
+  'settings.importInvalid': 'File non valido o danneggiato.',
+  'settings.importSuccess': 'Dati importati con successo.',
 
   'pwa.update': 'Aggiornamento disponibile — tocca per aggiornare',
 

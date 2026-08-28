@@ -96,6 +96,40 @@ interface AppState {
   lastPerformance: (exerciseId: string, beforeDate: string) => SetLog[] | null
 
   resetAll: () => void
+  /** Déclenche le téléchargement d'un fichier JSON contenant toutes les données de l'appli. */
+  exportData: () => void
+  /** Remplace toutes les données par celles d'un export ; renvoie `false` si le contenu est invalide. */
+  importData: (data: unknown) => boolean
+}
+
+interface AppExportData {
+  version: 1
+  exportedAt: string
+  lang: Lang
+  units: Units
+  customExercises: Exercise[]
+  favoriteExerciseIds: string[]
+  workouts: Workout[]
+  schedules: DaySchedule[]
+  sessions: Session[]
+  dayNotes: Record<string, string>
+}
+
+function isAppExportData(value: unknown): value is AppExportData {
+  if (!value || typeof value !== 'object') return false
+  const v = value as Record<string, unknown>
+  return (
+    typeof v.lang === 'string' &&
+    typeof v.units === 'object' &&
+    v.units !== null &&
+    Array.isArray(v.customExercises) &&
+    Array.isArray(v.favoriteExerciseIds) &&
+    Array.isArray(v.workouts) &&
+    Array.isArray(v.schedules) &&
+    Array.isArray(v.sessions) &&
+    typeof v.dayNotes === 'object' &&
+    v.dayNotes !== null
+  )
 }
 
 const AppContext = createContext<AppState | null>(null)
@@ -533,6 +567,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUnits(DEFAULT_UNITS)
   }, [])
 
+  const exportData = useCallback(() => {
+    const data: AppExportData = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      lang,
+      units,
+      customExercises,
+      favoriteExerciseIds,
+      workouts,
+      schedules,
+      sessions,
+      dayNotes,
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `fufsgym-${todayKey()}.json`
+    document.body.appendChild(anchor)
+    anchor.click()
+    document.body.removeChild(anchor)
+    URL.revokeObjectURL(url)
+  }, [lang, units, customExercises, favoriteExerciseIds, workouts, schedules, sessions, dayNotes])
+
+  const importData = useCallback((data: unknown): boolean => {
+    if (!isAppExportData(data)) return false
+    setLangState(data.lang)
+    setUnits(data.units)
+    setCustomExercises(data.customExercises)
+    setFavoriteExerciseIds(data.favoriteExerciseIds)
+    setWorkouts(data.workouts)
+    setSchedules(data.schedules)
+    setSessions(data.sessions)
+    setDayNotes(data.dayNotes)
+    return true
+  }, [])
+
   const value = useMemo<AppState>(
     () => ({
       lang,
@@ -582,6 +653,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       renameSession,
       lastPerformance,
       resetAll,
+      exportData,
+      importData,
     }),
     [
       lang,
@@ -629,6 +702,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       renameSession,
       lastPerformance,
       resetAll,
+      exportData,
+      importData,
     ],
   )
 
