@@ -2,14 +2,17 @@ import { useEffect, useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { ExerciseCard } from '../components/ExerciseCard'
+import { MuscleDiagram } from '../components/MuscleDiagram'
 import { Sheet } from '../components/Sheet'
-import { IconCheck, IconDumbbell, IconPlus, IconTimer } from '../components/icons'
+import { IconCheck, IconDumbbell, IconFlame, IconPlus, IconTimer } from '../components/icons'
 import { todayKey, formatDay } from '../lib/date'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { groupBySuperset } from '../lib/superset'
 import { buildPlanExercises, nextAvailableName } from '../lib/saveWorkout'
-import { sessionSetCount, sessionVolume } from '../lib/stats'
+import { sessionSetCount, sessionVolume, trainingStreak } from '../lib/stats'
 import { displayWeightValue } from '../lib/weightUnit'
+import { aggregateActivation } from '../lib/exerciseActivation'
+import { ACTIVATION_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
 import type { Session, Workout } from '../lib/types'
 
 interface StartViewProps {
@@ -101,9 +104,19 @@ function StartView({ onStart }: StartViewProps) {
 }
 
 function SessionSummaryView({ session, onClose }: { session: Session; onClose: () => void }) {
-  const { t, lang, units } = useApp()
+  const { t, lang, units, sessions } = useApp()
   const volume = displayWeightValue(sessionVolume(session), units.weight)
   const setCount = sessionSetCount(session)
+  const streak = useMemo(() => trainingStreak(sessions, session.date), [sessions, session.date])
+
+  const activation = useMemo(
+    () => aggregateActivation(session.exercises.map((entry) => entry.exerciseId)),
+    [session.exercises],
+  )
+  const colorForMuscle = (muscleId: string) => {
+    const intensity = activation[muscleId] ?? 0
+    return intensity > 0 ? interpolateColor(ACTIVATION_STOPS, intensity) : NEUTRAL_MUSCLE_COLOR
+  }
 
   return (
     <div className="screen summary-screen train-screen">
@@ -113,6 +126,14 @@ function SessionSummaryView({ session, onClose }: { session: Session; onClose: (
       <h2>{t('train.summaryTitle')}</h2>
       <p className="congrats">{t('train.summaryCongrats')}</p>
       <span className="sub">{session.workoutName ?? t('train.freeSession')} · {formatDay(session.date, lang)}</span>
+
+      {streak > 0 ? (
+        <span className="streak" style={{ marginTop: 10 }} aria-label={`${streak} ${t('calendar.streak')}`}>
+          <IconFlame size={14} />
+          <strong>{streak}</strong>
+          <span className="streak-label">{t('calendar.streak')}</span>
+        </span>
+      ) : null}
 
       <div className="card" style={{ width: '100%', marginTop: 14 }}>
         <div className="stat-row">
@@ -130,6 +151,16 @@ function SessionSummaryView({ session, onClose }: { session: Session; onClose: (
               {volume} {units.weight}
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="card" style={{ width: '100%', marginTop: 14 }}>
+        <div className="card-title">{t('exerciseInfo.muscleTitle')}</div>
+        <MuscleDiagram colorFor={colorForMuscle} />
+        <div className="legend">
+          <span className="legend-label">{t('exerciseInfo.legendLow')}</span>
+          <span className="legend-bar" />
+          <span className="legend-label">{t('exerciseInfo.legendHigh')}</span>
         </div>
       </div>
 
