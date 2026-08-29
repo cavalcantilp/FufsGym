@@ -124,33 +124,30 @@ export function trainedExerciseIds(sessions: Session[]): string[] {
     .map(([id]) => id)
 }
 
-/** Séances terminées avec entraînement identifié, regroupées par date. */
-function doneWorkoutIdsByDate(sessions: Session[]): Map<string, Set<string>> {
-  const map = new Map<string, Set<string>>()
-  for (const session of sessions) {
-    if (!session.finishedAt || !session.workoutId) continue
-    const set = map.get(session.date) ?? new Set<string>()
-    set.add(session.workoutId)
-    map.set(session.date, set)
-  }
-  return map
+/** Dates ayant au moins une séance terminée, peu importe l'entraînement suivi. */
+function trainedDates(sessions: Session[]): Set<string> {
+  return new Set(sessions.filter((session) => session.finishedAt).map((session) => session.date))
 }
 
-/** Un jour est honoré si tous les entraînements programmés ce jour-là ont été réalisés. */
-function isDayHonored(date: string, schedules: DaySchedule[], done: Map<string, Set<string>>): boolean | null {
-  const daySchedules = schedulesForDate(schedules, date)
-  if (daySchedules.length === 0) return null
-  return daySchedules.every((schedule) => done.get(date)?.has(schedule.workoutId) ?? false)
+/**
+ * Un jour est honoré s'il y a eu au moins une séance ce jour-là — peu importe
+ * si c'est l'entraînement programmé ou un autre : s'entraîner maintient la
+ * série même hors programme.
+ */
+function isDayHonored(date: string, schedules: DaySchedule[], trained: Set<string>): boolean | null {
+  if (schedulesForDate(schedules, date).length === 0) return null
+  return trained.has(date)
 }
 
 /**
  * Série de jours d'adhésion au programme planifié, en remontant depuis
- * aujourd'hui. Les jours sans entraînement programmé sont ignorés (ni
- * casse, ni prolonge la série) ; un jour programmé non honoré casse la
- * série, sauf s'il s'agit d'aujourd'hui (pas encore terminé).
+ * aujourd'hui. Les jours sans rien de programmé sont ignorés (ni casse, ni
+ * prolonge la série) ; un jour programmé sans aucune séance casse la série,
+ * sauf s'il s'agit d'aujourd'hui (pas encore terminé). Peu importe si la
+ * séance faite correspond à l'entraînement programmé ce jour-là.
  */
 export function plannedStreak(sessions: Session[], schedules: DaySchedule[], today: string): number {
-  const done = doneWorkoutIdsByDate(sessions)
+  const done = trainedDates(sessions)
   let cursor = today
   let streak = 0
   for (let i = 0; i < 3660; i++) {
@@ -174,7 +171,7 @@ export function plannedStreak(sessions: Session[], schedules: DaySchedule[], tod
 
 /** Plus longue série d'adhésion au programme planifié jamais atteinte. */
 export function longestPlannedStreak(sessions: Session[], schedules: DaySchedule[], today: string): number {
-  const done = doneWorkoutIdsByDate(sessions)
+  const done = trainedDates(sessions)
   const scheduleDates = schedules.map((s) => s.createdAt || s.startDate).filter((d): d is string => Boolean(d))
   const sessionDates = sessions.map((s) => s.date)
   const allDates = [...scheduleDates, ...sessionDates]
