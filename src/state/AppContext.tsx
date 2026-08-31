@@ -200,17 +200,17 @@ function findLastSet(allSessions: Session[], exerciseId: string): SetLog | null 
 }
 
 /**
- * Reprend poids/reps d'une série précédente pour préremplir une nouvelle série.
- * Sans historique, retombe sur l'objectif de répétitions du programme (haut de
- * la fourchette, ex. 12 pour "8-12") plutôt que de laisser 0.
+ * Préremplit une nouvelle série : le poids reprend toujours la dernière séance
+ * (le programme ne fixe pas d'objectif de charge). Les répétitions, elles,
+ * suivent l'objectif actuel du programme dès qu'il en a un — modifier cet
+ * objectif efface donc la mémoire de l'ancien nombre de répétitions ; sans
+ * objectif défini (exercice hors programme), on reprend celles de la dernière fois.
  */
-function carryOverValues(
-  last: SetLog | null,
-  targetReps?: number | null,
-): Pick<SetLog, 'weight' | 'reps'> | Pick<SetLog, 'reps'> | Record<string, never> {
-  if (last) return { weight: last.weight, reps: last.reps }
-  if (targetReps) return { reps: targetReps }
-  return {}
+function carryOverValues(last: SetLog | null, targetReps?: number | null): Partial<Pick<SetLog, 'weight' | 'reps'>> {
+  return {
+    ...(last ? { weight: last.weight } : {}),
+    ...(targetReps ? { reps: targetReps } : last ? { reps: last.reps } : {}),
+  }
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
