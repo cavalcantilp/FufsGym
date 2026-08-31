@@ -4,7 +4,7 @@ import { ExercisePicker } from '../components/ExercisePicker'
 import { ExerciseCard } from '../components/ExerciseCard'
 import { MuscleDiagram } from '../components/MuscleDiagram'
 import { Sheet } from '../components/Sheet'
-import { IconCheck, IconDumbbell, IconFlame, IconPlus, IconTimer } from '../components/icons'
+import { IconCheck, IconChevronDown, IconDumbbell, IconFlame, IconPlus, IconTimer } from '../components/icons'
 import { todayKey, formatDay } from '../lib/date'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { groupBySuperset } from '../lib/superset'
@@ -129,9 +129,16 @@ function SessionSummaryView({ session, onClose }: { session: Session; onClose: (
   const setCount = sessionSetCount(session)
   const streak = useMemo(() => plannedStreak(sessions, schedules, session.date), [sessions, schedules, session.date])
 
+  // La séance active était potentiellement scrollée (longue liste d'exercices) :
+  // sans ceci, cet écran s'affiche à la même position au lieu de repartir du haut.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   const savedNote = dayNotes[session.date] ?? ''
   const [noteDraft, setNoteDraft] = useState(savedNote)
   const noteDirty = noteDraft.trim() !== savedNote
+  const [musclesOpen, setMusclesOpen] = useState(true)
 
   const activation = useMemo(
     () => aggregateActivation(session.exercises.map((entry) => entry.exerciseId)),
@@ -203,13 +210,20 @@ function SessionSummaryView({ session, onClose }: { session: Session; onClose: (
       </div>
 
       <div className="card" style={{ width: '100%', marginTop: 14 }}>
-        <div className="card-title">{t('exerciseInfo.muscleTitle')}</div>
-        <MuscleDiagram colorFor={colorForMuscle} />
-        <div className="legend">
-          <span className="legend-label">{t('exerciseInfo.legendLow')}</span>
-          <span className="legend-bar" />
-          <span className="legend-label">{t('exerciseInfo.legendHigh')}</span>
-        </div>
+        <button type="button" className="disclosure-head" onClick={() => setMusclesOpen((current) => !current)}>
+          {t('exerciseInfo.muscleTitle')}
+          <IconChevronDown open={musclesOpen} size={16} />
+        </button>
+        {musclesOpen ? (
+          <div className="disclosure-body">
+            <MuscleDiagram colorFor={colorForMuscle} />
+            <div className="legend">
+              <span className="legend-label">{t('exerciseInfo.legendLow')}</span>
+              <span className="legend-bar" />
+              <span className="legend-label">{t('exerciseInfo.legendHigh')}</span>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <button type="button" className="btn" style={{ marginTop: 14 }} onClick={onClose}>
