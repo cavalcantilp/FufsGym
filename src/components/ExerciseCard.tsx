@@ -50,10 +50,15 @@ export function ExerciseCard({
     moveSessionExercise,
     updateSessionExerciseRest,
     updateSessionExerciseCardioUnit,
+    exerciseNotes,
+    setExerciseNote,
   } = useApp()
   const [expanded, setExpanded] = useState(false)
   const [timingSetId, setTimingSetId] = useState<string | null>(null)
   const info = exerciseById(sessionExercise.exerciseId)
+  const savedNote = exerciseNotes[sessionExercise.exerciseId] ?? ''
+  const [noteDraft, setNoteDraft] = useState(savedNote)
+  const noteDirty = noteDraft.trim() !== savedNote
   const isCardio = info?.muscle === 'cardio'
   const isHold = Boolean(info && isDurationBased(info) && !isCardio)
   const cardioUnit = sessionExercise.cardioUnit ?? 'min'
@@ -140,6 +145,28 @@ export function ExerciseCard({
           <p className="hint" style={{ padding: '10px 16px 0' }}>
             {last ? t('train.lastTime', { sets: last.map(formatSet).join(', ') }) : t('train.firstTime')}
           </p>
+
+          <div className="field" style={{ padding: '10px 16px 0' }}>
+            <label htmlFor={`${sessionExercise.id}-note`}>{t('train.exerciseNoteLabel')}</label>
+            <textarea
+              id={`${sessionExercise.id}-note`}
+              rows={2}
+              value={noteDraft}
+              onChange={(event) => setNoteDraft(event.target.value)}
+              placeholder={t('train.exerciseNotePlaceholder')}
+            />
+            {noteDirty ? (
+              <button
+                type="button"
+                className="btn"
+                style={{ marginTop: 8 }}
+                onClick={() => setExerciseNote(sessionExercise.exerciseId, noteDraft.trim())}
+              >
+                <IconCheck size={16} />
+                {t('train.exerciseNoteSave')}
+              </button>
+            ) : null}
+          </div>
 
           {activation && showMuscleDiagram ? (
             <div className="info-section" style={{ padding: '10px 16px 0' }}>

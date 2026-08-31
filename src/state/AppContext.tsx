@@ -80,6 +80,11 @@ interface AppState {
   /** Une chaîne vide efface la note du jour. */
   setDayNote: (date: string, text: string) => void
 
+  /** Notes libres par exercice (clé exerciseId), retrouvées à chaque nouvelle activation de l'exercice. */
+  exerciseNotes: Record<string, string>
+  /** Une chaîne vide efface la note de l'exercice. */
+  setExerciseNote: (exerciseId: string, text: string) => void
+
   sessions: Session[]
   sessionsFor: (date: string) => Session[]
   startSession: (date: string, workout?: Workout | null) => Session
@@ -135,6 +140,7 @@ interface AppExportData {
   schedules: DaySchedule[]
   sessions: Session[]
   dayNotes: Record<string, string>
+  exerciseNotes: Record<string, string>
 }
 
 function isAppExportData(value: unknown): value is AppExportData {
@@ -151,6 +157,7 @@ function isAppExportData(value: unknown): value is AppExportData {
     Array.isArray(v.sessions) &&
     typeof v.dayNotes === 'object' &&
     v.dayNotes !== null
+    // exerciseNotes est absent des exports antérieurs à son ajout : pas de vérification stricte, valeur par défaut à l'import.
   )
 }
 
@@ -193,6 +200,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [schedules, setSchedules] = useState<DaySchedule[]>(() => load(STORAGE_KEYS.schedules, []))
   const [sessions, setSessions] = useState<Session[]>(() => load(STORAGE_KEYS.sessions, []))
   const [dayNotes, setDayNotes] = useState<Record<string, string>>(() => load(STORAGE_KEYS.dayNotes, {}))
+  const [exerciseNotes, setExerciseNotes] = useState<Record<string, string>>(() =>
+    load(STORAGE_KEYS.exerciseNotes, {}),
+  )
   const [activeRestTimer, setActiveRestTimer] = useState<ActiveRestTimer | null>(null)
   const restTimerKeyRef = useRef(0)
 
@@ -213,6 +223,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => save(STORAGE_KEYS.schedules, schedules), [schedules])
   useEffect(() => save(STORAGE_KEYS.sessions, sessions), [sessions])
   useEffect(() => save(STORAGE_KEYS.dayNotes, dayNotes), [dayNotes])
+  useEffect(() => save(STORAGE_KEYS.exerciseNotes, exerciseNotes), [exerciseNotes])
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -362,6 +373,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return rest
       }
       return { ...current, [date]: text }
+    })
+  }, [])
+
+  const setExerciseNote = useCallback((exerciseId: string, text: string) => {
+    setExerciseNotes((current) => {
+      if (!text) {
+        if (!(exerciseId in current)) return current
+        const { [exerciseId]: _removed, ...rest } = current
+        return rest
+      }
+      return { ...current, [exerciseId]: text }
     })
   }, [])
 
@@ -588,6 +610,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSchedules([])
     setSessions([])
     setDayNotes({})
+    setExerciseNotes({})
     setUnits(DEFAULT_UNITS)
   }, [])
 
@@ -603,6 +626,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       schedules,
       sessions,
       dayNotes,
+      exerciseNotes,
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -613,7 +637,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     anchor.click()
     document.body.removeChild(anchor)
     URL.revokeObjectURL(url)
-  }, [lang, units, customExercises, favoriteExerciseIds, workouts, schedules, sessions, dayNotes])
+  }, [lang, units, customExercises, favoriteExerciseIds, workouts, schedules, sessions, dayNotes, exerciseNotes])
 
   const importData = useCallback((data: unknown): boolean => {
     if (!isAppExportData(data)) return false
@@ -625,6 +649,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSchedules(data.schedules)
     setSessions(data.sessions)
     setDayNotes(data.dayNotes)
+    setExerciseNotes(data.exerciseNotes ?? {})
     return true
   }, [])
 
@@ -689,6 +714,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeSchedule,
       dayNotes,
       setDayNote,
+      exerciseNotes,
+      setExerciseNote,
       sessions,
       sessionsFor,
       startSession,
@@ -744,6 +771,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeSchedule,
       dayNotes,
       setDayNote,
+      exerciseNotes,
+      setExerciseNote,
       sessions,
       sessionsFor,
       startSession,
