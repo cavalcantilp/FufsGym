@@ -36,6 +36,18 @@ export function isDurationBased(exercise: Exercise): boolean {
   return exercise.muscle === 'cardio' || exercise.trackingType === 'duration'
 }
 
+/**
+ * Nombre de répétitions à préremplir d'après l'objectif du programme (texte
+ * libre, ex. "8-12" ou "10-12 par jambe") : le dernier nombre trouvé, donc le
+ * haut de la fourchette pour un intervalle "min-max".
+ */
+export function targetRepsFromPlan(reps: string | undefined): number | null {
+  if (!reps) return null
+  const matches = reps.match(/\d+/g)
+  if (!matches || !matches.length) return null
+  return Number(matches[matches.length - 1])
+}
+
 /** Résumé compact d'une série validée : "80kg×8", une durée tenue, ou minutes/km pour le cardio. */
 export function formatSetSummary(set: SetLog, exercise: Exercise | undefined, weightUnit: WeightUnit): string {
   const isCardio = exercise?.muscle === 'cardio'

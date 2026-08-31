@@ -8,7 +8,7 @@ import {
   useEffect,
   type ReactNode,
 } from 'react'
-import { BUILTIN_EXERCISES } from '../lib/exercises'
+import { BUILTIN_EXERCISES, targetRepsFromPlan } from '../lib/exercises'
 import { load, save, clearAll, STORAGE_KEYS } from '../lib/storage'
 import { nextFreeLetter } from '../lib/schedule'
 import { moveGroup } from '../lib/superset'
@@ -199,9 +199,18 @@ function findLastSet(allSessions: Session[], exerciseId: string): SetLog | null 
   return null
 }
 
-/** Reprend poids/reps d'une série précédente pour préremplir une nouvelle série ; vide si aucune référence. */
-function carryOverValues(last: SetLog | null): Pick<SetLog, 'weight' | 'reps'> | Record<string, never> {
-  return last ? { weight: last.weight, reps: last.reps } : {}
+/**
+ * Reprend poids/reps d'une série précédente pour préremplir une nouvelle série.
+ * Sans historique, retombe sur l'objectif de répétitions du programme (haut de
+ * la fourchette, ex. 12 pour "8-12") plutôt que de laisser 0.
+ */
+function carryOverValues(
+  last: SetLog | null,
+  targetReps?: number | null,
+): Pick<SetLog, 'weight' | 'reps'> | Pick<SetLog, 'reps'> | Record<string, never> {
+  if (last) return { weight: last.weight, reps: last.reps }
+  if (targetReps) return { reps: targetReps }
+  return {}
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -413,7 +422,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (date: string, workout?: Workout | null) => {
       const sessionExercises: SessionExercise[] = workout
         ? workout.exercises.map((planExercise) => {
-            const carry = carryOverValues(findLastSet(sessions, planExercise.exerciseId))
+            const carry = carryOverValues(
+              findLastSet(sessions, planExercise.exerciseId),
+              targetRepsFromPlan(planExercise.reps),
+            )
             return {
               id: newId(),
               exerciseId: planExercise.exerciseId,
@@ -439,7 +451,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addSessionExercise = useCallback(
     (sessionId: string, exerciseId: string) => {
-      const carry = carryOverValues(findLastSet(sessions, exerciseId))
+      const session = sessions.find((s) => s.id === sessionId)
+      const workout = session?.workoutId ? workouts.find((w) => w.id === session.workoutId) : undefined
+      const planExercise = workout?.exercises.find((e) => e.exerciseId === exerciseId)
+      const carry = carryOverValues(findLastSet(sessions, exerciseId), targetRepsFromPlan(planExercise?.reps))
       setSessions((current) =>
         current.map((s) =>
           s.id !== sessionId
@@ -454,7 +469,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ),
       )
     },
-    [sessions],
+    [sessions, workouts],
   )
 
   const removeSessionExercise = useCallback((sessionId: string, sessionExerciseId: string) => {
@@ -485,7 +500,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!carry) {
         const session = sessions.find((s) => s.id === sessionId)
         const exercise = session?.exercises.find((e) => e.id === sessionExerciseId)
-        carry = exercise ? carryOverValues(findLastSet(sessions, exercise.exerciseId)) : {}
+        const workout = session?.workoutId ? workouts.find((w) => w.id === session.workoutId) : undefined
+        const planExercise = exercise ? workout?.exercises.find((e) => e.exerciseId === exercise.exerciseId) : undefined
+        carry = exercise
+          ? carryOverValues(findLastSet(sessions, exercise.exerciseId), targetRepsFromPlan(planExercise?.reps))
+          : {}
       }
       setSessions((current) =>
         current.map((s) =>
@@ -500,7 +519,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ),
       )
     },
-    [sessions],
+    [sessions, workouts],
   )
 
   const updateSet = useCallback(
