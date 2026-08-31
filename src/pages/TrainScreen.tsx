@@ -138,7 +138,7 @@ function SessionSummaryView({ session, onClose }: { session: Session; onClose: (
   const savedNote = dayNotes[session.date] ?? ''
   const [noteDraft, setNoteDraft] = useState(savedNote)
   const noteDirty = noteDraft.trim() !== savedNote
-  const [musclesOpen, setMusclesOpen] = useState(true)
+  const [musclesOpen, setMusclesOpen] = useState(false)
 
   const activation = useMemo(
     () => aggregateActivation(session.exercises.map((entry) => entry.exerciseId)),
