@@ -79,19 +79,10 @@ function StartView({ onStart }: StartViewProps) {
       </button>
 
       {otherWorkouts.length ? (
-        <div className="card">
-          <div className="field">
-            <label>{t('train.chooseOtherWorkout')}</label>
-            <button
-              type="button"
-              className="btn secondary"
-              style={{ marginTop: 8 }}
-              onClick={() => setOtherPickerOpen(true)}
-            >
-              {t('train.chooseWorkoutPlaceholder')}
-            </button>
-          </div>
-        </div>
+        <button type="button" className="btn secondary" onClick={() => setOtherPickerOpen(true)}>
+          <IconDumbbell size={18} />
+          {t('train.chooseWorkoutPlaceholder')}
+        </button>
       ) : null}
 
       {otherPickerOpen ? (
@@ -133,10 +124,14 @@ function StartView({ onStart }: StartViewProps) {
 }
 
 function SessionSummaryView({ session, onClose }: { session: Session; onClose: () => void }) {
-  const { t, lang, units, sessions, schedules } = useApp()
+  const { t, lang, units, sessions, schedules, dayNotes, setDayNote } = useApp()
   const volume = displayWeightValue(sessionVolume(session), units.weight)
   const setCount = sessionSetCount(session)
   const streak = useMemo(() => plannedStreak(sessions, schedules, session.date), [sessions, schedules, session.date])
+
+  const savedNote = dayNotes[session.date] ?? ''
+  const [noteDraft, setNoteDraft] = useState(savedNote)
+  const noteDirty = noteDraft.trim() !== savedNote
 
   const activation = useMemo(
     () => aggregateActivation(session.exercises.map((entry) => entry.exerciseId)),
@@ -181,6 +176,30 @@ function SessionSummaryView({ session, onClose }: { session: Session; onClose: (
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="card" style={{ width: '100%', marginTop: 14 }}>
+        <div className="field">
+          <label htmlFor="summary-note">{t('day.session.noteLabel')}</label>
+          <textarea
+            id="summary-note"
+            rows={3}
+            value={noteDraft}
+            onChange={(event) => setNoteDraft(event.target.value)}
+            placeholder={t('day.session.notePlaceholder')}
+          />
+        </div>
+        {noteDirty ? (
+          <button
+            type="button"
+            className="btn"
+            style={{ marginTop: 10 }}
+            onClick={() => setDayNote(session.date, noteDraft.trim())}
+          >
+            <IconCheck size={16} />
+            {t('day.session.noteSave')}
+          </button>
+        ) : null}
       </div>
 
       <div className="card" style={{ width: '100%', marginTop: 14 }}>
