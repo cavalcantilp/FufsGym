@@ -318,6 +318,7 @@ const fr = {
   'exercise.chest-machine-press': 'Développé à la machine',
   'exercise.chest-pec-deck': 'Écarté à la machine (pec deck)',
   'exercise.chest-iso-lateral-incline-press': 'Développé incliné iso-latéral (Hammer Strength)',
+  'exercise.chest-iso-lateral-bench-press': 'Développé couché iso-latéral (Hammer Strength)',
   'exercise.chest-scapular-pushdown-life-fitness': 'Scapular Push-down (Life Fitness)',
 
   'exercise.back-pullup': 'Tractions',
@@ -796,6 +797,7 @@ const pt: Dict = {
   'exercise.chest-machine-press': 'Supino na máquina',
   'exercise.chest-pec-deck': 'Peck deck (voador)',
   'exercise.chest-iso-lateral-incline-press': 'Supino inclinado iso-lateral (Hammer Strength)',
+  'exercise.chest-iso-lateral-bench-press': 'Supino reto iso-lateral (Hammer Strength)',
   'exercise.chest-scapular-pushdown-life-fitness': 'Scapular Push-down (Life Fitness)',
 
   'exercise.back-pullup': 'Barra fixa',
@@ -1271,6 +1273,7 @@ const es: Dict = {
   'exercise.chest-machine-press': 'Press en máquina',
   'exercise.chest-pec-deck': 'Contractor (pec deck)',
   'exercise.chest-iso-lateral-incline-press': 'Press inclinado iso-lateral (Hammer Strength)',
+  'exercise.chest-iso-lateral-bench-press': 'Press de banca iso-lateral (Hammer Strength)',
   'exercise.chest-scapular-pushdown-life-fitness': 'Scapular Push-down (Life Fitness)',
 
   'exercise.back-pullup': 'Dominadas',
@@ -1746,6 +1749,7 @@ const en: Dict = {
   'exercise.chest-machine-press': 'Machine chest press',
   'exercise.chest-pec-deck': 'Pec deck flye',
   'exercise.chest-iso-lateral-incline-press': 'Iso-lateral incline press (Hammer Strength)',
+  'exercise.chest-iso-lateral-bench-press': 'Iso-lateral bench press (Hammer Strength)',
   'exercise.chest-scapular-pushdown-life-fitness': 'Scapular Push-down (Life Fitness)',
 
   'exercise.back-pullup': 'Pull-ups',
@@ -2221,6 +2225,7 @@ const it: Dict = {
   'exercise.chest-machine-press': 'Chest press macchina',
   'exercise.chest-pec-deck': 'Pectoral machine (pec deck)',
   'exercise.chest-iso-lateral-incline-press': 'Panca inclinata iso-laterale (Hammer Strength)',
+  'exercise.chest-iso-lateral-bench-press': 'Panca piana iso-laterale (Hammer Strength)',
   'exercise.chest-scapular-pushdown-life-fitness': 'Scapular Push-down (Life Fitness)',
 
   'exercise.back-pullup': 'Trazioni alla sbarra',

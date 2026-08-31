@@ -73,17 +73,17 @@ function StartView({ onStart }: StartViewProps) {
         </div>
       )}
 
-      <button type="button" className="btn secondary" onClick={() => onStart(null)}>
-        <IconPlus size={18} />
-        {t('train.freeSession')}
-      </button>
-
       {otherWorkouts.length ? (
         <button type="button" className="btn secondary" onClick={() => setOtherPickerOpen(true)}>
           <IconDumbbell size={18} />
           {t('train.chooseWorkoutPlaceholder')}
         </button>
       ) : null}
+
+      <button type="button" className="btn secondary" onClick={() => onStart(null)}>
+        <IconPlus size={18} />
+        {t('train.freeSession')}
+      </button>
 
       {otherPickerOpen ? (
         <Sheet title={t('train.chooseWorkoutPlaceholder')} onClose={() => setOtherPickerOpen(false)} centered>

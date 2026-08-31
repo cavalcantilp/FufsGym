@@ -61,6 +61,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('chest-machine-press', 'Développé à la machine', 'chest', 'machine'),
   ex('chest-pec-deck', 'Écarté à la machine (pec deck)', 'chest', 'machine'),
   ex('chest-iso-lateral-incline-press', 'Développé incliné iso-latéral (Hammer Strength)', 'chest', 'machine'),
+  ex('chest-iso-lateral-bench-press', 'Développé couché iso-latéral (Hammer Strength)', 'chest', 'machine'),
   ex('chest-scapular-pushdown-life-fitness', 'Scapular Push-down (Life Fitness)', 'chest', 'machine'),
 
   // Dos

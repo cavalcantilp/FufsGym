@@ -73,6 +73,13 @@ export const EXERCISE_ACTIVATION: Record<string, Activation> = {
     bi('triceps-long', 0.4),
     bi('triceps-lateral', 0.4),
   ),
+  'chest-iso-lateral-bench-press': merge(
+    bi('chest-lower', 1),
+    bi('chest-upper', 0.4),
+    bi('shoulder-front', 0.4),
+    bi('triceps-long', 0.4),
+    bi('triceps-lateral', 0.4),
+  ),
   'chest-scapular-pushdown-life-fitness': merge(
     bi('serratus-anterior', 1),
     bi('chest-lower', 0.15),
