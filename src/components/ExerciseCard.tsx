@@ -12,7 +12,7 @@ import {
   IconChevronDown,
   IconPlay,
   IconPlus,
-  IconStickyNote,
+  IconTimer,
   IconTrash,
 } from './icons'
 import { exerciseName, formatSetSummary, isDurationBased } from '../lib/exercises'
@@ -105,14 +105,16 @@ export function ExerciseCard({
           </span>
         ) : null}
         {info ? <ExerciseInfoButton exercise={info} /> : null}
-        <button
-          type="button"
-          className="icon-btn"
-          onClick={() => setNoteHistoryOpen(true)}
-          aria-label={t('train.exerciseNoteAria')}
-        >
-          <IconStickyNote size={16} />
-        </button>
+        {expanded ? (
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={() => setNoteHistoryOpen(true)}
+            aria-label={t('train.exerciseNoteAria')}
+          >
+            <IconTimer size={16} />
+          </button>
+        ) : null}
         {showReorder ? (
           <span className="reorder-btns">
             <button
