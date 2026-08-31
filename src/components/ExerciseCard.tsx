@@ -3,9 +3,19 @@ import { useApp } from '../state/AppContext'
 import { NumberField } from './NumberField'
 import { HoldTimer } from './HoldTimer'
 import { ExerciseInfoButton } from './ExerciseInfoButton'
+import { ExerciseNoteHistory } from './ExerciseNoteHistory'
 import { MuscleDiagram } from './MuscleDiagram'
-import { IconArrowDown, IconArrowUp, IconCheck, IconChevronDown, IconPlay, IconPlus, IconTrash } from './icons'
-import { exerciseName, isDurationBased } from '../lib/exercises'
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconCheck,
+  IconChevronDown,
+  IconPlay,
+  IconPlus,
+  IconStickyNote,
+  IconTrash,
+} from './icons'
+import { exerciseName, formatSetSummary, isDurationBased } from '../lib/exercises'
 import { EXERCISE_ACTIVATION } from '../lib/exerciseActivation'
 import { ACTIVATION_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
 import { DEFAULT_REST_SEC, MIN_REST_SEC, REST_STEP_SEC, formatRestTime } from '../lib/rest'
@@ -50,15 +60,11 @@ export function ExerciseCard({
     moveSessionExercise,
     updateSessionExerciseRest,
     updateSessionExerciseCardioUnit,
-    exerciseNotes,
-    setExerciseNote,
   } = useApp()
   const [expanded, setExpanded] = useState(false)
   const [timingSetId, setTimingSetId] = useState<string | null>(null)
+  const [noteHistoryOpen, setNoteHistoryOpen] = useState(false)
   const info = exerciseById(sessionExercise.exerciseId)
-  const savedNote = exerciseNotes[sessionExercise.exerciseId] ?? ''
-  const [noteDraft, setNoteDraft] = useState(savedNote)
-  const noteDirty = noteDraft.trim() !== savedNote
   const isCardio = info?.muscle === 'cardio'
   const isHold = Boolean(info && isDurationBased(info) && !isCardio)
   const cardioUnit = sessionExercise.cardioUnit ?? 'min'
@@ -81,15 +87,6 @@ export function ExerciseCard({
     if (pending.length && triggersRest) onSetCompleted?.(restSec)
   }
 
-  const formatSet = (set: (typeof sessionExercise.sets)[number]) => {
-    if (isHold) return formatRestTime(set.durationSec ?? 0)
-    if (!isCardio) return `${displayWeightValue(set.weight, units.weight)}${units.weight}×${set.reps}`
-    const parts: string[] = []
-    if (set.durationMin) parts.push(`${set.durationMin} min`)
-    if (set.distanceKm) parts.push(`${set.distanceKm} km`)
-    return parts.join(' · ') || '—'
-  }
-
   return (
     <div className={`session-exercise${expanded ? ' expanded' : ''}`}>
       <div className="session-exercise-head">
@@ -108,6 +105,14 @@ export function ExerciseCard({
           </span>
         ) : null}
         {info ? <ExerciseInfoButton exercise={info} /> : null}
+        <button
+          type="button"
+          className="icon-btn"
+          onClick={() => setNoteHistoryOpen(true)}
+          aria-label={t('train.exerciseNoteAria')}
+        >
+          <IconStickyNote size={16} />
+        </button>
         {showReorder ? (
           <span className="reorder-btns">
             <button
@@ -143,30 +148,10 @@ export function ExerciseCard({
       {expanded ? (
         <>
           <p className="hint" style={{ padding: '10px 16px 0' }}>
-            {last ? t('train.lastTime', { sets: last.map(formatSet).join(', ') }) : t('train.firstTime')}
+            {last
+              ? t('train.lastTime', { sets: last.map((set) => formatSetSummary(set, info, units.weight)).join(', ') })
+              : t('train.firstTime')}
           </p>
-
-          <div className="field" style={{ padding: '10px 16px 0' }}>
-            <label htmlFor={`${sessionExercise.id}-note`}>{t('train.exerciseNoteLabel')}</label>
-            <textarea
-              id={`${sessionExercise.id}-note`}
-              rows={2}
-              value={noteDraft}
-              onChange={(event) => setNoteDraft(event.target.value)}
-              placeholder={t('train.exerciseNotePlaceholder')}
-            />
-            {noteDirty ? (
-              <button
-                type="button"
-                className="btn"
-                style={{ marginTop: 8 }}
-                onClick={() => setExerciseNote(sessionExercise.exerciseId, noteDraft.trim())}
-              >
-                <IconCheck size={16} />
-                {t('train.exerciseNoteSave')}
-              </button>
-            ) : null}
-          </div>
 
           {activation && showMuscleDiagram ? (
             <div className="info-section" style={{ padding: '10px 16px 0' }}>
@@ -331,6 +316,14 @@ export function ExerciseCard({
             setTimingSetId(null)
           }}
           onClose={() => setTimingSetId(null)}
+        />
+      ) : null}
+
+      {noteHistoryOpen && info ? (
+        <ExerciseNoteHistory
+          exercise={info}
+          sessionDate={session.date}
+          onClose={() => setNoteHistoryOpen(false)}
         />
       ) : null}
     </div>

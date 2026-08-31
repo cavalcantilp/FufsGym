@@ -1,5 +1,7 @@
+import { formatRestTime } from './rest'
+import { displayWeightValue } from './weightUnit'
 import type { TranslationKey } from '../i18n/translations'
-import type { Equipment, Exercise, MuscleGroup } from './types'
+import type { Equipment, Exercise, MuscleGroup, SetLog, WeightUnit } from './types'
 
 export const MUSCLE_GROUPS: MuscleGroup[] = ['chest', 'back', 'legs', 'shoulders', 'arms', 'core', 'cardio']
 
@@ -32,6 +34,18 @@ export function exerciseName(exercise: Exercise, t: TFn): string {
 /** Cardio ou maintien isométrique : chronométré, sans notion de séries × répétitions ni de charge. */
 export function isDurationBased(exercise: Exercise): boolean {
   return exercise.muscle === 'cardio' || exercise.trackingType === 'duration'
+}
+
+/** Résumé compact d'une série validée : "80kg×8", une durée tenue, ou minutes/km pour le cardio. */
+export function formatSetSummary(set: SetLog, exercise: Exercise | undefined, weightUnit: WeightUnit): string {
+  const isCardio = exercise?.muscle === 'cardio'
+  const isHold = Boolean(exercise && isDurationBased(exercise) && !isCardio)
+  if (isHold) return formatRestTime(set.durationSec ?? 0)
+  if (!isCardio) return `${displayWeightValue(set.weight, weightUnit)}${weightUnit}×${set.reps}`
+  const parts: string[] = []
+  if (set.durationMin) parts.push(`${set.durationMin} min`)
+  if (set.distanceKm) parts.push(`${set.distanceKm} km`)
+  return parts.join(' · ') || '—'
 }
 
 function ex(

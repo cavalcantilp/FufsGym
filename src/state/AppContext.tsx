@@ -80,10 +80,10 @@ interface AppState {
   /** Une chaîne vide efface la note du jour. */
   setDayNote: (date: string, text: string) => void
 
-  /** Notes libres par exercice (clé exerciseId), retrouvées à chaque nouvelle activation de l'exercice. */
-  exerciseNotes: Record<string, string>
-  /** Une chaîne vide efface la note de l'exercice. */
-  setExerciseNote: (exerciseId: string, text: string) => void
+  /** Historique des notes par exercice (clé exerciseId, puis clé date YYYY-MM-DD). */
+  exerciseNotes: Record<string, Record<string, string>>
+  /** Une chaîne vide efface la note de ce jour pour cet exercice. */
+  setExerciseNote: (exerciseId: string, date: string, text: string) => void
 
   sessions: Session[]
   sessionsFor: (date: string) => Session[]
@@ -140,7 +140,7 @@ interface AppExportData {
   schedules: DaySchedule[]
   sessions: Session[]
   dayNotes: Record<string, string>
-  exerciseNotes: Record<string, string>
+  exerciseNotes: Record<string, Record<string, string>>
 }
 
 function isAppExportData(value: unknown): value is AppExportData {
@@ -159,6 +159,24 @@ function isAppExportData(value: unknown): value is AppExportData {
     v.dayNotes !== null
     // exerciseNotes est absent des exports antérieurs à son ajout : pas de vérification stricte, valeur par défaut à l'import.
   )
+}
+
+/**
+ * Migre l'ancien format (une note unique par exercice, sans date) vers le
+ * nouveau (une note par exercice et par jour) : les notes existantes sont
+ * rattachées à aujourd'hui plutôt que perdues.
+ */
+function migrateExerciseNotes(raw: unknown): Record<string, Record<string, string>> {
+  if (!raw || typeof raw !== 'object') return {}
+  const result: Record<string, Record<string, string>> = {}
+  for (const [exerciseId, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof value === 'string') {
+      result[exerciseId] = { [todayKey()]: value }
+    } else if (value && typeof value === 'object') {
+      result[exerciseId] = value as Record<string, string>
+    }
+  }
+  return result
 }
 
 const AppContext = createContext<AppState | null>(null)
@@ -200,8 +218,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [schedules, setSchedules] = useState<DaySchedule[]>(() => load(STORAGE_KEYS.schedules, []))
   const [sessions, setSessions] = useState<Session[]>(() => load(STORAGE_KEYS.sessions, []))
   const [dayNotes, setDayNotes] = useState<Record<string, string>>(() => load(STORAGE_KEYS.dayNotes, {}))
-  const [exerciseNotes, setExerciseNotes] = useState<Record<string, string>>(() =>
-    load(STORAGE_KEYS.exerciseNotes, {}),
+  const [exerciseNotes, setExerciseNotes] = useState<Record<string, Record<string, string>>>(() =>
+    migrateExerciseNotes(load(STORAGE_KEYS.exerciseNotes, {})),
   )
   const [activeRestTimer, setActiveRestTimer] = useState<ActiveRestTimer | null>(null)
   const restTimerKeyRef = useRef(0)
@@ -376,14 +394,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  const setExerciseNote = useCallback((exerciseId: string, text: string) => {
+  const setExerciseNote = useCallback((exerciseId: string, date: string, text: string) => {
     setExerciseNotes((current) => {
+      const forExercise = current[exerciseId] ?? {}
       if (!text) {
-        if (!(exerciseId in current)) return current
-        const { [exerciseId]: _removed, ...rest } = current
-        return rest
+        if (!(date in forExercise)) return current
+        const { [date]: _removed, ...rest } = forExercise
+        const { [exerciseId]: _dropped, ...others } = current
+        return Object.keys(rest).length ? { ...others, [exerciseId]: rest } : others
       }
-      return { ...current, [exerciseId]: text }
+      return { ...current, [exerciseId]: { ...forExercise, [date]: text } }
     })
   }, [])
 
@@ -649,7 +669,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSchedules(data.schedules)
     setSessions(data.sessions)
     setDayNotes(data.dayNotes)
-    setExerciseNotes(data.exerciseNotes ?? {})
+    setExerciseNotes(migrateExerciseNotes(data.exerciseNotes ?? {}))
     return true
   }, [])
 
