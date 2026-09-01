@@ -44,6 +44,10 @@ interface AppState {
   units: Units
   updateUnits: (patch: Partial<Units>) => void
 
+  /** Capteur cardio Bluetooth activé depuis Réglages : sans ça, aucun bouton de connexion n'apparaît en séance. */
+  heartRateEnabled: boolean
+  setHeartRateEnabled: (enabled: boolean) => void
+
   onboarded: boolean
   completeOnboarding: () => void
 
@@ -96,6 +100,8 @@ interface AppState {
   removeSet: (sessionId: string, sessionExerciseId: string, setId: string) => void
   updateSessionExerciseRest: (sessionId: string, sessionExerciseId: string, restSec: number) => void
   updateSessionExerciseCardioUnit: (sessionId: string, sessionExerciseId: string, unit: 'min' | 'km') => void
+  /** Ajoute un relevé du capteur cardio à une séance (horodaté à l'instant présent). */
+  addHeartRateSample: (sessionId: string, bpm: number) => void
   finishSession: (sessionId: string) => void
   deleteSession: (sessionId: string) => void
   renameSession: (sessionId: string, name: string) => void
@@ -216,6 +222,7 @@ function carryOverValues(last: SetLog | null, targetReps?: number | null): Parti
 export function AppProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => load(STORAGE_KEYS.lang, detectLang()))
   const [units, setUnits] = useState<Units>(() => ({ ...DEFAULT_UNITS, ...load(STORAGE_KEYS.units, {} as Partial<Units>) }))
+  const [heartRateEnabled, setHeartRateEnabled] = useState<boolean>(() => load(STORAGE_KEYS.heartRateEnabled, false))
   const [onboarded, setOnboarded] = useState<boolean>(() => load(STORAGE_KEYS.onboarded, false))
   const [customExercises, setCustomExercises] = useState<Exercise[]>(() =>
     load(STORAGE_KEYS.customExercises, []),
@@ -243,6 +250,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => save(STORAGE_KEYS.lang, lang), [lang])
   useEffect(() => save(STORAGE_KEYS.units, units), [units])
+  useEffect(() => save(STORAGE_KEYS.heartRateEnabled, heartRateEnabled), [heartRateEnabled])
   useEffect(() => save(STORAGE_KEYS.onboarded, onboarded), [onboarded])
   useEffect(() => save(STORAGE_KEYS.customExercises, customExercises), [customExercises])
   useEffect(() => save(STORAGE_KEYS.favoriteExercises, favoriteExerciseIds), [favoriteExerciseIds])
@@ -591,6 +599,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const addHeartRateSample = useCallback((sessionId: string, bpm: number) => {
+    setSessions((current) =>
+      current.map((s) =>
+        s.id !== sessionId
+          ? s
+          : { ...s, heartRateSamples: [...(s.heartRateSamples ?? []), { t: Date.now(), bpm }] },
+      ),
+    )
+  }, [])
+
   const removeSet = useCallback((sessionId: string, sessionExerciseId: string, setId: string) => {
     setSessions((current) =>
       current.map((s) =>
@@ -727,6 +745,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       t,
       units,
       updateUnits,
+      heartRateEnabled,
+      setHeartRateEnabled,
       onboarded,
       completeOnboarding: () => setOnboarded(true),
       exercises,
@@ -766,6 +786,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeSet,
       updateSessionExerciseRest,
       updateSessionExerciseCardioUnit,
+      addHeartRateSample,
       finishSession,
       deleteSession,
       renameSession,
@@ -785,6 +806,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       t,
       units,
       updateUnits,
+      heartRateEnabled,
+      setHeartRateEnabled,
       onboarded,
       exercises,
       customExercises,
@@ -823,6 +846,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeSet,
       updateSessionExerciseRest,
       updateSessionExerciseCardioUnit,
+      addHeartRateSample,
       finishSession,
       deleteSession,
       renameSession,

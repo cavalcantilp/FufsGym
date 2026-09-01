@@ -168,6 +168,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
 
   // Cardio
   ex('cardio-running', 'Course à pied', 'cardio'),
+  ex('cardio-treadmill-walk', 'Marche sur tapis de course', 'cardio'),
   ex('cardio-cycling', 'Vélo', 'cardio'),
   ex('cardio-rowing', 'Rameur', 'cardio'),
   ex('cardio-jump-rope', 'Corde à sauter', 'cardio'),

@@ -262,6 +262,19 @@ select {
   letter-spacing: 0.05em;
 }
 
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+
+.checkbox-row input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
 .label-row {
   display: flex;
   align-items: center;
@@ -2251,7 +2264,24 @@ select {
 
 /* ---------- Fréquence cardiaque (capteur Bluetooth) ---------- */
 
-.heart-rate-connect,
+/* Se cale en haut à droite dans la ligne de titre, plutôt que de prendre une
+   ligne dédiée : c'est là qu'il reste de la place libre sur l'écran de séance. */
+.heart-rate-corner {
+  flex: none;
+  margin-left: auto;
+}
+
+.heart-rate-connect {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--accent);
+}
+
 .heart-rate-badge {
   display: inline-flex;
   align-items: center;
@@ -2260,13 +2290,6 @@ select {
   border: 1px solid var(--border);
   border-radius: 999px;
   font-size: 0.72rem;
-}
-
-.heart-rate-connect {
-  color: var(--accent);
-}
-
-.heart-rate-badge {
   color: var(--text-sub);
   font-variant-numeric: tabular-nums;
 }
@@ -2279,6 +2302,13 @@ select {
 .heart-rate-disconnect {
   margin-left: 2px;
   color: var(--text-sub);
+}
+
+.heart-rate-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
 }
 
 .today-btn {

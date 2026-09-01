@@ -44,4 +44,5 @@ export const STORAGE_KEYS = {
   units: 'units',
   dayNotes: 'dayNotes',
   exerciseNotes: 'exerciseNotes',
+  heartRateEnabled: 'heartRateEnabled',
 } as const

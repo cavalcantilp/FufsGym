@@ -6,7 +6,8 @@ import { LANGS } from '../i18n/translations'
 import type { Lang, LengthUnit, WeightUnit } from '../lib/types'
 
 export function SettingsScreen() {
-  const { t, lang, setLang, units, updateUnits, resetAll, exportData, importData } = useApp()
+  const { t, lang, setLang, units, updateUnits, heartRateEnabled, setHeartRateEnabled, resetAll, exportData, importData } =
+    useApp()
   const [confirmReset, setConfirmReset] = useState(false)
   const [pendingImport, setPendingImport] = useState<unknown>(null)
   const [importInvalid, setImportInvalid] = useState(false)
@@ -86,6 +87,19 @@ export function SettingsScreen() {
             </select>
           </div>
         </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">{t('settings.heartRateTitle')}</div>
+        <p className="hint">{t('settings.heartRateHint')}</p>
+        <label className="checkbox-row" style={{ marginTop: 10 }}>
+          <input
+            type="checkbox"
+            checked={heartRateEnabled}
+            onChange={(event) => setHeartRateEnabled(event.target.checked)}
+          />
+          <span>{t('settings.heartRateToggle')}</span>
+        </label>
       </div>
 
       <SpotifySettings />
