@@ -2329,7 +2329,21 @@ select {
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* Replié : ligne discrète sans habillage de carte, pour ne pas peser sur l'écran de séance. */
+.spotify-collapsed-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 2px;
+  color: var(--text-sub);
+}
+
 .spotify-collapsed-track {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.82rem;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2374,6 +2388,39 @@ select {
 
 .spotify-carousel-center {
   flex: none;
+  overflow: hidden;
+}
+
+/* Feuilletage entre deux morceaux : la pochette entre en glissant depuis le
+   côté vers lequel on a navigué (suivant/précédent), comme une vraie page qui tourne. */
+@keyframes spotify-slide-next {
+  from {
+    transform: translateX(28px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spotify-slide-prev {
+  from {
+    transform: translateX(-28px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.spotify-art-wrap.slide-next {
+  animation: spotify-slide-next 0.22s ease;
+}
+
+.spotify-art-wrap.slide-prev {
+  animation: spotify-slide-prev 0.22s ease;
 }
 
 .spotify-art {
