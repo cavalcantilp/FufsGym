@@ -23,21 +23,24 @@ export interface BluetoothRemoteGATTServer {
 export interface BluetoothDevice extends EventTarget {
   name?: string
   gatt?: BluetoothRemoteGATTServer
-}
-
-interface BluetoothLEScanFilter {
-  services?: string[]
-  manufacturerData?: { companyIdentifier: number }[]
+  /** Révoque la permission accordée à ce site pour cet appareil (permissions persistantes). */
+  forget?(): Promise<void>
 }
 
 interface BluetoothRequestDeviceOptions {
-  filters?: BluetoothLEScanFilter[]
+  filters?: { services?: string[] }[]
   acceptAllDevices?: boolean
   optionalServices?: string[]
 }
 
 interface Bluetooth {
   requestDevice(options: BluetoothRequestDeviceOptions): Promise<BluetoothDevice>
+  /**
+   * Permissions persistantes : renvoie les appareils déjà autorisés pour ce site lors
+   * d'une session précédente, sans ouvrir de sélecteur — permet de se reconnecter
+   * silencieusement à l'appareil associé dans Réglages.
+   */
+  getDevices(): Promise<BluetoothDevice[]>
 }
 
 declare global {

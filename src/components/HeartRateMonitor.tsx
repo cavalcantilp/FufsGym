@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { IconClose, IconHeart } from './icons'
-import {
-  GARMIN_COMPANY_ID,
-  HEART_RATE_MEASUREMENT_CHARACTERISTIC,
-  HEART_RATE_SERVICE,
-  parseHeartRateValue,
-} from '../lib/heartRate'
+import { connectHeartRateCharacteristic, parseHeartRateValue } from '../lib/heartRate'
 import type { BluetoothDevice, BluetoothRemoteGATTCharacteristic } from '../lib/webBluetoothTypes'
 
 interface HeartRateMonitorProps {
@@ -16,17 +11,15 @@ interface HeartRateMonitorProps {
 
 /**
  * Lecture en direct de la fréquence cardiaque via Web Bluetooth (service GATT
- * standard "heart_rate") — fonctionne avec une montre Garmin qui diffuse sa FC
- * (Réglages > Capteurs > Fréquence cardiaque au poignet > Diffuser la FC).
- * Uniquement Chrome/Edge sur Android : invisible ailleurs (Web Bluetooth absent).
- * Doit être activé dans Réglages, sinon ne s'affiche pas du tout en séance.
+ * standard "heart_rate"). L'association du capteur se fait dans Réglages ; ici on
+ * se reconnecte silencieusement (permissions Bluetooth persistantes, sans sélecteur)
+ * à l'appareil déjà associé — la pastille n'apparaît que si la reconnexion réussit,
+ * jamais de bouton ni de message d'erreur pendant l'entraînement.
  */
 export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
   const { t, heartRateEnabled } = useApp()
-  const [connecting, setConnecting] = useState(false)
   const [connected, setConnected] = useState(false)
   const [bpm, setBpm] = useState<number | null>(null)
-  const [error, setError] = useState<'generic' | 'wrongDevice' | null>(null)
   const deviceRef = useRef<BluetoothDevice | null>(null)
   const characteristicRef = useRef<BluetoothRemoteGATTCharacteristic | null>(null)
   const onSampleRef = useRef(onSample)
@@ -51,93 +44,44 @@ export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
 
   useEffect(() => () => disconnect(), [disconnect])
 
-  // Désactiver le capteur dans Réglages pendant une connexion active la coupe aussitôt.
   useEffect(() => {
-    if (!heartRateEnabled) disconnect()
-  }, [heartRateEnabled, disconnect])
-
-  const connect = async (broad: boolean) => {
-    if (!navigator.bluetooth) return
-    setConnecting(true)
-    setError(null)
-    try {
-      // Par défaut on filtre le sélecteur sur l'identifiant fabricant Garmin (0x0087),
-      // présent dans les données constructeur de l'annonce BLE même quand l'appareil
-      // n'annonce ni nom ni service heart_rate — ça ne montre alors que les
-      // montres/capteurs Garmin à proximité au lieu de tous les appareils BLE (écouteurs,
-      // téléphones…) qui noyaient la montre parmi des entrées "appareil inconnu".
-      // "broad" (lien de secours) revient à l'ancien comportement acceptAllDevices, pour
-      // les appareils qui ne diffusent pas ces données constructeur.
-      const device = await navigator.bluetooth.requestDevice(
-        broad
-          ? { acceptAllDevices: true, optionalServices: [HEART_RATE_SERVICE] }
-          : {
-              filters: [
-                { services: [HEART_RATE_SERVICE] },
-                { manufacturerData: [{ companyIdentifier: GARMIN_COMPANY_ID }] },
-              ],
-              optionalServices: [HEART_RATE_SERVICE],
-            },
-      )
-      deviceRef.current = device
-      device.addEventListener('gattserverdisconnected', () => {
-        setConnected(false)
-        setBpm(null)
-      })
-      const server = await device.gatt!.connect()
-
-      // De nombreux appareils BLE n'annoncent pas leur nom : quand la liste ne montre que des
-      // "appareil inconnu", l'utilisateur doit avancer par élimination. On distingue donc ce cas
-      // (appareil connecté mais sans capteur cardio) d'une vraie erreur de connexion, pour qu'il
-      // sache qu'il peut simplement réessayer avec un autre appareil de la liste.
-      let service
-      try {
-        service = await server.getPrimaryService(HEART_RATE_SERVICE)
-      } catch {
-        server.disconnect()
-        deviceRef.current = null
-        setError('wrongDevice')
-        return
-      }
-      const characteristic = await service.getCharacteristic(HEART_RATE_MEASUREMENT_CHARACTERISTIC)
-      characteristicRef.current = characteristic
-      characteristic.addEventListener('characteristicvaluechanged', onValueChanged)
-      await characteristic.startNotifications()
-      setConnected(true)
-    } catch (err) {
-      if ((err as DOMException).name !== 'NotFoundError') setError('generic')
-    } finally {
-      setConnecting(false)
+    if (!heartRateEnabled || !navigator.bluetooth) {
+      disconnect()
+      return
     }
-  }
+    let cancelled = false
+    const reconnect = async () => {
+      const devices = await navigator.bluetooth!.getDevices()
+      for (const device of devices) {
+        if (cancelled) return
+        try {
+          const characteristic = await connectHeartRateCharacteristic(device)
+          if (cancelled) {
+            device.gatt?.disconnect()
+            return
+          }
+          deviceRef.current = device
+          characteristicRef.current = characteristic
+          device.addEventListener('gattserverdisconnected', () => {
+            setConnected(false)
+            setBpm(null)
+          })
+          characteristic.addEventListener('characteristicvaluechanged', onValueChanged)
+          await characteristic.startNotifications()
+          setConnected(true)
+          return
+        } catch {
+          // Appareil hors de portée ou non pertinent : on essaie le suivant en silence.
+        }
+      }
+    }
+    void reconnect()
+    return () => {
+      cancelled = true
+    }
+  }, [heartRateEnabled, onValueChanged, disconnect])
 
-  if (!heartRateEnabled || typeof navigator === 'undefined' || !navigator.bluetooth) return null
-
-  if (!connected) {
-    return (
-      <div className="heart-rate-corner">
-        <button
-          type="button"
-          className="heart-rate-connect"
-          onClick={() => void connect(false)}
-          disabled={connecting}
-          aria-label={connecting ? t('train.heartRateConnecting') : t('train.heartRateConnect')}
-        >
-          <IconHeart size={16} />
-        </button>
-        {error === 'wrongDevice' ? (
-          <p className="hint danger">{t('train.heartRateWrongDevice')}</p>
-        ) : error === 'generic' ? (
-          <p className="hint danger">{t('train.heartRateError')}</p>
-        ) : null}
-        {!connecting ? (
-          <button type="button" className="heart-rate-show-all" onClick={() => void connect(true)}>
-            {t('train.heartRateShowAll')}
-          </button>
-        ) : null}
-      </div>
-    )
-  }
+  if (!connected) return null
 
   return (
     <div className="heart-rate-corner">

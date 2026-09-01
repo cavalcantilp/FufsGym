@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
+import { HeartRatePairing } from '../components/HeartRatePairing'
 import { Sheet } from '../components/Sheet'
 import { SpotifySettings } from '../components/SpotifySettings'
 import { LANGS } from '../i18n/translations'
@@ -107,6 +108,7 @@ export function SettingsScreen() {
           </span>
           <span>{t('settings.heartRateToggle')}</span>
         </button>
+        {heartRateEnabled ? <HeartRatePairing /> : null}
       </div>
 
       <SpotifySettings />

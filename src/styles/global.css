@@ -2299,17 +2299,6 @@ select {
   margin-left: auto;
 }
 
-.heart-rate-connect {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--accent);
-}
-
 .heart-rate-badge {
   display: inline-flex;
   align-items: center;
@@ -2322,23 +2311,13 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
-.heart-rate-badge svg,
-.heart-rate-connect svg {
+.heart-rate-badge svg {
   color: var(--accent);
 }
 
 .heart-rate-disconnect {
   margin-left: 2px;
   color: var(--text-sub);
-}
-
-.heart-rate-show-all {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.68rem;
-  color: var(--text-sub);
-  text-decoration: underline;
-  text-underline-offset: 2px;
 }
 
 .heart-rate-chart {
