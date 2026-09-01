@@ -2332,6 +2332,15 @@ select {
   color: var(--text-sub);
 }
 
+.heart-rate-show-all {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.68rem;
+  color: var(--text-sub);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .heart-rate-chart {
   display: flex;
   flex-direction: column;

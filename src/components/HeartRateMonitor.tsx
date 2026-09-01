@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { IconClose, IconHeart } from './icons'
-import { HEART_RATE_MEASUREMENT_CHARACTERISTIC, HEART_RATE_SERVICE, parseHeartRateValue } from '../lib/heartRate'
+import {
+  GARMIN_COMPANY_ID,
+  HEART_RATE_MEASUREMENT_CHARACTERISTIC,
+  HEART_RATE_SERVICE,
+  parseHeartRateValue,
+} from '../lib/heartRate'
 import type { BluetoothDevice, BluetoothRemoteGATTCharacteristic } from '../lib/webBluetoothTypes'
 
 interface HeartRateMonitorProps {
@@ -51,19 +56,29 @@ export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
     if (!heartRateEnabled) disconnect()
   }, [heartRateEnabled, disconnect])
 
-  const connect = async () => {
+  const connect = async (broad: boolean) => {
     if (!navigator.bluetooth) return
     setConnecting(true)
     setError(null)
     try {
-      // acceptAllDevices plutôt que filters: beaucoup de montres (Garmin incluses) n'annoncent
-      // pas le service "heart_rate" dans leur paquet d'annonce BLE, seulement une fois connectées
-      // — un filtre sur ce service les rend invisibles dans le sélecteur. On les autorise toutes,
-      // l'utilisateur choisit la sienne par son nom, et on ne demande le service qu'à la connexion.
-      const device = await navigator.bluetooth.requestDevice({
-        acceptAllDevices: true,
-        optionalServices: [HEART_RATE_SERVICE],
-      })
+      // Par défaut on filtre le sélecteur sur l'identifiant fabricant Garmin (0x0087),
+      // présent dans les données constructeur de l'annonce BLE même quand l'appareil
+      // n'annonce ni nom ni service heart_rate — ça ne montre alors que les
+      // montres/capteurs Garmin à proximité au lieu de tous les appareils BLE (écouteurs,
+      // téléphones…) qui noyaient la montre parmi des entrées "appareil inconnu".
+      // "broad" (lien de secours) revient à l'ancien comportement acceptAllDevices, pour
+      // les appareils qui ne diffusent pas ces données constructeur.
+      const device = await navigator.bluetooth.requestDevice(
+        broad
+          ? { acceptAllDevices: true, optionalServices: [HEART_RATE_SERVICE] }
+          : {
+              filters: [
+                { services: [HEART_RATE_SERVICE] },
+                { manufacturerData: [{ companyIdentifier: GARMIN_COMPANY_ID }] },
+              ],
+              optionalServices: [HEART_RATE_SERVICE],
+            },
+      )
       deviceRef.current = device
       device.addEventListener('gattserverdisconnected', () => {
         setConnected(false)
@@ -104,7 +119,7 @@ export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
         <button
           type="button"
           className="heart-rate-connect"
-          onClick={() => void connect()}
+          onClick={() => void connect(false)}
           disabled={connecting}
           aria-label={connecting ? t('train.heartRateConnecting') : t('train.heartRateConnect')}
         >
@@ -114,6 +129,11 @@ export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
           <p className="hint danger">{t('train.heartRateWrongDevice')}</p>
         ) : error === 'generic' ? (
           <p className="hint danger">{t('train.heartRateError')}</p>
+        ) : null}
+        {!connecting ? (
+          <button type="button" className="heart-rate-show-all" onClick={() => void connect(true)}>
+            {t('train.heartRateShowAll')}
+          </button>
         ) : null}
       </div>
     )

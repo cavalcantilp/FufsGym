@@ -25,8 +25,13 @@ export interface BluetoothDevice extends EventTarget {
   gatt?: BluetoothRemoteGATTServer
 }
 
+interface BluetoothLEScanFilter {
+  services?: string[]
+  manufacturerData?: { companyIdentifier: number }[]
+}
+
 interface BluetoothRequestDeviceOptions {
-  filters?: { services?: string[] }[]
+  filters?: BluetoothLEScanFilter[]
   acceptAllDevices?: boolean
   optionalServices?: string[]
 }
