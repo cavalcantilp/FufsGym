@@ -19,6 +19,8 @@ export interface SpotifyTrackInfo {
   artist: string
   albumArt: string | null
   isPaused: boolean
+  /** Lien open.spotify.com vers ce morceau, pour l'ouvrir dans l'app/le site Spotify. */
+  url: string | null
 }
 
 type SpotifyErrorKind = 'premium_required' | 'auth_failed' | 'generic' | null
@@ -54,6 +56,13 @@ function loadSdkScript(): void {
   document.body.appendChild(script)
 }
 
+/** "spotify:track:ID" → "https://open.spotify.com/track/ID" (ouvre l'app sur mobile si installée, sinon le site). */
+function spotifyUriToUrl(uri: string): string | null {
+  const parts = uri.split(':')
+  if (parts.length !== 3 || parts[0] !== 'spotify') return null
+  return `https://open.spotify.com/${parts[1]}/${parts[2]}`
+}
+
 function trackFromState(state: SpotifyPlaybackState | null): SpotifyTrackInfo | null {
   if (!state) return null
   const current = state.track_window.current_track
@@ -62,6 +71,7 @@ function trackFromState(state: SpotifyPlaybackState | null): SpotifyTrackInfo | 
     artist: current.artists.map((a) => a.name).join(', '),
     albumArt: current.album.images[0]?.url ?? null,
     isPaused: state.paused,
+    url: spotifyUriToUrl(current.uri),
   }
 }
 

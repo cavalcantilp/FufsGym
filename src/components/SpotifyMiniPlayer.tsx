@@ -15,10 +15,16 @@ export function SpotifyMiniPlayer() {
 
   return (
     <div className="card spotify-player">
-      <div className="spotify-brand-header">
+      <a
+        className="spotify-brand-header"
+        href={track?.url ?? 'https://open.spotify.com'}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={t('train.spotifyOpenAria')}
+      >
         <IconSpotifyLogo size={20} />
         <span>Spotify</span>
-      </div>
+      </a>
       {error === 'premium_required' ? (
         <p className="hint danger">{t('train.spotifyPremiumRequired')}</p>
       ) : error === 'generic' ? (

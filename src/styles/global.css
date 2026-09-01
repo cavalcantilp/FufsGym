@@ -2302,11 +2302,13 @@ select {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: fit-content;
   color: #1ed760;
   font-weight: 800;
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  text-decoration: none;
 }
 
 .spotify-player .hint {

@@ -5,6 +5,7 @@
 
 export interface SpotifyPlayerTrack {
   name: string
+  uri: string
   artists: { name: string }[]
   album: { images: { url: string }[] }
 }
