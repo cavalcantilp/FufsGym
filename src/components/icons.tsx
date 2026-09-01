@@ -184,6 +184,33 @@ export function IconStop({ size = 18 }: IconProps) {
   )
 }
 
+export function IconPause({ size = 18 }: IconProps) {
+  return (
+    <svg {...base(size)} aria-hidden="true" fill="currentColor" stroke="none">
+      <rect x="6" y="4" width="4" height="16" rx="1" />
+      <rect x="14" y="4" width="4" height="16" rx="1" />
+    </svg>
+  )
+}
+
+export function IconSkipBack({ size = 18 }: IconProps) {
+  return (
+    <svg {...base(size)} aria-hidden="true" fill="currentColor" stroke="none">
+      <rect x="5" y="4" width="2.4" height="16" rx="1" />
+      <path d="M19 4.5v15L8 12Z" />
+    </svg>
+  )
+}
+
+export function IconSkipForward({ size = 18 }: IconProps) {
+  return (
+    <svg {...base(size)} aria-hidden="true" fill="currentColor" stroke="none">
+      <rect x="16.6" y="4" width="2.4" height="16" rx="1" />
+      <path d="M5 4.5v15l11-7.5Z" />
+    </svg>
+  )
+}
+
 export function IconHeart({ size = 16 }: IconProps) {
   return (
     <svg {...base(size)} aria-hidden="true">

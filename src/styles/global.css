@@ -2265,3 +2265,70 @@ select {
 .day-session-card + .day-session-card {
   border-top: 1px solid rgba(71, 85, 105, 0.25);
 }
+
+/* ---------- Lecteur Spotify ---------- */
+
+.hint.danger {
+  color: var(--negative);
+}
+
+.code-block {
+  display: block;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  word-break: break-all;
+  color: var(--text-sub);
+}
+
+.spotify-player {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.spotify-now-playing {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.spotify-art {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  flex: none;
+  background: var(--card-bg);
+}
+
+.spotify-art.placeholder {
+  border: 1px dashed var(--border);
+}
+
+.spotify-track-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.spotify-track-info .name {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spotify-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spotify-disconnect {
+  margin-left: auto;
+  padding: 6px 12px;
+}

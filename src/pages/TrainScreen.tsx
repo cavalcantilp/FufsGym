@@ -4,6 +4,7 @@ import { ExercisePicker } from '../components/ExercisePicker'
 import { ExerciseCard } from '../components/ExerciseCard'
 import { MuscleDiagram } from '../components/MuscleDiagram'
 import { Sheet } from '../components/Sheet'
+import { SpotifyMiniPlayer } from '../components/SpotifyMiniPlayer'
 import { IconCheck, IconChevronDown, IconDumbbell, IconFlame, IconPlus, IconTimer } from '../components/icons'
 import { todayKey, formatDay } from '../lib/date'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
@@ -379,6 +380,8 @@ function ActiveSessionView({
           </div>
         </div>
       </div>
+
+      <SpotifyMiniPlayer />
 
       {groupBySuperset(session.exercises).map((group, groupIndex, groups) => {
         const canMoveUp = groupIndex > 0
