@@ -92,14 +92,21 @@ export function SettingsScreen() {
       <div className="card">
         <div className="card-title">{t('settings.heartRateTitle')}</div>
         <p className="hint">{t('settings.heartRateHint')}</p>
-        <label className="checkbox-row" style={{ marginTop: 10 }}>
-          <input
-            type="checkbox"
-            checked={heartRateEnabled}
-            onChange={(event) => setHeartRateEnabled(event.target.checked)}
-          />
+        <button
+          type="button"
+          className="toggle-row"
+          style={{ marginTop: 10 }}
+          onClick={() => setHeartRateEnabled(!heartRateEnabled)}
+        >
+          <span
+            role="switch"
+            aria-checked={heartRateEnabled}
+            className={`toggle-switch${heartRateEnabled ? ' on' : ''}`}
+          >
+            <span className="toggle-knob" />
+          </span>
           <span>{t('settings.heartRateToggle')}</span>
-        </label>
+        </button>
       </div>
 
       <SpotifySettings />
