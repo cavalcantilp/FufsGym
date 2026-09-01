@@ -39,9 +39,7 @@ export function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>{t('app.name')}</h1>
-      </header>
+      <header className="app-header" />
 
       <RestTimerHost />
 

@@ -10,6 +10,7 @@ export function Onboarding() {
     <div className="onboarding">
       <div className="brand">
         <Logo />
+        <span className="app-name">{t('app.name')}</span>
         <h1>{t('onboarding.welcome')}</h1>
         <p>{t('onboarding.intro')}</p>
       </div>
