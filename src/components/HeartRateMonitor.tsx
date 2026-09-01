@@ -21,7 +21,7 @@ export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
   const [connecting, setConnecting] = useState(false)
   const [connected, setConnected] = useState(false)
   const [bpm, setBpm] = useState<number | null>(null)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<'generic' | 'wrongDevice' | null>(null)
   const deviceRef = useRef<BluetoothDevice | null>(null)
   const characteristicRef = useRef<BluetoothRemoteGATTCharacteristic | null>(null)
   const onSampleRef = useRef(onSample)
@@ -54,7 +54,7 @@ export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
   const connect = async () => {
     if (!navigator.bluetooth) return
     setConnecting(true)
-    setError(false)
+    setError(null)
     try {
       // acceptAllDevices plutôt que filters: beaucoup de montres (Garmin incluses) n'annoncent
       // pas le service "heart_rate" dans leur paquet d'annonce BLE, seulement une fois connectées
@@ -70,14 +70,27 @@ export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
         setBpm(null)
       })
       const server = await device.gatt!.connect()
-      const service = await server.getPrimaryService(HEART_RATE_SERVICE)
+
+      // De nombreux appareils BLE n'annoncent pas leur nom : quand la liste ne montre que des
+      // "appareil inconnu", l'utilisateur doit avancer par élimination. On distingue donc ce cas
+      // (appareil connecté mais sans capteur cardio) d'une vraie erreur de connexion, pour qu'il
+      // sache qu'il peut simplement réessayer avec un autre appareil de la liste.
+      let service
+      try {
+        service = await server.getPrimaryService(HEART_RATE_SERVICE)
+      } catch {
+        server.disconnect()
+        deviceRef.current = null
+        setError('wrongDevice')
+        return
+      }
       const characteristic = await service.getCharacteristic(HEART_RATE_MEASUREMENT_CHARACTERISTIC)
       characteristicRef.current = characteristic
       characteristic.addEventListener('characteristicvaluechanged', onValueChanged)
       await characteristic.startNotifications()
       setConnected(true)
     } catch (err) {
-      if ((err as DOMException).name !== 'NotFoundError') setError(true)
+      if ((err as DOMException).name !== 'NotFoundError') setError('generic')
     } finally {
       setConnecting(false)
     }
@@ -97,7 +110,11 @@ export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
         >
           <IconHeart size={16} />
         </button>
-        {error ? <p className="hint danger">{t('train.heartRateError')}</p> : null}
+        {error === 'wrongDevice' ? (
+          <p className="hint danger">{t('train.heartRateWrongDevice')}</p>
+        ) : error === 'generic' ? (
+          <p className="hint danger">{t('train.heartRateError')}</p>
+        ) : null}
       </div>
     )
   }
