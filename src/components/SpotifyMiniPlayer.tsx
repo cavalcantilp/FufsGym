@@ -1,57 +1,17 @@
-import { useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { useSpotify } from '../state/SpotifyContext'
-import { IconChevronDown, IconPause, IconPlay, IconSkipBack, IconSkipForward } from './icons'
+import { IconPause, IconPlay, IconSkipBack, IconSkipForward } from './icons'
 
 /**
- * Contrôle de lecture Spotify pendant une séance active. Tout vit ici (y
- * compris la configuration du Client ID) : le lecteur n'apparaît nulle part
- * ailleurs dans l'app, par choix explicite.
+ * Mini-lecteur affiché pendant une séance active, une fois Spotify connecté
+ * (connexion configurée dans Réglages). Ne montre rien tant qu'on n'est pas
+ * connecté : pas de configuration ici, par choix explicite.
  */
 export function SpotifyMiniPlayer() {
   const { t } = useApp()
-  const { clientId, setClientId, connected, connecting, playerReady, track, error, redirectUri, connect, disconnect, togglePlay, nextTrack, previousTrack } =
-    useSpotify()
-  const [clientIdDraft, setClientIdDraft] = useState(clientId)
-  const [setupOpen, setSetupOpen] = useState(!clientId)
+  const { connected, playerReady, track, error, togglePlay, nextTrack, previousTrack } = useSpotify()
 
-  if (!connected) {
-    return (
-      <div className="card">
-        <button type="button" className="disclosure-head" onClick={() => setSetupOpen((current) => !current)}>
-          Spotify
-          <IconChevronDown open={setupOpen} size={16} />
-        </button>
-        {setupOpen ? (
-          <div className="disclosure-body stack">
-            <p className="hint">{t('train.spotifySetupHint')}</p>
-            <code className="code-block">{redirectUri}</code>
-            <div className="field">
-              <label htmlFor="spotify-client-id">{t('train.spotifyClientIdLabel')}</label>
-              <input
-                id="spotify-client-id"
-                type="text"
-                value={clientIdDraft}
-                onChange={(event) => setClientIdDraft(event.target.value)}
-                placeholder={t('train.spotifyClientIdPlaceholder')}
-              />
-            </div>
-            {clientIdDraft.trim() !== clientId ? (
-              <button type="button" className="btn secondary" onClick={() => setClientId(clientIdDraft.trim())}>
-                {t('train.spotifyClientIdSave')}
-              </button>
-            ) : null}
-            {clientId ? (
-              <button type="button" className="btn" disabled={connecting} onClick={() => void connect()}>
-                {connecting ? t('train.spotifyConnecting') : t('train.spotifyConnect')}
-              </button>
-            ) : null}
-            {error === 'auth_failed' ? <p className="hint danger">{t('train.spotifyAuthFailed')}</p> : null}
-          </div>
-        ) : null}
-      </div>
-    )
-  }
+  if (!connected) return null
 
   return (
     <div className="card spotify-player">
@@ -85,9 +45,6 @@ export function SpotifyMiniPlayer() {
         </button>
         <button type="button" className="icon-btn" onClick={nextTrack} aria-label={t('train.spotifyNextAria')}>
           <IconSkipForward size={18} />
-        </button>
-        <button type="button" className="btn secondary spotify-disconnect" onClick={disconnect}>
-          {t('train.spotifyDisconnect')}
         </button>
       </div>
     </div>

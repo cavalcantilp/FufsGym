@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { Sheet } from '../components/Sheet'
+import { SpotifySettings } from '../components/SpotifySettings'
 import { LANGS } from '../i18n/translations'
 import type { Lang, LengthUnit, WeightUnit } from '../lib/types'
 
@@ -86,6 +87,8 @@ export function SettingsScreen() {
           </div>
         </div>
       </div>
+
+      <SpotifySettings />
 
       <div className="card">
         <div className="card-title">{t('settings.dataTitle')}</div>
