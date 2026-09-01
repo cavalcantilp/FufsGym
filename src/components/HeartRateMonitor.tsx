@@ -56,7 +56,14 @@ export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
     setConnecting(true)
     setError(false)
     try {
-      const device = await navigator.bluetooth.requestDevice({ filters: [{ services: [HEART_RATE_SERVICE] }] })
+      // acceptAllDevices plutôt que filters: beaucoup de montres (Garmin incluses) n'annoncent
+      // pas le service "heart_rate" dans leur paquet d'annonce BLE, seulement une fois connectées
+      // — un filtre sur ce service les rend invisibles dans le sélecteur. On les autorise toutes,
+      // l'utilisateur choisit la sienne par son nom, et on ne demande le service qu'à la connexion.
+      const device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: [HEART_RATE_SERVICE],
+      })
       deviceRef.current = device
       device.addEventListener('gattserverdisconnected', () => {
         setConnected(false)

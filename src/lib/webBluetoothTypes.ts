@@ -27,6 +27,7 @@ export interface BluetoothDevice extends EventTarget {
 
 interface BluetoothRequestDeviceOptions {
   filters?: { services?: string[] }[]
+  acceptAllDevices?: boolean
   optionalServices?: string[]
 }
 
