@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { ExerciseCard } from '../components/ExerciseCard'
+import { HeartRateMonitor } from '../components/HeartRateMonitor'
 import { MuscleDiagram } from '../components/MuscleDiagram'
 import { Sheet } from '../components/Sheet'
 import { SpotifyMiniPlayer } from '../components/SpotifyMiniPlayer'
@@ -381,6 +382,7 @@ function ActiveSessionView({
         </div>
       </div>
 
+      <HeartRateMonitor />
       <SpotifyMiniPlayer />
 
       {groupBySuperset(session.exercises).map((group, groupIndex, groups) => {

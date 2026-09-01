@@ -2249,6 +2249,38 @@ select {
   font-weight: 600;
 }
 
+/* ---------- Fréquence cardiaque (capteur Bluetooth) ---------- */
+
+.heart-rate-connect,
+.heart-rate-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.72rem;
+}
+
+.heart-rate-connect {
+  color: var(--accent);
+}
+
+.heart-rate-badge {
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+.heart-rate-badge svg,
+.heart-rate-connect svg {
+  color: var(--accent);
+}
+
+.heart-rate-disconnect {
+  margin-left: 2px;
+  color: var(--text-sub);
+}
+
 .today-btn {
   flex: none;
   padding: 6px 14px;
