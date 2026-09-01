@@ -1,6 +1,6 @@
 import { useApp } from '../state/AppContext'
 import { useSpotify } from '../state/SpotifyContext'
-import { IconPause, IconPlay, IconSkipBack, IconSkipForward } from './icons'
+import { IconPause, IconPlay, IconSkipBack, IconSkipForward, IconSpotifyLogo } from './icons'
 
 /**
  * Mini-lecteur affiché pendant une séance active, une fois Spotify connecté
@@ -15,6 +15,10 @@ export function SpotifyMiniPlayer() {
 
   return (
     <div className="card spotify-player">
+      <div className="spotify-brand-header">
+        <IconSpotifyLogo size={20} />
+        <span>Spotify</span>
+      </div>
       {error === 'premium_required' ? (
         <p className="hint danger">{t('train.spotifyPremiumRequired')}</p>
       ) : error === 'generic' ? (

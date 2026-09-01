@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { useSpotify } from '../state/SpotifyContext'
+import { IconSpotifyLogo } from './icons'
 
 /** Configuration Spotify (Client ID, connexion/déconnexion) : tout vit dans Réglages. */
 export function SpotifySettings() {
@@ -10,7 +11,10 @@ export function SpotifySettings() {
 
   return (
     <div className="card">
-      <div className="card-title">Spotify</div>
+      <div className="card-title spotify-settings-title">
+        <IconSpotifyLogo size={16} />
+        Spotify
+      </div>
       <p className="hint">{t('train.spotifySetupHint')}</p>
       <code className="code-block">{redirectUri}</code>
       <div className="field" style={{ marginTop: 12 }}>

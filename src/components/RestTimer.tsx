@@ -18,6 +18,21 @@ const RADIUS = 90
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
 /**
+ * Un seul AudioContext réutilisé pour tous les bips, jamais fermé : en recréer
+ * un à chaque bip coupait la lecture Spotify (le SDK Web Playback tourne dans
+ * le même onglet et se fait couper quand un nouveau contexte audio s'ouvre).
+ */
+let sharedAudioCtx: AudioContext | null = null
+
+function getAudioCtx(): AudioContext {
+  if (!sharedAudioCtx) {
+    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    sharedAudioCtx = new Ctx()
+  }
+  return sharedAudioCtx
+}
+
+/**
  * Deux bips francs, générés à la volée : aucun asset audio à charger, fonctionne
  * hors-ligne. Chaque bip superpose la fondamentale et une octave au-dessus (plus
  * de présence qu'une simple sinusoïde) et passe par un compresseur pour pousser
@@ -25,8 +40,8 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS
  */
 export function playChime() {
   try {
-    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    const ctx = new Ctx()
+    const ctx = getAudioCtx()
+    if (ctx.state === 'suspended') void ctx.resume()
     const compressor = ctx.createDynamicsCompressor()
     compressor.threshold.setValueAtTime(-12, ctx.currentTime)
     compressor.ratio.setValueAtTime(8, ctx.currentTime)
@@ -49,7 +64,7 @@ export function playChime() {
     tone(1760, 0, 0.16, 0.35)
     tone(880, 0.26, 0.32, 0.9)
     tone(1760, 0.26, 0.22, 0.35)
-    setTimeout(() => ctx.close().catch(() => {}), 1000)
+    setTimeout(() => compressor.disconnect(), 1000)
   } catch {
     // Web Audio indisponible : le minuteur reste utilisable sans le son.
   }

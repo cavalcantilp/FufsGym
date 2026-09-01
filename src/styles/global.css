@@ -2283,10 +2283,38 @@ select {
   color: var(--text-sub);
 }
 
+.spotify-settings-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Identité Spotify : fond noir de marque, vert #1ED760 pour le logo et les accents. */
 .spotify-player {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  background: #121212;
+  border: 1px solid #1ed760;
+}
+
+.spotify-brand-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1ed760;
+  font-weight: 800;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.spotify-player .hint {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.spotify-player .hint.danger {
+  color: var(--negative);
 }
 
 .spotify-now-playing {
@@ -2301,11 +2329,11 @@ select {
   border-radius: var(--radius);
   object-fit: cover;
   flex: none;
-  background: var(--card-bg);
+  background: #1a1a1a;
 }
 
 .spotify-art.placeholder {
-  border: 1px dashed var(--border);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
 }
 
 .spotify-track-info {
@@ -2317,6 +2345,7 @@ select {
 
 .spotify-track-info .name {
   font-weight: 700;
+  color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2328,7 +2357,10 @@ select {
   gap: 8px;
 }
 
-.spotify-disconnect {
-  margin-left: auto;
-  padding: 6px 12px;
+.spotify-controls .icon-btn {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.spotify-controls .icon-btn.accent {
+  color: #1ed760;
 }

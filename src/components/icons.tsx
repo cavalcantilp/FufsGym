@@ -256,6 +256,18 @@ export function IconStickyNote({ size = 12 }: IconProps) {
   )
 }
 
+/** Pictogramme Spotify (trois ondes sonores dans un disque) sur leur vert de marque. */
+export function IconSpotifyLogo({ size = 24 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="12" fill="#1ED760" />
+      <path d="M6.3 9.2c3.5-1 7.9-.8 11 1.1" stroke="#000" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+      <path d="M6 12.7c3-.9 7.1-.7 10 .9" stroke="#000" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <path d="M6.4 16c2.4-.6 5.6-.5 7.8.8" stroke="#000" strokeWidth="1.3" strokeLinecap="round" fill="none" />
+    </svg>
+  )
+}
+
 export function Logo({ size = 84 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 96 96" aria-hidden="true">
