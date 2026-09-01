@@ -2323,19 +2323,47 @@ select {
   color: var(--negative);
 }
 
-.spotify-now-playing {
+/* Carrousel façon iTunes : pochette précédente/suivante en aperçu de part et
+   d'autre de la pochette actuelle, cliquables ou glissables pour changer de piste. */
+.spotify-carousel {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 10px;
+  touch-action: pan-y;
+}
+
+.spotify-carousel-side {
+  flex: none;
+  opacity: 0.4;
+  transition: opacity 0.15s ease;
+}
+
+.spotify-carousel-side:active {
+  opacity: 0.7;
+}
+
+.spotify-carousel-side img,
+.spotify-carousel-side .spotify-art.placeholder.small {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  display: block;
+}
+
+.spotify-carousel-center {
+  flex: none;
 }
 
 .spotify-art {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius);
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-lg);
   object-fit: cover;
   flex: none;
   background: #1a1a1a;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
 }
 
 .spotify-art.placeholder {
@@ -2349,22 +2377,76 @@ select {
   min-width: 0;
 }
 
+.spotify-track-info.center {
+  align-items: center;
+  text-align: center;
+}
+
 .spotify-track-info .name {
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.spotify-seek {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.spotify-seek-input {
+  width: 100%;
+  height: 16px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.spotify-seek-input::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.spotify-seek-input::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.spotify-seek-input::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #1ed760;
+  margin-top: -4px;
+}
+
+.spotify-seek-input::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: #1ed760;
+}
+
+.spotify-seek-times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-variant-numeric: tabular-nums;
 }
 
 .spotify-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.spotify-controls .icon-btn {
-  color: rgba(255, 255, 255, 0.7);
+  justify-content: center;
 }
 
 .spotify-controls .icon-btn.accent {

@@ -14,7 +14,11 @@ export interface SpotifyPlaybackState {
   paused: boolean
   position: number
   duration: number
-  track_window: { current_track: SpotifyPlayerTrack }
+  track_window: {
+    current_track: SpotifyPlayerTrack
+    previous_tracks: SpotifyPlayerTrack[]
+    next_tracks: SpotifyPlayerTrack[]
+  }
 }
 
 export interface SpotifyPlayerInstance {
@@ -23,6 +27,7 @@ export interface SpotifyPlayerInstance {
   togglePlay(): Promise<void>
   nextTrack(): Promise<void>
   previousTrack(): Promise<void>
+  seek(positionMs: number): Promise<void>
   getCurrentState(): Promise<SpotifyPlaybackState | null>
   addListener(event: 'ready' | 'not_ready', cb: (data: { device_id: string }) => void): void
   addListener(event: 'player_state_changed', cb: (state: SpotifyPlaybackState | null) => void): void

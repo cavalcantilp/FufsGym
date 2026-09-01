@@ -21,6 +21,12 @@ export interface SpotifyTrackInfo {
   isPaused: boolean
   /** Lien open.spotify.com vers ce morceau, pour l'ouvrir dans l'app/le site Spotify. */
   url: string | null
+  /** Position au moment de cet état (ms) ; à l'écran, interpoler avec le temps écoulé depuis `positionUpdatedAt` si en lecture. */
+  position: number
+  duration: number
+  positionUpdatedAt: number
+  previousArt: string | null
+  nextArt: string | null
 }
 
 type SpotifyErrorKind = 'premium_required' | 'auth_failed' | 'generic' | null
@@ -41,6 +47,7 @@ interface SpotifyState {
   togglePlay: () => void
   nextTrack: () => void
   previousTrack: () => void
+  seek: (positionMs: number) => void
 }
 
 const SpotifyContext = createContext<SpotifyState | null>(null)
@@ -65,13 +72,18 @@ function spotifyUriToUrl(uri: string): string | null {
 
 function trackFromState(state: SpotifyPlaybackState | null): SpotifyTrackInfo | null {
   if (!state) return null
-  const current = state.track_window.current_track
+  const { current_track: current, previous_tracks: previous, next_tracks: next } = state.track_window
   return {
     name: current.name,
     artist: current.artists.map((a) => a.name).join(', '),
     albumArt: current.album.images[0]?.url ?? null,
     isPaused: state.paused,
     url: spotifyUriToUrl(current.uri),
+    position: state.position,
+    duration: state.duration,
+    positionUpdatedAt: Date.now(),
+    previousArt: previous[previous.length - 1]?.album.images[0]?.url ?? null,
+    nextArt: next[0]?.album.images[0]?.url ?? null,
   }
 }
 
@@ -206,6 +218,9 @@ export function SpotifyProvider({ children }: { children: ReactNode }) {
   const previousTrack = useCallback(() => {
     void playerRef.current?.previousTrack()
   }, [])
+  const seek = useCallback((positionMs: number) => {
+    void playerRef.current?.seek(positionMs)
+  }, [])
 
   const value: SpotifyState = {
     clientId,
@@ -221,6 +236,7 @@ export function SpotifyProvider({ children }: { children: ReactNode }) {
     togglePlay,
     nextTrack,
     previousTrack,
+    seek,
   }
 
   return <SpotifyContext.Provider value={value}>{children}</SpotifyContext.Provider>
