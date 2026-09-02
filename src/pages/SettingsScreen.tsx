@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
-import { HeartRatePairing } from '../components/HeartRatePairing'
 import { Sheet } from '../components/Sheet'
 import { SpotifySettings } from '../components/SpotifySettings'
 import { LANGS } from '../i18n/translations'
 import type { Lang, LengthUnit, WeightUnit } from '../lib/types'
 
 export function SettingsScreen() {
-  const { t, lang, setLang, units, updateUnits, heartRateEnabled, setHeartRateEnabled, resetAll, exportData, importData } =
-    useApp()
+  const { t, lang, setLang, units, updateUnits, resetAll, exportData, importData } = useApp()
   const [confirmReset, setConfirmReset] = useState(false)
   const [pendingImport, setPendingImport] = useState<unknown>(null)
   const [importInvalid, setImportInvalid] = useState(false)
@@ -88,27 +86,6 @@ export function SettingsScreen() {
             </select>
           </div>
         </div>
-      </div>
-
-      <div className="card">
-        <div className="card-title">{t('settings.heartRateTitle')}</div>
-        <p className="hint">{t('settings.heartRateHint')}</p>
-        <button
-          type="button"
-          className="toggle-row"
-          style={{ marginTop: 10 }}
-          onClick={() => setHeartRateEnabled(!heartRateEnabled)}
-        >
-          <span
-            role="switch"
-            aria-checked={heartRateEnabled}
-            className={`toggle-switch${heartRateEnabled ? ' on' : ''}`}
-          >
-            <span className="toggle-knob" />
-          </span>
-          <span>{t('settings.heartRateToggle')}</span>
-        </button>
-        {heartRateEnabled ? <HeartRatePairing /> : null}
       </div>
 
       <SpotifySettings />

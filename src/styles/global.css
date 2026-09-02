@@ -262,47 +262,6 @@ select {
   letter-spacing: 0.05em;
 }
 
-/* Interrupteur custom : le rendu natif d'une case à cocher est trop peu
-   visible/incohérent selon les navigateurs mobiles pour un réglage important. */
-.toggle-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.88rem;
-  color: var(--text-main);
-  text-align: left;
-}
-
-.toggle-switch {
-  position: relative;
-  flex: none;
-  width: 44px;
-  height: 26px;
-  border-radius: 999px;
-  background: var(--border);
-  transition: background 0.15s ease;
-}
-
-.toggle-switch.on {
-  background: var(--accent);
-}
-
-.toggle-knob {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  transition: transform 0.15s ease;
-}
-
-.toggle-switch.on .toggle-knob {
-  transform: translateX(18px);
-}
-
 .label-row {
   display: flex;
   align-items: center;
@@ -2288,55 +2247,6 @@ select {
 .streak-label {
   color: var(--text-sub);
   font-weight: 600;
-}
-
-/* ---------- Fréquence cardiaque (capteur Bluetooth) ---------- */
-
-/* Se cale en haut à droite dans la ligne de titre, plutôt que de prendre une
-   ligne dédiée : c'est là qu'il reste de la place libre sur l'écran de séance. */
-.heart-rate-corner {
-  flex: none;
-  margin-left: auto;
-}
-
-.heart-rate-connect {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--accent);
-}
-
-.heart-rate-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-size: 0.72rem;
-  color: var(--text-sub);
-  font-variant-numeric: tabular-nums;
-}
-
-.heart-rate-badge svg,
-.heart-rate-connect svg {
-  color: var(--accent);
-}
-
-.heart-rate-disconnect {
-  margin-left: 2px;
-  color: var(--text-sub);
-}
-
-.heart-rate-chart {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 10px;
 }
 
 .today-btn {

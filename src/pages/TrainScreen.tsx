@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { ExerciseCard } from '../components/ExerciseCard'
-import { HeartRateChart } from '../components/HeartRateChart'
-import { HeartRateMonitor } from '../components/HeartRateMonitor'
 import { MuscleDiagram } from '../components/MuscleDiagram'
 import { Sheet } from '../components/Sheet'
 import { SpotifyMiniPlayer } from '../components/SpotifyMiniPlayer'
@@ -229,13 +227,6 @@ function SessionSummaryView({ session, onClose }: { session: Session; onClose: (
         ) : null}
       </div>
 
-      {session.heartRateSamples && session.heartRateSamples.length > 1 ? (
-        <div className="card" style={{ width: '100%', marginTop: 14 }}>
-          <div className="card-title">{t('settings.heartRateTitle')}</div>
-          <HeartRateChart samples={session.heartRateSamples} startedAt={session.startedAt} />
-        </div>
-      ) : null}
-
       <button type="button" className="btn" style={{ marginTop: 14 }} onClick={onClose}>
         {t('train.summaryClose')}
       </button>
@@ -264,7 +255,6 @@ function ActiveSessionView({
     addExercise,
     replaceWorkoutExercises,
     startRestTimer,
-    addHeartRateSample,
   } = useApp()
   const [picking, setPicking] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
@@ -345,7 +335,7 @@ function ActiveSessionView({
 
   return (
     <div className="screen train-screen">
-      <div className="form-page-head" style={{ alignItems: 'center' }}>
+      <div className="form-page-head">
         <div style={{ flex: 1, minWidth: 0 }}>
           {isFreeSession ? (
             <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -370,7 +360,6 @@ function ActiveSessionView({
           )}
           <span className="sub">{formatDay(session.date, lang)}</span>
         </div>
-        <HeartRateMonitor onSample={(bpm) => addHeartRateSample(session.id, bpm)} />
       </div>
 
       <div className="card">

@@ -95,12 +95,6 @@ export interface SessionExercise {
   cardioUnit?: 'min' | 'km'
 }
 
-/** Un relevé de fréquence cardiaque pendant une séance : horodatage (epoch ms) + bpm. */
-export interface HeartRateSample {
-  t: number
-  bpm: number
-}
-
 export interface Session {
   id: string
   /** Date au format YYYY-MM-DD. */
@@ -112,6 +106,4 @@ export interface Session {
   startedAt: string
   finishedAt?: string
   note?: string
-  /** Relevés du capteur cardio Bluetooth pendant la séance, si connecté. */
-  heartRateSamples?: HeartRateSample[]
 }

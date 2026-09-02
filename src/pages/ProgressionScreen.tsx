@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { LineChart, type RangeKey } from '../components/LineChart'
-import { HeartRateChart } from '../components/HeartRateChart'
 import { RangePicker } from '../components/RangePicker'
 import { FormPage } from '../components/FormPage'
 import { Sheet } from '../components/Sheet'
@@ -206,13 +205,6 @@ function SessionEditScreen({ session, onBack }: { session: Session; onBack: () =
             </div>
           </div>
         </div>
-
-        {session.heartRateSamples && session.heartRateSamples.length > 1 ? (
-          <div className="card">
-            <div className="card-title">{t('settings.heartRateTitle')}</div>
-            <HeartRateChart samples={session.heartRateSamples} startedAt={session.startedAt} />
-          </div>
-        ) : null}
 
         {groupBySuperset(session.exercises).map((group) =>
           group.length > 1 ? (
