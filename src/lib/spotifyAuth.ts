@@ -6,8 +6,7 @@ import { load, save } from './storage'
  * directement depuis le navigateur vers l'API Spotify.
  */
 
-export const SPOTIFY_SCOPES =
-  'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state'
+export const SPOTIFY_SCOPES = 'user-read-playback-state user-modify-playback-state'
 
 const SPOTIFY_KEYS = {
   clientId: 'spotifyClientId',
