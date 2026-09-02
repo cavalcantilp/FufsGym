@@ -12,12 +12,15 @@ interface HeartRateMonitorProps {
 /**
  * Lecture en direct de la fréquence cardiaque via Web Bluetooth (service GATT
  * standard "heart_rate"). L'association du capteur se fait dans Réglages ; ici on
- * se reconnecte silencieusement (permissions Bluetooth persistantes, sans sélecteur)
- * à l'appareil déjà associé — la pastille n'apparaît que si la reconnexion réussit,
- * jamais de bouton ni de message d'erreur pendant l'entraînement.
+ * tente de se reconnecter silencieusement (permissions Bluetooth persistantes, sans
+ * sélecteur) à l'appareil déjà associé. Si le navigateur exige un geste utilisateur
+ * pour rouvrir la liaison BLE, une simple icône (sans texte) reste affichée pour
+ * reconnecter en un tap — jamais de sélecteur d'appareils ni de message d'erreur ici,
+ * uniquement quand un capteur est déjà associé dans Réglages.
  */
 export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
   const { t, heartRateEnabled } = useApp()
+  const [paired, setPaired] = useState(false)
   const [connected, setConnected] = useState(false)
   const [bpm, setBpm] = useState<number | null>(null)
   const deviceRef = useRef<BluetoothDevice | null>(null)
@@ -44,44 +47,77 @@ export function HeartRateMonitor({ onSample }: HeartRateMonitorProps) {
 
   useEffect(() => () => disconnect(), [disconnect])
 
+  const tryDevice = useCallback(
+    async (device: BluetoothDevice) => {
+      const characteristic = await connectHeartRateCharacteristic(device)
+      deviceRef.current = device
+      characteristicRef.current = characteristic
+      device.addEventListener('gattserverdisconnected', () => {
+        setConnected(false)
+        setBpm(null)
+      })
+      characteristic.addEventListener('characteristicvaluechanged', onValueChanged)
+      await characteristic.startNotifications()
+      setConnected(true)
+    },
+    [onValueChanged],
+  )
+
   useEffect(() => {
     if (!heartRateEnabled || !navigator.bluetooth) {
+      setPaired(false)
       disconnect()
       return
     }
     let cancelled = false
-    const reconnect = async () => {
+    void (async () => {
       const devices = await navigator.bluetooth!.getDevices()
+      if (cancelled) return
+      setPaired(devices.length > 0)
       for (const device of devices) {
         if (cancelled) return
         try {
-          const characteristic = await connectHeartRateCharacteristic(device)
-          if (cancelled) {
-            device.gatt?.disconnect()
-            return
-          }
-          deviceRef.current = device
-          characteristicRef.current = characteristic
-          device.addEventListener('gattserverdisconnected', () => {
-            setConnected(false)
-            setBpm(null)
-          })
-          characteristic.addEventListener('characteristicvaluechanged', onValueChanged)
-          await characteristic.startNotifications()
-          setConnected(true)
+          await tryDevice(device)
           return
         } catch {
-          // Appareil hors de portée ou non pertinent : on essaie le suivant en silence.
+          // Reconnexion silencieuse impossible (geste requis, hors de portée…) :
+          // l'icône de reconnexion manuelle reste affichée pour l'utilisateur.
         }
       }
-    }
-    void reconnect()
+    })()
     return () => {
       cancelled = true
     }
-  }, [heartRateEnabled, onValueChanged, disconnect])
+  }, [heartRateEnabled, disconnect, tryDevice])
 
-  if (!connected) return null
+  const connectManually = async () => {
+    const devices = await navigator.bluetooth!.getDevices()
+    for (const device of devices) {
+      try {
+        await tryDevice(device)
+        return
+      } catch {
+        // essaie l'appareil suivant en silence
+      }
+    }
+  }
+
+  if (!paired) return null
+
+  if (!connected) {
+    return (
+      <div className="heart-rate-corner">
+        <button
+          type="button"
+          className="heart-rate-connect"
+          onClick={() => void connectManually()}
+          aria-label={t('train.heartRateConnect')}
+        >
+          <IconHeart size={16} />
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="heart-rate-corner">

@@ -2299,6 +2299,17 @@ select {
   margin-left: auto;
 }
 
+.heart-rate-connect {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--accent);
+}
+
 .heart-rate-badge {
   display: inline-flex;
   align-items: center;
@@ -2311,7 +2322,8 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
-.heart-rate-badge svg {
+.heart-rate-badge svg,
+.heart-rate-connect svg {
   color: var(--accent);
 }
 
