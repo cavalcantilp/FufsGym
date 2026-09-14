@@ -80,6 +80,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('chest-bench-press', 'Développé couché', 'chest', 'barbell'),
   ex('chest-incline-bench', 'Développé incliné', 'chest', 'barbell'),
   ex('chest-dumbbell-press', 'Développé couché haltères', 'chest', 'dumbbell'),
+  ex('chest-incline-dumbbell-press', 'Développé incliné avec haltères', 'chest', 'dumbbell'),
   ex('chest-flye', 'Écarté couché', 'chest', 'dumbbell'),
   ex('chest-dips', 'Dips', 'chest', 'bodyweight'),
   ex('chest-pushup', 'Pompes', 'chest', 'bodyweight'),
