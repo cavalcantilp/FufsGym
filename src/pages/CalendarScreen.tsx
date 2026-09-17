@@ -160,6 +160,7 @@ export function CalendarScreen() {
                 outside={day.getMonth() !== cursor.month}
                 selected={key === opened}
                 isToday={key === today}
+                weekend={day.getDay() === 0 || day.getDay() === 6}
                 trained={Boolean(daySessions?.length)}
                 dayTypes={dayTypes ?? []}
                 letters={letters}

@@ -11,6 +11,8 @@ interface CalendarDayProps {
   outside: boolean
   selected: boolean
   isToday: boolean
+  /** Samedi ou dimanche : affiché avec des hachures pour le repérer d'un coup d'œil. */
+  weekend: boolean
   trained: boolean
   /** Types entraînés ce jour-là, dans l'ordre chronologique réel (le premier pratiqué en premier). */
   dayTypes: ('strength' | 'cardio')[]
@@ -27,6 +29,7 @@ export function CalendarDay({
   outside,
   selected,
   isToday,
+  weekend,
   trained,
   dayTypes,
   letters,
@@ -37,6 +40,7 @@ export function CalendarDay({
     'calendar-day',
     outside ? 'outside' : '',
     isToday ? 'today' : '',
+    weekend ? 'weekend' : '',
     trained ? 'trained' : '',
     dayTypes.length === 2 ? 'mixed' : '',
     selected ? 'selected' : '',

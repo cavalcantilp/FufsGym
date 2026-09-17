@@ -2103,7 +2103,7 @@ select {
   gap: 4px;
   min-height: 56px;
   padding: 16px 4px 6px;
-  background: var(--card-bg);
+  background-color: var(--card-bg);
   text-align: center;
   overflow: hidden;
   -webkit-touch-callout: none;
@@ -2122,7 +2122,18 @@ select {
 }
 
 .calendar-day.outside {
-  background: rgba(15, 23, 42, 0.6);
+  background-color: rgba(15, 23, 42, 0.6);
+}
+
+/* Week-end (samedi/dimanche) : hachures diagonales discrètes pour les repérer d'un coup d'œil. */
+.calendar-day.weekend {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0px,
+    rgba(255, 255, 255, 0.05) 5px,
+    transparent 5px,
+    transparent 11px
+  );
 }
 
 .calendar-day.outside .num {
@@ -2182,12 +2193,12 @@ select {
 }
 
 .calendar-day.trained {
-  background: rgba(239, 68, 68, 0.14);
+  background-color: rgba(239, 68, 68, 0.14);
 }
 
 /* Force + cardio le même jour : le rectangle bascule au vert plutôt qu'au rouge habituel. */
 .calendar-day.trained.mixed {
-  background: rgba(52, 211, 153, 0.2);
+  background-color: rgba(52, 211, 153, 0.2);
 }
 
 .calendar-day.selected {
