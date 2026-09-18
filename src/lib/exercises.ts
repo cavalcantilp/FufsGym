@@ -113,6 +113,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('legs-lunge', 'Fentes', 'legs', 'dumbbell'),
   ex('legs-leg-extension', 'Leg extension', 'legs', 'machine'),
   ex('legs-leg-curl', 'Leg curl', 'legs', 'machine'),
+  ex('legs-iso-lateral-leg-curl', 'Leg curl iso-latéral (Hammer Strength)', 'legs', 'machine'),
   ex('legs-romanian-deadlift', 'Soulevé de terre roumain', 'legs', 'barbell'),
   ex('legs-calf-raise', 'Mollets debout', 'legs', 'machine'),
   ex('legs-hack-squat', 'Hack squat', 'legs', 'machine'),
