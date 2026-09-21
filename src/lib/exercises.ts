@@ -128,13 +128,18 @@ export const BUILTIN_EXERCISES: Exercise[] = [
 
   // Épaules
   ex('shoulders-military-press', 'Développé militaire', 'shoulders', 'barbell'),
+  ex('shoulders-arnold-press', 'Développé Arnold', 'shoulders', 'dumbbell'),
   ex('shoulders-dumbbell-press', 'Développé épaules haltères', 'shoulders', 'dumbbell'),
   ex('shoulders-lateral-raise', 'Élévations latérales', 'shoulders', 'dumbbell'),
+  ex('shoulders-chest-supported-lateral-raise', 'Élévations latérales buste en appui', 'shoulders', 'dumbbell'),
+  ex('shoulders-cable-lateral-raise', 'Élévations latérales à la poulie', 'shoulders', 'cable'),
   ex('shoulders-front-raise', 'Élévations frontales', 'shoulders', 'dumbbell'),
+  ex('shoulders-upright-row', 'Rowing menton', 'shoulders', 'barbell'),
   ex('shoulders-rear-delt-flye', 'Oiseau', 'shoulders', 'dumbbell'),
   ex('shoulders-rear-delt-flye-life-fitness', 'Rear Delt (Life Fitness)', 'shoulders', 'machine'),
   ex('shoulders-face-pull', 'Face pull', 'shoulders', 'cable'),
   ex('shoulders-shrug', 'Haussements d’épaules', 'shoulders', 'barbell'),
+  ex('shoulders-dumbbell-shrug', 'Haussements d’épaules haltères', 'shoulders', 'dumbbell'),
   ex('shoulders-machine-press', 'Développé épaules à la machine', 'shoulders', 'machine'),
   ex('shoulders-lateral-raise-machine', 'Élévations latérales à la machine', 'shoulders', 'machine'),
   ex('shoulders-lateral-raise-machine-life-fitness', 'Élévation latérale machine (Life Fitness)', 'shoulders', 'machine'),
