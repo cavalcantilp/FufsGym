@@ -11,14 +11,17 @@ import type { TranslationKey } from '../i18n/translations'
 import type { Exercise } from '../lib/types'
 
 /** Bouton "i" ouvrant le schéma d'activation musculaire et/ou des photos d'exécution ; masqué si aucun n'existe pour cet exercice. */
-export function ExerciseInfoButton({ exercise }: { exercise: Exercise }) {
+export function ExerciseInfoButton({ exercise }: { exercise?: Exercise }) {
   const { t } = useApp()
   const [open, setOpen] = useState(false)
-  const images = exerciseMediaImages(exercise.id)
-  const activation = EXERCISE_ACTIVATION[exercise.id]
+  const images = exercise ? exerciseMediaImages(exercise.id) : null
+  const activation = exercise ? EXERCISE_ACTIVATION[exercise.id] : undefined
 
-  if (!images && !activation) return null
-
+  // Toujours réserver la largeur du bouton, même sans schéma ni photo : sinon les icônes
+  // suivantes (réordonner, supprimer) se décalent d'une carte à l'autre selon les exercices.
+  if (!exercise || (!images && !activation)) {
+    return <span className="icon-btn" aria-hidden="true" style={{ visibility: 'hidden' }} />
+  }
   const colorFor = (muscleId: string) => {
     const intensity = activation?.[muscleId] ?? 0
     return intensity > 0 ? interpolateColor(ACTIVATION_STOPS, intensity) : NEUTRAL_MUSCLE_COLOR

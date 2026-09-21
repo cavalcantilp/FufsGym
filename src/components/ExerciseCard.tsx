@@ -104,7 +104,7 @@ export function ExerciseCard({
             <IconCheck size={13} />
           </span>
         ) : null}
-        {info ? <ExerciseInfoButton exercise={info} /> : null}
+        <ExerciseInfoButton exercise={info} />
         {expanded ? (
           <button
             type="button"
