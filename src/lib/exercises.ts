@@ -151,6 +151,7 @@ export const BUILTIN_EXERCISES: Exercise[] = [
   ex('arms-barbell-curl', 'Curl biceps barre', 'arms', 'barbell'),
   ex('arms-dumbbell-curl', 'Curl haltères', 'arms', 'dumbbell'),
   ex('arms-hammer-curl', 'Curl marteau', 'arms', 'dumbbell'),
+  ex('arms-cable-curl', 'Curl biceps à la poulie', 'arms', 'cable'),
   ex('arms-biceps-curl-life-fitness', 'Biceps Curl (Life Fitness)', 'arms', 'machine'),
   ex('arms-triceps-pushdown', 'Extension triceps poulie', 'arms', 'cable'),
   ex('arms-triceps-dip', 'Dips triceps', 'arms', 'bodyweight'),
