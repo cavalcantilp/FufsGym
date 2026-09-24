@@ -349,6 +349,7 @@ const fr = {
   'exercise.chest-iso-lateral-incline-press': 'Développé incliné iso-latéral (Hammer Strength)',
   'exercise.chest-smith-incline-press': 'Développé incliné à la machine Smith (Hammer Strength)',
   'exercise.chest-iso-lateral-bench-press': 'Développé couché iso-latéral (Hammer Strength)',
+  'exercise.chest-iso-lateral-decline-press': 'Développé décliné iso-latéral (Hammer Strength)',
   'exercise.chest-scapular-pushdown-life-fitness': 'Scapular Push-down (Life Fitness)',
 
   'exercise.back-pullup': 'Tractions',
@@ -865,6 +866,7 @@ const pt: Dict = {
   'exercise.chest-iso-lateral-incline-press': 'Supino inclinado iso-lateral (Hammer Strength)',
   'exercise.chest-smith-incline-press': 'Supino inclinado na máquina Smith (Hammer Strength)',
   'exercise.chest-iso-lateral-bench-press': 'Supino reto iso-lateral (Hammer Strength)',
+  'exercise.chest-iso-lateral-decline-press': 'Supino declinado iso-lateral (Hammer Strength)',
   'exercise.chest-scapular-pushdown-life-fitness': 'Scapular Push-down (Life Fitness)',
 
   'exercise.back-pullup': 'Barra fixa',
@@ -1378,6 +1380,7 @@ const es: Dict = {
   'exercise.chest-iso-lateral-incline-press': 'Press inclinado iso-lateral (Hammer Strength)',
   'exercise.chest-smith-incline-press': 'Press inclinado en máquina Smith (Hammer Strength)',
   'exercise.chest-iso-lateral-bench-press': 'Press de banca iso-lateral (Hammer Strength)',
+  'exercise.chest-iso-lateral-decline-press': 'Press declinado iso-lateral (Hammer Strength)',
   'exercise.chest-scapular-pushdown-life-fitness': 'Scapular Push-down (Life Fitness)',
 
   'exercise.back-pullup': 'Dominadas',
@@ -1891,6 +1894,7 @@ const en: Dict = {
   'exercise.chest-iso-lateral-incline-press': 'Iso-lateral incline press (Hammer Strength)',
   'exercise.chest-smith-incline-press': 'Smith machine incline press (Hammer Strength)',
   'exercise.chest-iso-lateral-bench-press': 'Iso-lateral bench press (Hammer Strength)',
+  'exercise.chest-iso-lateral-decline-press': 'Iso-lateral decline press (Hammer Strength)',
   'exercise.chest-scapular-pushdown-life-fitness': 'Scapular Push-down (Life Fitness)',
 
   'exercise.back-pullup': 'Pull-ups',
@@ -2404,6 +2408,7 @@ const it: Dict = {
   'exercise.chest-iso-lateral-incline-press': 'Panca inclinata iso-laterale (Hammer Strength)',
   'exercise.chest-smith-incline-press': 'Panca inclinata al multipower Smith (Hammer Strength)',
   'exercise.chest-iso-lateral-bench-press': 'Panca piana iso-laterale (Hammer Strength)',
+  'exercise.chest-iso-lateral-decline-press': 'Panca declinata iso-laterale (Hammer Strength)',
   'exercise.chest-scapular-pushdown-life-fitness': 'Scapular Push-down (Life Fitness)',
 
   'exercise.back-pullup': 'Trazioni alla sbarra',
