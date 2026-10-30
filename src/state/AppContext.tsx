@@ -104,6 +104,8 @@ interface AppState {
   resetAll: () => void
   /** Déclenche le téléchargement d'un fichier JSON contenant toutes les données de l'appli. */
   exportData: () => void
+  /** Données synchronisables (sans horodatage d'export) : change d'identité à chaque modification. */
+  snapshot: AppSnapshot
   /** Remplace toutes les données par celles d'un export ; renvoie `false` si le contenu est invalide. */
   importData: (data: unknown) => boolean
 
@@ -129,7 +131,7 @@ export interface ActiveRestTimer {
   minimized: boolean
 }
 
-interface AppExportData {
+export interface AppExportData {
   version: 1
   exportedAt: string
   lang: Lang
@@ -142,6 +144,8 @@ interface AppExportData {
   dayNotes: Record<string, string>
   exerciseNotes: Record<string, Record<string, string>>
 }
+
+export type AppSnapshot = Omit<AppExportData, 'exportedAt'>
 
 function isAppExportData(value: unknown): value is AppExportData {
   if (!value || typeof value !== 'object') return false
@@ -653,10 +657,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUnits(DEFAULT_UNITS)
   }, [])
 
-  const exportData = useCallback(() => {
-    const data: AppExportData = {
+  const snapshot = useMemo<AppSnapshot>(
+    () => ({
       version: 1,
-      exportedAt: new Date().toISOString(),
       lang,
       units,
       customExercises,
@@ -666,7 +669,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sessions,
       dayNotes,
       exerciseNotes,
-    }
+    }),
+    [lang, units, customExercises, favoriteExerciseIds, workouts, schedules, sessions, dayNotes, exerciseNotes],
+  )
+
+  const exportData = useCallback(() => {
+    const data: AppExportData = { ...snapshot, exportedAt: new Date().toISOString() }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
@@ -676,7 +684,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     anchor.click()
     document.body.removeChild(anchor)
     URL.revokeObjectURL(url)
-  }, [lang, units, customExercises, favoriteExerciseIds, workouts, schedules, sessions, dayNotes, exerciseNotes])
+  }, [snapshot])
 
   const importData = useCallback((data: unknown): boolean => {
     if (!isAppExportData(data)) return false
@@ -772,6 +780,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       lastPerformance,
       resetAll,
       exportData,
+      snapshot,
       importData,
       activeRestTimer,
       startRestTimer,
@@ -829,6 +838,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       lastPerformance,
       resetAll,
       exportData,
+      snapshot,
       importData,
       activeRestTimer,
       startRestTimer,
