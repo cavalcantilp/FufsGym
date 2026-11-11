@@ -3117,3 +3117,9 @@ h2,
 .screen > .progress-track {
   flex: none;
 }
+
+/* Nom long dans la fiche d'un entraînement : tronqué plutôt que de passer sous les icônes. */
+.plan-exercise-row .name,
+.plan-exercise-row .target {
+  display: block;
+}

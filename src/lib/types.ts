@@ -34,6 +34,10 @@ export interface PlanExercise {
   note?: string
   /** Superset : cet exercice s'enchaîne avec le suivant dans la liste, sans repos entre les deux. */
   linkedToNext?: boolean
+  /** Charge visée (kg), proposée au lancement de la séance tant qu'aucune séance plus récente n'existe pour cet exercice. */
+  targetWeight?: number
+  /** Jour (YYYY-MM-DD) où la charge visée a été fixée. */
+  targetWeightDate?: string
 }
 
 /** Un entraînement : une liste nommée d'exercices (ex. "Push"). Rien au-dessus — pas de regroupement en "programme". */
@@ -46,8 +50,11 @@ export interface Workout {
 
 export type Weekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
 
-/** Dix lettres possibles, au total sur l'appli : au-delà, il faut en libérer une avant d'en programmer un nouveau. */
-export type ScheduleLetter = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'
+/** Vingt-six lettres possibles (A à Z), au total sur l'appli : au-delà, il faut en libérer une avant d'en programmer un nouveau. */
+export type ScheduleLetter =
+  | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I'
+  | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R'
+  | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z'
 
 /**
  * Récurrence hebdomadaire d'un entraînement : quand il revient (jours de la

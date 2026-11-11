@@ -195,13 +195,13 @@ const emptySet = (): SetLog => ({ id: newId(), weight: 0, reps: 0, done: false }
  * entraînements confondus (peu importe la séance ou l'entraînement d'où elle
  * provient) — sert de valeur de départ pour la prochaine série de cet exercice.
  */
-function findLastSet(allSessions: Session[], exerciseId: string): SetLog | null {
+function findLastSet(allSessions: Session[], exerciseId: string): (SetLog & { date: string }) | null {
   const candidates = [...allSessions].sort((a, b) => b.startedAt.localeCompare(a.startedAt))
   for (const session of candidates) {
     const match = session.exercises.find((e) => e.exerciseId === exerciseId)
     if (!match) continue
     const done = match.sets.filter((set) => set.done && (set.weight > 0 || set.reps > 0))
-    if (done.length) return done[done.length - 1]
+    if (done.length) return { ...done[done.length - 1], date: session.date }
   }
   return null
 }
@@ -213,9 +213,15 @@ function findLastSet(allSessions: Session[], exerciseId: string): SetLog | null 
  * objectif efface donc la mémoire de l'ancien nombre de répétitions ; sans
  * objectif défini (exercice hors programme), on reprend celles de la dernière fois.
  */
-function carryOverValues(last: SetLog | null, targetReps?: number | null): Partial<Pick<SetLog, 'weight' | 'reps'>> {
+function carryOverValues(
+  last: (SetLog & { date: string }) | null,
+  targetReps?: number | null,
+  plan?: PlanExercise,
+): Partial<Pick<SetLog, 'weight' | 'reps'>> {
+  // La charge visée du programme ne sert que tant qu'aucune séance plus récente n'existe : ensuite l'historique fait foi.
+  const useTarget = Boolean(plan?.targetWeight) && (!last || !plan?.targetWeightDate || last.date <= plan.targetWeightDate)
   return {
-    ...(last ? { weight: last.weight } : {}),
+    ...(useTarget ? { weight: plan!.targetWeight! } : last ? { weight: last.weight } : {}),
     ...(targetReps ? { reps: targetReps } : last ? { reps: last.reps } : {}),
   }
 }
@@ -458,6 +464,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const carry = carryOverValues(
               findLastSet(sessions, planExercise.exerciseId),
               targetRepsFromPlan(planExercise.reps),
+              planExercise,
             )
             return {
               id: newId(),
@@ -487,7 +494,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const session = sessions.find((s) => s.id === sessionId)
       const workout = session?.workoutId ? workouts.find((w) => w.id === session.workoutId) : undefined
       const planExercise = workout?.exercises.find((e) => e.exerciseId === exerciseId)
-      const carry = carryOverValues(findLastSet(sessions, exerciseId), targetRepsFromPlan(planExercise?.reps))
+      const carry = carryOverValues(findLastSet(sessions, exerciseId), targetRepsFromPlan(planExercise?.reps), planExercise)
       setSessions((current) =>
         current.map((s) =>
           s.id !== sessionId

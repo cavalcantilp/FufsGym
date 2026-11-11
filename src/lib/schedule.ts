@@ -4,12 +4,12 @@ import type { DaySchedule, ScheduleLetter, Weekday } from './types'
 /** Lundi en tête, comme le reste de l'appli (calendrier, semaine de la barre d'onglets). */
 export const WEEKDAYS: Weekday[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 
-export const SCHEDULE_LETTERS: ScheduleLetter[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+export const SCHEDULE_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('') as ScheduleLetter[]
 
 /** Maximum de jours de programme différents pouvant tomber sur une même date. */
 export const MAX_PER_DAY = 3
 
-/** Une couleur bien distincte par lettre, indépendante des couleurs de groupe musculaire. */
+/** Une couleur par lettre, indépendante des couleurs de groupe musculaire. */
 export const LETTER_COLOR: Record<ScheduleLetter, string> = {
   A: '#ef4444',
   B: '#f97316',
@@ -21,6 +21,22 @@ export const LETTER_COLOR: Record<ScheduleLetter, string> = {
   H: '#3b82f6',
   I: '#a855f7',
   J: '#ec4899',
+  K: '#f43f5e',
+  L: '#fb923c',
+  M: '#eab308',
+  N: '#a3e635',
+  O: '#34d399',
+  P: '#2dd4bf',
+  Q: '#38bdf8',
+  R: '#6366f1',
+  S: '#c084fc',
+  T: '#f472b6',
+  U: '#fca5a5',
+  V: '#fdba74',
+  W: '#fde047',
+  X: '#86efac',
+  Y: '#7dd3fc',
+  Z: '#c4b5fd',
 }
 
 export function weekdayOf(dateKey: string): Weekday {
@@ -50,7 +66,7 @@ export function countByWeekday(schedules: DaySchedule[], weekday: Weekday, exclu
   return schedules.filter((s) => s.id !== excludeId && s.weekdays.includes(weekday)).length
 }
 
-/** Prochaine lettre libre, dans l'ordre, ou `null` si les dix sont prises. */
+/** Prochaine lettre libre, dans l'ordre, ou `null` si toutes sont prises. */
 export function nextFreeLetter(schedules: DaySchedule[]): ScheduleLetter | null {
   const used = new Set(schedules.map((s) => s.letter))
   return SCHEDULE_LETTERS.find((letter) => !used.has(letter)) ?? null

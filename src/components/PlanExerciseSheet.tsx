@@ -5,13 +5,15 @@ import { NumberField } from './NumberField'
 import { ExerciseInfoButton } from './ExerciseInfoButton'
 import { exerciseMediaImages } from '../lib/exerciseMedia'
 import { exerciseName } from '../lib/exercises'
+import { todayKey } from '../lib/date'
+import { displayWeightValue, fromDisplayWeight } from '../lib/weightUnit'
 import { DEFAULT_REST_SEC, REST_STEP_SEC, MIN_REST_SEC, formatRestTime } from '../lib/rest'
 import type { Exercise, PlanExercise } from '../lib/types'
 
 interface PlanExerciseSheetProps {
   exercise: Exercise
   initial?: PlanExercise
-  onConfirm: (entry: { sets: number; reps: string; note?: string; restSec: number }) => void
+  onConfirm: (entry: { sets: number; reps: string; note?: string; restSec: number; targetWeight?: number; targetWeightDate?: string }) => void
   onClose: () => void
 }
 
@@ -22,13 +24,16 @@ interface PlanExerciseSheetProps {
  * (plutôt qu'une feuille modale) pour éviter les sauts au clavier virtuel.
  */
 export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: PlanExerciseSheetProps) {
-  const { t } = useApp()
+  const { t, units } = useApp()
   const isCardio = exercise.muscle === 'cardio'
   const isHold = exercise.trackingType === 'duration' && !isCardio
   const [sets, setSets] = useState(initial?.sets ?? 3)
   const [reps, setReps] = useState(initial?.reps ?? (isCardio ? '' : isHold ? '' : t('planEx.repsPlaceholder')))
   const [restSec, setRestSec] = useState(initial?.restSec ?? DEFAULT_REST_SEC)
   const [note, setNote] = useState(initial?.note ?? '')
+  const [weightText, setWeightText] = useState(
+    initial?.targetWeight ? String(displayWeightValue(initial.targetWeight, units.weight)) : '',
+  )
 
   const submit = () => {
     const fallbackReps = isHold
@@ -36,7 +41,18 @@ export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: Pla
       : isCardio
         ? t('planEx.durationPlaceholder')
         : t('planEx.repsPlaceholder')
+    const parsedWeight = parseFloat(weightText.replace(',', '.'))
+    const targetWeight =
+      !isCardio && !isHold && Number.isFinite(parsedWeight) && parsedWeight > 0
+        ? fromDisplayWeight(parsedWeight, units.weight)
+        : undefined
+    const unchanged =
+      initial?.targetWeight !== undefined &&
+      targetWeight !== undefined &&
+      displayWeightValue(initial.targetWeight, units.weight) === displayWeightValue(targetWeight, units.weight)
     onConfirm({
+      targetWeight: unchanged ? initial?.targetWeight : targetWeight,
+      targetWeightDate: targetWeight === undefined ? undefined : unchanged ? initial?.targetWeightDate : todayKey(),
       sets: isCardio ? 1 : sets,
       reps: reps.trim() || fallbackReps,
       note: note.trim() || undefined,
@@ -87,6 +103,19 @@ export function PlanExerciseSheet({ exercise, initial, onConfirm, onClose }: Pla
                 placeholder={t('planEx.repsPlaceholder')}
               />
             </div>
+          </div>
+        )}
+        {isCardio || isHold ? null : (
+          <div className="field">
+            <label htmlFor="plan-ex-weight">{t('planEx.targetWeight', { unit: units.weight })}</label>
+            <input
+              id="plan-ex-weight"
+              type="text"
+              inputMode="decimal"
+              value={weightText}
+              onChange={(event) => setWeightText(event.target.value)}
+              placeholder="—"
+            />
           </div>
         )}
         <div className="field">

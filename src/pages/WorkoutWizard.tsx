@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { FormPage } from '../components/FormPage'
 import { ExercisePicker } from '../components/ExercisePicker'
@@ -7,14 +7,18 @@ import { WeekdayPicker } from '../components/WeekdayPicker'
 import { IconCheck, IconPlus, IconTrash } from '../components/icons'
 import { exerciseName, muscleLabel } from '../lib/exercises'
 import { DEFAULT_REST_SEC, formatRestTime } from '../lib/rest'
+import { todayKey } from '../lib/date'
+import { formatWeight } from '../lib/weightUnit'
 import {
   WIZARD_FOCUS,
   WIZARD_GOALS,
   WIZARD_INJURIES,
   WIZARD_MINUTES,
   WIZARD_TEMPLATES,
+  buildWizardHistory,
   estimateMinutes,
   generateWorkouts,
+  suggestAnswers,
   type ProposedWorkout,
   type WizardAnswers,
 } from '../lib/workoutWizard'
@@ -43,8 +47,9 @@ function toggle<T>(list: T[], value: T): T[] {
 
 /** Assistant de création : quelques questions, puis une proposition d'entraînement(s) modifiable avant validation. */
 export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCancel: () => void }) {
-  const { t, workouts, exerciseById, addGeneratedWorkouts } = useApp()
-  const [answers, setAnswers] = useState<WizardAnswers>(DEFAULT_ANSWERS)
+  const { t, units, workouts, sessions, exerciseById, addGeneratedWorkouts } = useApp()
+  const prefilled = useMemo(() => suggestAnswers(sessions, todayKey()), [sessions])
+  const [answers, setAnswers] = useState<WizardAnswers>(() => ({ ...DEFAULT_ANSWERS, ...prefilled }))
   const [stepIndex, setStepIndex] = useState(0)
   const [drafts, setDrafts] = useState<Draft[]>([])
   const [editing, setEditing] = useState<{ workout: number; entry: number } | null>(null)
@@ -61,7 +66,7 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
     if (steps[stepIndex + 1] === 'proposal') {
       const taken = new Set(workouts.map((w) => w.name.trim().toLowerCase()))
       setDrafts(
-        generateWorkouts(answers).map((proposal) => {
+        generateWorkouts(answers, buildWizardHistory(sessions, todayKey())).map((proposal) => {
           const base = `${t(`wizard.name.${proposal.template}` as TranslationKey)}${proposal.variant ? ` ${proposal.variant}` : ''}`
           let name = base
           for (let n = 2; taken.has(name.toLowerCase()); n++) name = `${base} (${n})`
@@ -142,6 +147,7 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
       break
     case 'sessions':
       question = t('wizard.sessions.q')
+      if (prefilled.sessionsPerWeek) hint = t('wizard.prefilled')
       body = (
         <div className="wizard-number-row">
           {[2, 3, 4, 5, 6].map((count) => (
@@ -171,6 +177,7 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
       break
     case 'minutes':
       question = t('wizard.minutes.q')
+      if (prefilled.minutes) hint = t('wizard.prefilled')
       body = (
         <div className="wizard-number-row">
           {WIZARD_MINUTES.map((minutes) => (
@@ -260,7 +267,9 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
                       >
                         <span className="name">{info ? exerciseName(info, t) : t('exercise.unknown')}</span>
                         <span className="target">
-                          {isCardio ? entry.reps : `${entry.sets} × ${entry.reps} · ${formatRestTime(entry.restSec ?? DEFAULT_REST_SEC)}`}
+                          {isCardio
+                            ? entry.reps
+                            : `${entry.sets} × ${entry.reps}${entry.targetWeight ? ` · ${formatWeight(entry.targetWeight, units.weight)}` : ''} · ${formatRestTime(entry.restSec ?? DEFAULT_REST_SEC)}`}
                         </span>
                       </button>
                       <button
@@ -292,6 +301,9 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
               </div>
             </div>
           ))}
+          {drafts.some((draft) => draft.exercises.some((entry) => entry.targetWeight)) ? (
+            <p className="hint">{t('wizard.proposal.loadsHint')}</p>
+          ) : null}
           <p className="hint">{t('wizard.disclaimer')}</p>
         </>
       )

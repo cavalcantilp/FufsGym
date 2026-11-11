@@ -14,6 +14,7 @@ import { DEFAULT_REST_SEC, formatRestTime } from '../lib/rest'
 import { groupBySuperset } from '../lib/superset'
 import { LETTER_COLOR } from '../lib/schedule'
 import { formatShort } from '../lib/date'
+import { formatWeight } from '../lib/weightUnit'
 import { IconArrowDown, IconArrowUp, IconCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
 import type { TranslationKey } from '../i18n/translations'
 import type { DaySchedule, Exercise, Lang, PlanExercise, Workout } from '../lib/types'
@@ -52,6 +53,7 @@ function WorkoutDetail({
 }) {
   const {
     t,
+    units,
     scheduleForWorkout,
     renameWorkout,
     removeWorkout,
@@ -176,7 +178,8 @@ function WorkoutDetail({
                     <span className="info">
                       <span className="name">{info ? exerciseName(info, t) : ''}</span>
                       <span className="target">
-                        {info?.muscle === 'cardio' ? entry.reps : `${entry.sets} × ${entry.reps}`} ·{' '}
+                        {info?.muscle === 'cardio' ? entry.reps : `${entry.sets} × ${entry.reps}`}
+                        {entry.targetWeight ? ` · ${formatWeight(entry.targetWeight, units.weight)}` : ''} ·{' '}
                         {formatRestTime(entry.restSec ?? DEFAULT_REST_SEC)}
                         {entry.note ? ` · ${entry.note}` : ''}
                       </span>

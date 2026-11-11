@@ -1,4 +1,4 @@
-import type { MuscleGroup, PlanExercise, Weekday } from './types'
+import type { MuscleGroup, PlanExercise, Session, Weekday } from './types'
 
 /**
  * Générateur d'entraînements de l'assistant : règles simples, sans réseau.
@@ -33,6 +33,16 @@ export interface ProposedWorkout {
   weekdays: Weekday[]
 }
 
+/** Ce que l'historique apporte au générateur : exercices réellement pratiqués et dernières charges. */
+export interface WizardHistory {
+  /** Nombre de séances où l'exercice a été réalisé. */
+  usage: Record<string, number>
+  /** Séries validées de la séance la plus récente pour chaque exercice. */
+  lastSets: Record<string, { weight: number; reps: number }[]>
+  /** Jour de génération (YYYY-MM-DD), pour dater les charges proposées. */
+  today: string
+}
+
 export const WIZARD_MINUTES = [30, 45, 60, 75, 90]
 export const WIZARD_GOALS: WizardGoal[] = ['hypertrophy', 'fatLoss', 'weightLoss', 'strength']
 export const WIZARD_INJURIES: WizardInjury[] = ['shoulders', 'lowerBack', 'knees', 'elbows', 'hips']
@@ -47,28 +57,28 @@ interface Slot {
 }
 
 const SLOTS = {
-  chestPress: { group: 'chest', compound: true, ids: ['chest-bench-press', 'chest-dumbbell-press', 'chest-machine-press', 'chest-pushup'] },
+  chestPress: { group: 'chest', compound: true, ids: ['chest-bench-press', 'chest-dumbbell-press', 'chest-machine-press', 'chest-pushup', 'chest-iso-lateral-bench-press', 'chest-iso-lateral-decline-press', 'chest-dips'] },
   chestIncline: { group: 'chest', compound: true, ids: ['chest-incline-dumbbell-press', 'chest-incline-bench', 'chest-smith-incline-press', 'chest-iso-lateral-incline-press'] },
   chestFly: { group: 'chest', compound: false, ids: ['chest-cable-crossover', 'chest-pec-deck', 'chest-flye'] },
-  vertPull: { group: 'back', compound: true, ids: ['back-lat-pulldown', 'back-pullup', 'back-assisted-pullup', 'back-iso-lateral-high-row'] },
-  horizPull: { group: 'back', compound: true, ids: ['back-seated-row', 'back-dumbbell-row', 'back-barbell-row', 'back-iso-lateral-low-row'] },
-  hinge: { group: 'legs', compound: true, ids: ['legs-romanian-deadlift', 'back-deadlift', 'legs-hip-thrust-machine', 'back-hyperextension'] },
+  vertPull: { group: 'back', compound: true, ids: ['back-lat-pulldown', 'back-pullup', 'back-assisted-pullup', 'back-iso-lateral-high-row', 'back-lat-pulldown-life-fitness'] },
+  horizPull: { group: 'back', compound: true, ids: ['back-seated-row', 'back-dumbbell-row', 'back-barbell-row', 'back-iso-lateral-low-row', 'back-seated-row-life-fitness'] },
+  hinge: { group: 'legs', compound: true, ids: ['legs-romanian-deadlift', 'back-deadlift', 'legs-hip-thrust-machine', 'back-hyperextension', 'back-45-degree-back-extension-hammer-strength'] },
   squat: { group: 'legs', compound: true, ids: ['legs-squat', 'legs-leg-press', 'legs-hack-squat', 'legs-front-squat'] },
   legSingle: { group: 'legs', compound: true, ids: ['legs-lunge', 'legs-leg-press', 'legs-iso-lateral-leg-press'] },
-  quadIso: { group: 'legs', compound: false, ids: ['legs-leg-extension'] },
-  hamIso: { group: 'legs', compound: false, ids: ['legs-leg-curl', 'legs-iso-lateral-leg-curl'] },
-  glute: { group: 'legs', compound: false, ids: ['legs-hip-thrust', 'legs-hip-thrust-machine', 'legs-hip-abduction'] },
+  quadIso: { group: 'legs', compound: false, ids: ['legs-leg-extension', 'legs-leg-extension-life-fitness'] },
+  hamIso: { group: 'legs', compound: false, ids: ['legs-leg-curl', 'legs-iso-lateral-leg-curl', 'legs-seated-leg-curl-life-fitness'] },
+  glute: { group: 'legs', compound: false, ids: ['legs-hip-thrust', 'legs-hip-thrust-machine', 'legs-hip-abduction', 'legs-hip-adduction'] },
   calves: { group: 'legs', compound: false, ids: ['legs-calf-raise'] },
-  shoulderPress: { group: 'shoulders', compound: true, ids: ['shoulders-dumbbell-press', 'shoulders-military-press', 'shoulders-machine-press', 'shoulders-arnold-press'] },
-  lateral: { group: 'shoulders', compound: false, ids: ['shoulders-lateral-raise', 'shoulders-cable-lateral-raise', 'shoulders-lateral-raise-machine'] },
-  rearDelt: { group: 'shoulders', compound: false, ids: ['shoulders-face-pull', 'shoulders-rear-delt-flye'] },
-  biceps: { group: 'arms', compound: false, ids: ['arms-dumbbell-curl', 'arms-barbell-curl', 'arms-cable-curl'] },
+  shoulderPress: { group: 'shoulders', compound: true, ids: ['shoulders-dumbbell-press', 'shoulders-military-press', 'shoulders-machine-press', 'shoulders-arnold-press', 'shoulders-iso-lateral-press'] },
+  lateral: { group: 'shoulders', compound: false, ids: ['shoulders-lateral-raise', 'shoulders-cable-lateral-raise', 'shoulders-lateral-raise-machine', 'shoulders-chest-supported-lateral-raise', 'shoulders-lateral-raise-machine-life-fitness', 'shoulders-lateral-raise-machine-hammer-strength'] },
+  rearDelt: { group: 'shoulders', compound: false, ids: ['shoulders-face-pull', 'shoulders-rear-delt-flye', 'shoulders-rear-delt-flye-life-fitness'] },
+  biceps: { group: 'arms', compound: false, ids: ['arms-dumbbell-curl', 'arms-barbell-curl', 'arms-cable-curl', 'arms-biceps-curl-life-fitness', 'arms-iso-lateral-biceps-curl'] },
   biceps2: { group: 'arms', compound: false, ids: ['arms-hammer-curl', 'arms-preacher-curl', 'arms-cable-curl'] },
-  triceps: { group: 'arms', compound: false, ids: ['arms-triceps-pushdown', 'arms-triceps-extension-machine', 'arms-skullcrusher'] },
+  triceps: { group: 'arms', compound: false, ids: ['arms-triceps-pushdown', 'arms-triceps-extension-machine', 'arms-skullcrusher', 'arms-triceps-press-life-fitness', 'arms-seated-dip-hammer-strength', 'arms-iso-lateral-triceps-dip'] },
   triceps2: { group: 'arms', compound: false, ids: ['arms-skullcrusher', 'arms-triceps-extension-machine', 'arms-triceps-dip'] },
-  core: { group: 'core', compound: false, ids: ['core-cable-crunch', 'core-leg-raise', 'core-crunch'] },
-  core2: { group: 'core', compound: false, ids: ['core-leg-raise', 'core-russian-twist', 'core-crunch'] },
-  cardio: { group: 'cardio', compound: false, ids: ['cardio-treadmill-walk', 'cardio-cycling', 'cardio-elliptical', 'cardio-rowing'] },
+  core: { group: 'core', compound: false, ids: ['core-cable-crunch', 'core-leg-raise', 'core-crunch', 'core-abdominal-crunch-machine-life-fitness'] },
+  core2: { group: 'core', compound: false, ids: ['core-leg-raise', 'core-russian-twist', 'core-crunch', 'core-leg-lift-life-fitness', 'core-torso-rotation-life-fitness'] },
+  cardio: { group: 'cardio', compound: false, ids: ['cardio-treadmill-walk', 'cardio-cycling', 'cardio-elliptical', 'cardio-rowing', 'cardio-stair-climber', 'cardio-echo-bike', 'cardio-running', 'cardio-jump-rope'] },
 } satisfies Record<string, Slot>
 
 type SlotKey = keyof typeof SLOTS
@@ -98,13 +108,14 @@ const INJURY_EXCLUDES: Record<WizardInjury, string[]> = {
   shoulders: [
     'chest-bench-press', 'chest-incline-bench', 'chest-dips', 'back-pullup', 'arms-triceps-dip',
     'shoulders-military-press', 'shoulders-arnold-press', 'shoulders-dumbbell-press', 'shoulders-machine-press', 'shoulders-upright-row',
+    'shoulders-iso-lateral-press', 'arms-seated-dip-hammer-strength', 'arms-iso-lateral-triceps-dip',
   ],
   lowerBack: [
     'back-deadlift', 'legs-romanian-deadlift', 'back-barbell-row', 'back-hyperextension', 'legs-squat', 'legs-front-squat',
-    'shoulders-military-press', 'core-russian-twist',
+    'shoulders-military-press', 'core-russian-twist', 'back-45-degree-back-extension-hammer-strength', 'core-torso-rotation-life-fitness',
   ],
-  knees: ['legs-squat', 'legs-front-squat', 'legs-lunge', 'legs-hack-squat', 'legs-leg-extension', 'cardio-running', 'cardio-jump-rope'],
-  elbows: ['arms-skullcrusher', 'arms-close-grip-bench', 'arms-triceps-dip', 'chest-dips', 'arms-barbell-curl', 'back-pullup'],
+  knees: ['legs-squat', 'legs-front-squat', 'legs-lunge', 'legs-hack-squat', 'legs-leg-extension', 'legs-leg-extension-life-fitness', 'cardio-running', 'cardio-jump-rope', 'cardio-stair-climber'],
+  elbows: ['arms-skullcrusher', 'arms-close-grip-bench', 'arms-triceps-dip', 'chest-dips', 'arms-barbell-curl', 'back-pullup', 'arms-seated-dip-hammer-strength', 'arms-iso-lateral-triceps-dip'],
   hips: ['legs-squat', 'legs-front-squat', 'legs-lunge', 'legs-hip-thrust', 'back-deadlift', 'legs-romanian-deadlift'],
 }
 
@@ -164,7 +175,65 @@ export function estimateMinutes(exercises: Omit<PlanExercise, 'id'>[]): number {
   return Math.round(seconds / 60)
 }
 
-function buildWorkout(template: WizardTemplate, variantIndex: number, answers: WizardAnswers): Omit<PlanExercise, 'id'>[] {
+export function buildWizardHistory(sessions: Session[], today: string): WizardHistory {
+  const usage: Record<string, number> = {}
+  const lastSets: WizardHistory['lastSets'] = {}
+  const ordered = [...sessions].sort((a, b) => b.startedAt.localeCompare(a.startedAt))
+  for (const session of ordered) {
+    for (const entry of session.exercises) {
+      const done = entry.sets.filter((set) => set.done)
+      if (!done.length) continue
+      usage[entry.exerciseId] = (usage[entry.exerciseId] ?? 0) + 1
+      if (!lastSets[entry.exerciseId]) lastSets[entry.exerciseId] = done.map((set) => ({ weight: set.weight, reps: set.reps }))
+    }
+  }
+  return { usage, lastSets, today }
+}
+
+/**
+ * Charge proposée (kg) à partir de la dernière séance : la même, ou un palier de plus
+ * si toutes les séries avaient atteint le haut de la fourchette de répétitions visée.
+ */
+export function suggestWeight(lastSets: { weight: number; reps: number }[] | undefined, repsText: string): number | undefined {
+  const loaded = (lastSets ?? []).filter((set) => set.weight > 0)
+  if (!loaded.length) return undefined
+  const top = Math.max(...loaded.map((set) => set.weight))
+  const targetReps = Math.max(0, ...(repsText.match(/\d+/g) ?? []).map(Number))
+  const reachedTop = targetReps > 0 && loaded.every((set) => set.reps >= targetReps)
+  return reachedTop ? top + (top >= 20 ? 2.5 : 1) : top
+}
+
+/** Réponses préremplies d'après l'historique : fréquence réelle et durée habituelle des séances. */
+export function suggestAnswers(sessions: Session[], today: string): Partial<Pick<WizardAnswers, 'sessionsPerWeek' | 'minutes'>> {
+  const finished = sessions.filter((session) => session.finishedAt)
+  const suggestion: Partial<Pick<WizardAnswers, 'sessionsPerWeek' | 'minutes'>> = {}
+
+  const since = new Date(new Date(`${today}T00:00:00`).getTime() - 28 * 86_400_000).toISOString().slice(0, 10)
+  const recentDays = new Set(finished.filter((session) => session.date > since).map((session) => session.date))
+  if (recentDays.size >= 3) suggestion.sessionsPerWeek = Math.min(6, Math.max(2, Math.round(recentDays.size / 4)))
+
+  const durations = [...finished]
+    .sort((a, b) => b.startedAt.localeCompare(a.startedAt))
+    .slice(0, 10)
+    .map((session) => (new Date(session.finishedAt!).getTime() - new Date(session.startedAt).getTime()) / 60_000)
+    .filter((minutes) => minutes >= 10 && minutes <= 180)
+    .sort((a, b) => a - b)
+  if (durations.length >= 3) {
+    const median = durations[Math.floor(durations.length / 2)]
+    suggestion.minutes = WIZARD_MINUTES.reduce((best, option) => (Math.abs(option - median) < Math.abs(best - median) ? option : best))
+  }
+  return suggestion
+}
+
+function buildWorkout(
+  template: WizardTemplate,
+  variantIndex: number,
+  answers: WizardAnswers,
+  history?: WizardHistory,
+): Omit<PlanExercise, 'id'>[] {
+  // Les exercices déjà pratiqués passent devant les candidats par défaut (tri stable : l'ordre par défaut départage).
+  const ranked = (ids: string[]) =>
+    history ? [...ids].sort((a, b) => (history.usage[b] ?? 0) - (history.usage[a] ?? 0)) : ids
   const params = GOAL_PARAMS[answers.goal]
   const excluded = new Set(answers.injuries.flatMap((injury) => INJURY_EXCLUDES[injury]))
   const focus = new Set<MuscleGroup>(answers.focus)
@@ -187,7 +256,8 @@ function buildWorkout(template: WizardTemplate, variantIndex: number, answers: W
   for (const { key, index } of prioritized) {
     const slot: Slot = SLOTS[key]
     // La variante décale le premier choix pour que deux séances du même type ne soient pas identiques.
-    const candidates = slot.ids.map((_, i) => slot.ids[(i + variantIndex) % slot.ids.length])
+    const ids = ranked(slot.ids)
+    const candidates = ids.map((_, i) => ids[(i + variantIndex) % ids.length])
     const exerciseId = candidates.find((id) => !excluded.has(id) && !used.has(id))
     if (!exerciseId) continue
     used.add(exerciseId)
@@ -195,14 +265,24 @@ function buildWorkout(template: WizardTemplate, variantIndex: number, answers: W
     picked.push({
       key,
       index,
-      entry: { exerciseId, sets: base.sets + (focus.has(slot.group) ? 1 : 0), reps: base.reps, restSec: base.restSec },
+      entry: (() => {
+        const targetWeight = suggestWeight(history?.lastSets[exerciseId], base.reps)
+        return {
+          exerciseId,
+          sets: base.sets + (focus.has(slot.group) ? 1 : 0),
+          reps: base.reps,
+          restSec: base.restSec,
+          ...(targetWeight ? { targetWeight, targetWeightDate: history!.today } : {}),
+        }
+      })(),
     })
   }
 
   const cardio: Omit<PlanExercise, 'id'>[] = []
   if (params.cardioFinisher) {
     const slot: Slot = SLOTS.cardio
-    const exerciseId = slot.ids.map((_, i) => slot.ids[(i + variantIndex) % slot.ids.length]).find((id) => !excluded.has(id))
+    const ids = ranked(slot.ids)
+    const exerciseId = ids.map((_, i) => ids[(i + variantIndex) % ids.length]).find((id) => !excluded.has(id))
     if (exerciseId) cardio.push({ exerciseId, sets: 1, reps: `${CARDIO_MINUTES} min`, restSec: 60 })
   }
 
@@ -220,9 +300,9 @@ function buildWorkout(template: WizardTemplate, variantIndex: number, answers: W
 }
 
 /** Construit la proposition complète : une séance, ou autant que de jours d'entraînement par semaine. */
-export function generateWorkouts(answers: WizardAnswers): ProposedWorkout[] {
+export function generateWorkouts(answers: WizardAnswers, history?: WizardHistory): ProposedWorkout[] {
   if (answers.mode === 'single') {
-    return [{ template: answers.singleTemplate, exercises: buildWorkout(answers.singleTemplate, 0, answers), weekdays: [] }]
+    return [{ template: answers.singleTemplate, exercises: buildWorkout(answers.singleTemplate, 0, answers, history), weekdays: [] }]
   }
   const split = splitFor(answers.sessionsPerWeek, answers.goal)
   const days = WEEKDAYS_BY_COUNT[split.length] ?? []
@@ -234,7 +314,7 @@ export function generateWorkouts(answers: WizardAnswers): ProposedWorkout[] {
     return {
       template,
       variant: repeated ? String.fromCharCode(65 + variantIndex) : undefined,
-      exercises: buildWorkout(template, variantIndex, answers),
+      exercises: buildWorkout(template, variantIndex, answers, history),
       weekdays: days[index] ? [days[index]] : [],
     }
   })
