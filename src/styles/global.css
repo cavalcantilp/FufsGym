@@ -2988,3 +2988,132 @@ h2,
     transparent 10px
   );
 }
+
+/* ---------- Assistant de création d'entraînement ---------- */
+
+.wizard-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--card-bg);
+  box-shadow: inset 0 0 0 1.5px transparent;
+  text-align: left;
+  transition: box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.wizard-option.active {
+  background: rgba(255, 77, 77, 0.1);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.wizard-option-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wizard-option .title {
+  font-weight: 800;
+  font-size: 0.98rem;
+}
+
+.wizard-option .desc {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--text-sub);
+}
+
+.wizard-option-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--input-bg);
+  color: var(--accent-ink);
+}
+
+.wizard-option.active .wizard-option-mark {
+  background: var(--accent);
+}
+
+.wizard-number-row {
+  display: flex;
+  gap: 8px;
+}
+
+.wizard-number {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 18px 0;
+  border-radius: 16px;
+  background: var(--card-bg);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.wizard-number small {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-sub);
+}
+
+.wizard-number.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.wizard-number.active small {
+  color: var(--accent-ink);
+}
+
+.wizard-exercises {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wizard-exercise {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 4px 4px 14px;
+  border-radius: 14px;
+  background: var(--input-bg);
+}
+
+.wizard-exercise-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+  text-align: left;
+}
+
+.wizard-exercise .name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.wizard-exercise .target {
+  font-size: 0.76rem;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barre d'étapes posée directement dans une page : ne doit pas s'étirer en hauteur. */
+.screen > .progress-track {
+  flex: none;
+}

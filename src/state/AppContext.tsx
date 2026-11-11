@@ -24,6 +24,7 @@ import type {
   SessionExercise,
   SetLog,
   Units,
+  Weekday,
   Workout,
 } from '../lib/types'
 
@@ -63,6 +64,8 @@ interface AppState {
   addExercise: (workoutId: string, entry: Omit<PlanExercise, 'id'>) => PlanExercise
   /** Remplace intégralement les exercices d'un entraînement existant, en conservant son id (et donc sa programmation). */
   replaceWorkoutExercises: (workoutId: string, exercises: Omit<PlanExercise, 'id'>[]) => void
+  /** Crée d'un coup plusieurs entraînements (assistant), chacun programmé sur ses jours s'il en a et qu'une lettre est libre. */
+  addGeneratedWorkouts: (items: { name: string; exercises: Omit<PlanExercise, 'id'>[]; weekdays: Weekday[] }[]) => void
   updateExercise: (workoutId: string, entryId: string, patch: Partial<PlanExercise>) => void
   removeExercise: (workoutId: string, entryId: string) => void
   setSupersetLink: (workoutId: string, exerciseId: string, linked: boolean) => void
@@ -338,6 +341,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ),
     )
   }, [])
+
+  const addGeneratedWorkouts = useCallback(
+    (items: { name: string; exercises: Omit<PlanExercise, 'id'>[]; weekdays: Weekday[] }[]) => {
+      const created = items.map((item) => ({
+        workout: {
+          id: newId(),
+          name: item.name,
+          exercises: item.exercises.map((entry) => ({ ...entry, id: newId() })),
+          createdAt: new Date().toISOString(),
+        } satisfies Workout,
+        weekdays: item.weekdays,
+      }))
+      setWorkouts((current) => [...current, ...created.map((entry) => entry.workout)])
+      setSchedules((current) => {
+        const next = [...current]
+        for (const entry of created) {
+          if (!entry.weekdays.length) continue
+          const letter = nextFreeLetter(next)
+          if (!letter) break
+          next.push({ id: newId(), workoutId: entry.workout.id, letter, weekdays: entry.weekdays, createdAt: todayKey() })
+        }
+        return next
+      })
+    },
+    [],
+  )
 
   const removeExercise = useCallback((workoutId: string, entryId: string) => {
     setWorkouts((current) =>
@@ -750,6 +779,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeWorkout,
       addExercise,
       replaceWorkoutExercises,
+      addGeneratedWorkouts,
       updateExercise,
       removeExercise,
       setSupersetLink,
@@ -808,6 +838,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeWorkout,
       addExercise,
       replaceWorkoutExercises,
+      addGeneratedWorkouts,
       updateExercise,
       removeExercise,
       setSupersetLink,

@@ -6,6 +6,7 @@ import { ExercisePicker } from '../components/ExercisePicker'
 import { PlanExerciseSheet } from '../components/PlanExerciseSheet'
 import { MuscleDiagram } from '../components/MuscleDiagram'
 import { ScheduleScreen } from './ScheduleScreen'
+import { WorkoutWizard } from './WorkoutWizard'
 import { MUSCLE_COLOR, exerciseName } from '../lib/exercises'
 import { aggregateActivation } from '../lib/exerciseActivation'
 import { ACTIVATION_STOPS, NEUTRAL_MUSCLE_COLOR, interpolateColor } from '../lib/colorScale'
@@ -291,6 +292,11 @@ export function PlanificationScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [schedulingId, setSchedulingId] = useState<string | null>(null)
   const [creatingNew, setCreatingNew] = useState(false)
+  const [wizardOpen, setWizardOpen] = useState(false)
+
+  if (wizardOpen) {
+    return <WorkoutWizard onDone={() => setWizardOpen(false)} onCancel={() => setWizardOpen(false)} />
+  }
 
   const scheduling = workouts.find((w) => w.id === schedulingId)
   if (scheduling) {
@@ -355,7 +361,12 @@ export function PlanificationScreen() {
         </div>
       )}
 
-      <button type="button" className="btn" onClick={() => setCreatingNew(true)}>
+      <button type="button" className="btn" onClick={() => setWizardOpen(true)}>
+        <IconCheck size={18} />
+        {t('wizard.entry')}
+      </button>
+
+      <button type="button" className="btn secondary" onClick={() => setCreatingNew(true)}>
         <IconPlus size={18} />
         {t('workout.new')}
       </button>
