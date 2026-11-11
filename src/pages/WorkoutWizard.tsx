@@ -13,6 +13,7 @@ import {
   WIZARD_FOCUS,
   WIZARD_GOALS,
   WIZARD_INJURIES,
+  WIZARD_LEVELS,
   WIZARD_MINUTES,
   WIZARD_TEMPLATES,
   buildWizardHistory,
@@ -25,7 +26,7 @@ import {
 import type { TranslationKey } from '../i18n/translations'
 import type { PlanExercise } from '../lib/types'
 
-type Step = 'mode' | 'sessions' | 'template' | 'minutes' | 'goal' | 'injuries' | 'focus' | 'proposal'
+type Step = 'mode' | 'sessions' | 'template' | 'minutes' | 'goal' | 'level' | 'injuries' | 'focus' | 'proposal'
 
 interface Draft extends ProposedWorkout {
   name: string
@@ -37,6 +38,7 @@ const DEFAULT_ANSWERS: WizardAnswers = {
   singleTemplate: 'full',
   minutes: 60,
   goal: 'hypertrophy',
+  level: 'regular',
   injuries: [],
   focus: [],
 }
@@ -55,7 +57,7 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
   const [editing, setEditing] = useState<{ workout: number; entry: number } | null>(null)
   const [pickingFor, setPickingFor] = useState<number | null>(null)
 
-  const steps: Step[] = ['mode', answers.mode === 'program' ? 'sessions' : 'template', 'minutes', 'goal', 'injuries', 'focus', 'proposal']
+  const steps: Step[] = ['mode', answers.mode === 'program' ? 'sessions' : 'template', 'minutes', 'goal', 'level', 'injuries', 'focus', 'proposal']
   const step = steps[stepIndex]
   const patch = (changes: Partial<WizardAnswers>) => setAnswers((current) => ({ ...current, ...changes }))
 
@@ -205,6 +207,22 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
               t(`wizard.goal.${goal}` as TranslationKey),
               t(`wizard.goal.${goal}Desc` as TranslationKey),
               () => patch({ goal }),
+            ),
+          )}
+        </div>
+      )
+      break
+    case 'level':
+      question = t('wizard.level.q')
+      body = (
+        <div className="stack">
+          {WIZARD_LEVELS.map((level) =>
+            option(
+              level,
+              answers.level === level,
+              t(`wizard.level.${level}` as TranslationKey),
+              t(`wizard.level.${level}Desc` as TranslationKey),
+              () => patch({ level }),
             ),
           )}
         </div>

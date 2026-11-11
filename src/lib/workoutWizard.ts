@@ -1,4 +1,5 @@
-import type { MuscleGroup, PlanExercise, Session, Weekday } from './types'
+import { BUILTIN_EXERCISES } from './exercises'
+import type { Equipment, MuscleGroup, PlanExercise, Session, Weekday } from './types'
 
 /**
  * Générateur d'entraînements de l'assistant : règles simples, sans réseau.
@@ -9,6 +10,8 @@ import type { MuscleGroup, PlanExercise, Session, Weekday } from './types'
 
 export type WizardMode = 'single' | 'program'
 export type WizardGoal = 'weightLoss' | 'fatLoss' | 'hypertrophy' | 'strength'
+/** Débutant ou reprise après une longue pause : machines guidées en priorité. */
+export type WizardLevel = 'beginner' | 'regular'
 export type WizardInjury = 'shoulders' | 'lowerBack' | 'knees' | 'elbows' | 'hips'
 export type WizardTemplate = 'full' | 'upper' | 'lower' | 'push' | 'pull' | 'legs'
 /** Groupes que l'on peut demander à renforcer : ceux de la bibliothèque, plus les fessiers (sous-ensemble des jambes). */
@@ -22,6 +25,7 @@ export interface WizardAnswers {
   singleTemplate: WizardTemplate
   minutes: number
   goal: WizardGoal
+  level: WizardLevel
   injuries: WizardInjury[]
   focus: FocusGroup[]
 }
@@ -46,6 +50,7 @@ export interface WizardHistory {
 
 export const WIZARD_MINUTES = [30, 45, 60, 75, 90]
 export const WIZARD_GOALS: WizardGoal[] = ['hypertrophy', 'fatLoss', 'weightLoss', 'strength']
+export const WIZARD_LEVELS: WizardLevel[] = ['beginner', 'regular']
 export const WIZARD_INJURIES: WizardInjury[] = ['shoulders', 'lowerBack', 'knees', 'elbows', 'hips']
 export const WIZARD_FOCUS: FocusGroup[] = ['chest', 'back', 'legs', 'glutes', 'shoulders', 'arms', 'core']
 export const WIZARD_TEMPLATES: WizardTemplate[] = ['full', 'upper', 'lower', 'push', 'pull', 'legs']
@@ -184,6 +189,16 @@ export function estimateMinutes(exercises: Omit<PlanExercise, 'id'>[]): number {
   return Math.round(seconds / 60)
 }
 
+const EQUIPMENT_BY_ID = new Map(BUILTIN_EXERCISES.map((exercise) => [exercise.id, exercise.equipment]))
+
+/** Ordre de préférence du matériel pour un débutant : du plus guidé au plus libre. */
+const BEGINNER_EQUIPMENT_RANK: Record<Equipment, number> = { machine: 0, cable: 1, bodyweight: 2, wheel: 2, dumbbell: 3, barbell: 4 }
+
+function beginnerRank(exerciseId: string): number {
+  const equipment = EQUIPMENT_BY_ID.get(exerciseId)
+  return equipment ? BEGINNER_EQUIPMENT_RANK[equipment] : 0
+}
+
 export function buildWizardHistory(sessions: Session[], today: string): WizardHistory {
   const usage: Record<string, number> = {}
   const lastSets: WizardHistory['lastSets'] = {}
@@ -240,9 +255,14 @@ function buildWorkout(
   answers: WizardAnswers,
   history?: WizardHistory,
 ): Omit<PlanExercise, 'id'>[] {
-  // Les exercices déjà pratiqués passent devant les candidats par défaut (tri stable : l'ordre par défaut départage).
+  // Débutant : le matériel le plus guidé d'abord. Ensuite, les exercices déjà pratiqués passent devant
+  // les candidats par défaut (tri stable : l'ordre par défaut départage).
+  const beginner = answers.level === 'beginner'
   const ranked = (ids: string[]) =>
-    history ? [...ids].sort((a, b) => (history.usage[b] ?? 0) - (history.usage[a] ?? 0)) : ids
+    [...ids].sort(
+      (a, b) =>
+        (beginner ? beginnerRank(a) - beginnerRank(b) : 0) || (history ? (history.usage[b] ?? 0) - (history.usage[a] ?? 0) : 0),
+    )
   const params = GOAL_PARAMS[answers.goal]
   const excluded = new Set(answers.injuries.flatMap((injury) => INJURY_EXCLUDES[injury]))
   const isFocus = (slot: Slot) => answers.focus.some((group) => slotMatches(slot, group))
