@@ -281,15 +281,14 @@ export function IconSpotifyLogo({ size = 24 }: IconProps) {
 export function Logo({ size = 84 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 96 96" aria-hidden="true">
-      <circle cx="48" cy="48" r="46" fill="#1e293b" stroke="#ef4444" strokeWidth="3" />
-      <path
-        d="M20 48h6M26 40v16M32 36v24M64 36v24M70 40v16M76 48h6M32 48h32"
-        fill="none"
-        stroke="#ef4444"
-        strokeWidth="5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <rect width="96" height="96" rx="22" fill="#ff4d4d" />
+      <g fill="#fff">
+        <rect x="30" y="43.5" width="36" height="9" rx="2" />
+        <rect x="21" y="27" width="11" height="42" rx="4.5" />
+        <rect x="64" y="27" width="11" height="42" rx="4.5" />
+        <rect x="10" y="35" width="8.5" height="26" rx="3.5" />
+        <rect x="77.5" y="35" width="8.5" height="26" rx="3.5" />
+      </g>
     </svg>
   )
 }
