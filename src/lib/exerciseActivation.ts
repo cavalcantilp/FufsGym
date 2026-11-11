@@ -1,6 +1,6 @@
 /**
  * Carte d'activation musculaire par exercice : intensité 0-1 par muscle précis
- * (identifiants du paquet `body-muscles`), pas juste par grand groupe. 1 = moteur
+ * (identifiants de `bodyAnatomy.ts`), pas juste par grand groupe. 1 = moteur
  * principal, ~0.5 = synergiste, ~0.2 = simple stabilisateur. Les exercices cardio
  * n'ont volontairement pas d'entrée : le schéma reste masqué pour eux, comme les
  * photos de démonstration le faisaient déjà pour les mouvements sans zone ciblée.

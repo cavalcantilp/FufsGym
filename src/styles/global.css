@@ -853,7 +853,7 @@ select {
   display: flex;
   gap: 14px;
   justify-content: center;
-  background: rgba(2, 6, 23, 0.35);
+  background: var(--bg);
   border-radius: var(--radius);
   padding: 14px 10px 8px;
 }
@@ -868,9 +868,8 @@ select {
 
 .body-view svg {
   width: 100%;
-  max-width: 150px;
+  max-width: 170px;
   height: auto;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
 }
 
 .body-view .view-label {
@@ -882,8 +881,16 @@ select {
 }
 
 .muscle-path {
-  stroke: var(--bg-elevated);
-  stroke-width: 0.12;
+  stroke: var(--bg);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  transition: fill 0.2s ease;
+}
+
+.body-part {
+  fill: #262b33;
+  stroke: var(--bg);
+  stroke-width: 2.5;
 }
 
 .legend {

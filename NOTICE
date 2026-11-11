@@ -2,15 +2,14 @@ FufsGym uses third-party assets under the following licenses:
 
 ---
 
-Body Muscles
-Copyright 2024 Ivan Vulović
+react-native-body-highlighter
 
-This product includes software developed by Ivan Vulović.
-https://github.com/vulovix/body-muscles
+This product includes anatomical SVG path data derived from
+react-native-body-highlighter, Copyright (c) 2022 ELABBASSI Hicham.
+https://github.com/HichamELBSI/react-native-body-highlighter
 
-Licensed under the Apache License, Version 2.0. Anatomical muscle SVG
-path data (src/lib/muscleData.ts) is derived from this package and used
-to render the muscle-activation diagrams in the exercise info sheet.
+Licensed under the MIT License. The path data (src/lib/bodyAnatomy.ts) is
+used to render the muscle-activation diagrams.
 
 ---
 

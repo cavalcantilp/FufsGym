@@ -3,7 +3,7 @@ import { EXERCISE_ACTIVATION } from './exerciseActivation'
 import type { Session, SetLog } from './types'
 
 export interface MuscleLoadResult {
-  /** Charge pondérée totale par muscle précis (identifiant `body-muscles`, ex. "chest-upper-left"). */
+  /** Charge pondérée totale par muscle précis (identifiant de `bodyAnatomy.ts`, ex. "chest-upper-left"). */
   byMuscle: Record<string, number>
 }
 
