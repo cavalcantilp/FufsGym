@@ -249,6 +249,10 @@ export function suggestAnswers(sessions: Session[], today: string): Partial<Pick
   return suggestion
 }
 
+const KEY_COMPOUND_SETS = 4
+const isKeyCompound = (slot: Slot) => slot.compound && (slot.group === 'chest' || slot.group === 'back')
+const PEC_DECK = 'chest-pec-deck'
+
 function buildWorkout(
   template: WizardTemplate,
   variantIndex: number,
@@ -274,8 +278,13 @@ function buildWorkout(
     if (relevant && extra) slots.push(extra)
   }
 
+  // Débutant : le pec deck figure dans toute séance qui travaille les pectoraux, et n'est jamais retiré.
+  const pecDeck = beginner && slots.includes('chestPress') && !excluded.has(PEC_DECK)
+  if (pecDeck && !slots.includes('chestFly')) slots.push('chestFly')
+  const isPecDeck = (key: SlotKey) => pecDeck && key === 'chestFly'
+
   // Priorité : les trois mouvements de base du modèle, puis les groupes à renforcer, puis le reste.
-  const rank = (key: SlotKey, index: number) => (index < 3 ? 0 : isFocus(SLOTS[key]) ? 1 : 2)
+  const rank = (key: SlotKey, index: number) => (index < 3 || isPecDeck(key) ? 0 : isFocus(SLOTS[key]) ? 1 : 2)
   const prioritized = slots
     .map((key, index) => ({ key, index }))
     .sort((a, b) => rank(a.key, a.index) - rank(b.key, b.index) || a.index - b.index)
@@ -287,7 +296,7 @@ function buildWorkout(
     // La variante décale le premier choix pour que deux séances du même type ne soient pas identiques.
     const ids = ranked(slot.ids)
     const candidates = ids.map((_, i) => ids[(i + variantIndex) % ids.length])
-    const exerciseId = candidates.find((id) => !excluded.has(id) && !used.has(id))
+    const exerciseId = isPecDeck(key) ? PEC_DECK : candidates.find((id) => !excluded.has(id) && !used.has(id))
     if (!exerciseId) continue
     used.add(exerciseId)
     const base = slot.compound ? params.compound : params.isolation
@@ -298,7 +307,8 @@ function buildWorkout(
         const targetWeight = suggestWeight(history?.lastSets[exerciseId], base.reps)
         return {
           exerciseId,
-          sets: base.sets + (isFocus(slot) ? 1 : 0),
+          // Polyarticulaires de dos et de pectoraux : toujours 4 séries au départ.
+          sets: isKeyCompound(slot) ? KEY_COMPOUND_SETS : base.sets + (isFocus(slot) ? 1 : 0),
           reps: base.reps,
           restSec: base.restSec,
           ...(targetWeight ? { targetWeight, targetWeightDate: history!.today } : {}),
@@ -317,12 +327,27 @@ function buildWorkout(
 
   // On retire les créneaux les moins prioritaires tant que la séance dépasse la durée voulue.
   const kept = [...picked]
-  // Plancher : les trois mouvements de base, plus un exercice pour un groupe à renforcer s'il y en a un.
-  const floor = 3 + (kept.slice(3).some((p) => isFocus(SLOTS[p.key])) ? 1 : 0)
+  // Plancher : les trois mouvements de base, le pec deck du débutant, plus un exercice pour un groupe à renforcer s'il y en a un.
+  const base = 3 + (pecDeck ? 1 : 0)
+  const floor = base + (kept.slice(base).some((p) => isFocus(SLOTS[p.key])) ? 1 : 0)
   while (kept.length > floor && estimateMinutes([...kept.map((p) => p.entry), ...cardio]) > answers.minutes) kept.pop()
-  // Encore trop long au plancher (séance courte, longs repos) : on retire une série partout.
-  while (estimateMinutes([...kept.map((p) => p.entry), ...cardio]) > answers.minutes && kept.some((p) => p.entry.sets > 2)) {
-    for (const p of kept) if (p.entry.sets > 2) p.entry.sets -= 1
+  // Encore trop long au plancher (séance courte, longs repos) : on retire des séries.
+  // Les polyarticulaires dos/pecs gardent leurs 4 séries tant que les autres peuvent encore en céder,
+  // puis passent à 3 ; en dernier recours seulement, tout descend jusqu'à 2.
+  const over = () => estimateMinutes([...kept.map((p) => p.entry), ...cardio]) > answers.minutes
+  const trim = (match: (p: (typeof kept)[number]) => boolean, min: number) => {
+    // Une série à la fois, en commençant par les exercices les moins prioritaires.
+    while (over() && kept.some((p) => match(p) && p.entry.sets > min)) {
+      for (const p of [...kept].reverse()) if (over() && match(p) && p.entry.sets > min) p.entry.sets -= 1
+    }
+  }
+  trim((p) => !isKeyCompound(SLOTS[p.key]), 2)
+  trim((p) => isKeyCompound(SLOTS[p.key]), 3)
+  trim(() => true, 2)
+  // Toujours trop long (séance très courte avec pec deck imposé) : on cède un mouvement, jamais le pec deck.
+  while (over() && kept.length > 3) {
+    const last = kept.map((p) => !isPecDeck(p.key)).lastIndexOf(true)
+    kept.splice(last, 1)
   }
 
   // Ordre d'exécution : polyarticulaires d'abord, puis isolation, cardio en dernier.
