@@ -237,6 +237,16 @@ export function IconTimer({ size = 18 }: IconProps) {
   )
 }
 
+export function IconMore({ size = 20 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="5" cy="12" r="1.8" />
+      <circle cx="12" cy="12" r="1.8" />
+      <circle cx="19" cy="12" r="1.8" />
+    </svg>
+  )
+}
+
 export function IconInfo({ size = 18 }: IconProps) {
   return (
     <svg {...base(size)} aria-hidden="true">

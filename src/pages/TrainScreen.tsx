@@ -6,7 +6,7 @@ import { MuscleDiagram } from '../components/MuscleDiagram'
 import { Sheet } from '../components/Sheet'
 import { SpotifyMiniPlayer } from '../components/SpotifyMiniPlayer'
 import { IconCheck, IconChevronDown, IconDumbbell, IconFlame, IconPlus, IconTimer } from '../components/icons'
-import { todayKey, formatDay } from '../lib/date'
+import { fromKey, localeOf, shiftDay, todayKey, formatDay } from '../lib/date'
 import { LETTER_COLOR, schedulesForDate } from '../lib/schedule'
 import { groupBySuperset } from '../lib/superset'
 import { buildPlanExercises, nextAvailableName } from '../lib/saveWorkout'
@@ -20,10 +20,47 @@ interface StartViewProps {
   onStart: (workout?: Workout | null) => void
 }
 
+/** Durée écoulée depuis le début de la séance, rafraîchie chaque seconde. */
+function ElapsedTime({ since }: { since: string }) {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(interval)
+  }, [])
+  const total = Math.max(0, Math.floor((now - new Date(since).getTime()) / 1000))
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+  return (
+    <span className="tabular">
+      {h ? `${h}:${String(m).padStart(2, '0')}` : m}:{String(s).padStart(2, '0')}
+    </span>
+  )
+}
+
 function StartView({ onStart }: StartViewProps) {
-  const { t, lang, workouts, schedules } = useApp()
+  const { t, lang, workouts, schedules, sessions } = useApp()
   const today = todayKey()
   const [otherPickerOpen, setOtherPickerOpen] = useState(false)
+
+  const streak = useMemo(() => plannedStreak(sessions, schedules, today), [sessions, schedules, today])
+  const week = useMemo(() => {
+    const monday = shiftDay(today, -((fromKey(today).getDay() + 6) % 7))
+    const trained = new Set(sessions.filter((s) => s.finishedAt).map((s) => s.date))
+    return Array.from({ length: 7 }, (_, index) => {
+      const key = shiftDay(monday, index)
+      const date = fromKey(key)
+      return {
+        key,
+        label: date.toLocaleDateString(localeOf(lang), { weekday: 'narrow' }),
+        day: date.getDate(),
+        trained: trained.has(key),
+        planned: schedulesForDate(schedules, key).length > 0,
+      }
+    })
+  }, [today, sessions, schedules, lang])
+  const weekDone = week.filter((d) => d.trained).length
+  const weekPlanned = week.filter((d) => d.planned || d.trained).length
 
   const options = useMemo(() => {
     return schedulesForDate(schedules, today)
@@ -44,19 +81,20 @@ function StartView({ onStart }: StartViewProps) {
   return (
     <div className="screen train-screen">
       <div>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{t('train.title')}</h2>
-        <p className="hint" style={{ marginTop: 4 }}>{formatDay(today, lang)}</p>
+        <span className="eyebrow">{formatDay(today, lang)}</span>
+        <h2 className="screen-title">{t('train.title')}</h2>
       </div>
 
       {options.length ? (
         options.map(({ schedule, workout }) => (
           <div className="card" key={schedule.id}>
-            <div className="plan-card-head">
+            <span className="eyebrow accent">{t('train.plannedToday')}</span>
+            <div className="plan-card-head" style={{ marginTop: 8 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span className="letter-badge" style={{ background: LETTER_COLOR[schedule.letter] }}>
                   {schedule.letter}
                 </span>
-                <span className="name">{workout.name}</span>
+                <span className="name big">{workout.name}</span>
               </span>
             </div>
             <p className="hint" style={{ marginTop: 4, marginBottom: 14 }}>
@@ -73,6 +111,31 @@ function StartView({ onStart }: StartViewProps) {
           <p className="empty">{t('train.noneToday')}</p>
         </div>
       )}
+
+      <div className="card week-strip">
+        {week.map((d) => (
+          <div key={d.key}>
+            <span>{d.label}</span>
+            <b className={d.trained ? 'did' : d.key === today ? 'today' : d.planned ? 'planned' : ''}>{d.day}</b>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid-2">
+        <div className="card mini-stat">
+          <span className="eyebrow">{t('train.streakTitle')}</span>
+          <div className="value">
+            {streak} <small>{t('calendar.streak')}</small>
+          </div>
+        </div>
+        <div className="card mini-stat">
+          <span className="eyebrow">{t('train.thisWeek')}</span>
+          <div className="value">
+            {weekDone}
+            <small>/{Math.max(weekPlanned, weekDone)}</small>
+          </div>
+        </div>
+      </div>
 
       {otherWorkouts.length ? (
         <button type="button" className="btn secondary" onClick={() => setOtherPickerOpen(true)}>
@@ -304,6 +367,8 @@ function ActiveSessionView({
 
   const volume = displayWeightValue(sessionVolume(session), units.weight)
   const setCount = sessionSetCount(session)
+  const totalSets = session.exercises.reduce((sum, e) => sum + e.sets.length, 0)
+  const firstPendingId = session.exercises.find((e) => e.sets.some((set) => !set.done))?.id
   const allSessionSetsDone =
     session.exercises.length > 0 &&
     session.exercises.every((exercise) => exercise.sets.length > 0 && exercise.sets.every((set) => set.done))
@@ -358,8 +423,19 @@ function ActiveSessionView({
           ) : (
             <h2>{session.workoutName ?? t('train.freeSession')}</h2>
           )}
-          <span className="sub">{formatDay(session.date, lang)}</span>
+          <span className="sub">
+            {t('train.inProgress')} · <ElapsedTime since={session.startedAt} /> · {formatDay(session.date, lang)}
+          </span>
         </div>
+      </div>
+
+      <div className="session-progress">
+        <div className="progress-track">
+          <i style={{ width: `${totalSets ? (setCount / totalSets) * 100 : 0}%` }} />
+        </div>
+        <span>
+          {setCount}/{totalSets}
+        </span>
       </div>
 
       <div className="card">
@@ -398,6 +474,7 @@ function ActiveSessionView({
                 triggersRest={index === group.length - 1}
                 showMuscleDiagram={false}
                 showReorder
+                defaultExpanded={sessionExercise.id === firstPendingId}
                 canMoveUp={canMoveUp}
                 canMoveDown={canMoveDown}
               />
@@ -412,6 +489,7 @@ function ActiveSessionView({
             triggersRest
             showMuscleDiagram={false}
             showReorder
+            defaultExpanded={group[0].id === firstPendingId}
             canMoveUp={canMoveUp}
             canMoveDown={canMoveDown}
           />

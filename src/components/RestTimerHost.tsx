@@ -44,6 +44,7 @@ export function RestTimerHost() {
       progress={progress}
       label={activeRestTimer.label}
       onExpand={restoreRestTimer}
+      onAdd={() => extendRestTimer(15_000)}
       onSkip={stopRestTimer}
     />
   ) : (

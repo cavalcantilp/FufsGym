@@ -1,24 +1,26 @@
 /* Palette reprise de FitnessFufs (dark slate), accent bleu remplacé par un rouge musculation. */
 :root {
-  --bg: #0f172a;
-  --bg-elevated: #16223c;
-  --card-bg: #1e293b;
-  --accent: #ef4444;
-  --accent-hover: #b91c1c;
+  --bg: #0b0d10;
+  --bg-elevated: #111418;
+  --card-bg: #15181d;
+  --accent: #ff4d4d;
+  --accent-hover: #e03a3a;
   /* Texte porté par un fond plein accent : le rouge est trop moyen en luminosité
      pour un texte sombre, contrairement au bleu ciel d'origine. */
-  --accent-ink: #fff5f5;
-  --text-main: #f8fafc;
-  --text-sub: #94a3b8;
-  --input-bg: #334155;
-  --border: #475569;
+  --accent-ink: #ffffff;
+  --text-main: #f2f3f5;
+  --text-sub: #8b929c;
+  --input-bg: #1f232a;
+  --border: rgba(255, 255, 255, 0.07);
+  --text-faint: #4a505a;
+  --font-display: 'Sora', 'Manrope', system-ui, sans-serif;
   --warning: #f59e0b;
-  --positive: #34d399;
+  --positive: #3ddc97;
   --negative: #f87171;
   /* Navigation : le rouge reste réservé à l'action principale (S'entraîner) ;
      les autres onglets passent d'un bleu-gris neutre à un bleu plus vif
      une fois sélectionnés. */
-  --nav-active: #38bdf8;
+  --nav-active: #f2f3f5;
 
   /* Groupes musculaires : teintes distinctes de l'accent, pour identifier une
      séance ou un exercice d'un coup d'œil sans dépendre du texte. */
@@ -34,10 +36,10 @@
   --type-cardio: #a78bfa;
 
   /* Schéma d'activation musculaire : muscle non sollicité, dans le dégradé de la légende. */
-  --neutral-fill: #64748b;
+  --neutral-fill: #3a4049;
 
-  --radius: 16px;
-  --radius-lg: 24px;
+  --radius: 14px;
+  --radius-lg: 20px;
   --tabbar-height: 64px;
 
   color-scheme: dark;
@@ -47,7 +49,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 html,
@@ -82,7 +84,7 @@ textarea {
   width: 100%;
   padding: 12px 14px;
   background: var(--input-bg);
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: 12px;
   color: var(--text-main);
   outline: none;
@@ -95,7 +97,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.2);
 }
 
 select {
@@ -139,9 +141,9 @@ select {
   top: 0;
   z-index: 5;
   height: calc(env(safe-area-inset-top, 0px) + 10px);
-  background: rgba(15, 23, 42, 0.92);
+  background: rgba(11, 13, 16, 0.92);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(71, 85, 105, 0.4);
+  border-bottom: 1px solid var(--border);
 }
 
 /* ---------- Barre d'onglets ---------- */
@@ -158,9 +160,9 @@ select {
   margin: 0 auto;
   height: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: rgba(22, 34, 60, 0.96);
+  background: rgba(11, 13, 16, 0.96);
   backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(71, 85, 105, 0.5);
+  border-top: 1px solid var(--border);
 }
 
 .tabbar button {
@@ -205,13 +207,11 @@ select {
 .tabbar button.primary .icon-wrap {
   display: grid;
   place-items: center;
-  width: 50px;
-  height: 50px;
-  margin-top: -20px;
-  border-radius: 50%;
+  width: 44px;
+  height: 30px;
+  border-radius: 99px;
   background: var(--accent);
   color: var(--accent-ink);
-  border: 3px solid var(--bg);
   transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
@@ -232,9 +232,8 @@ select {
 
 .card {
   background: var(--card-bg);
-  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 18px;
+  padding: 16px;
 }
 
 .card-title {
@@ -299,10 +298,10 @@ select {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 14px;
-  border-radius: 12px;
+  padding: 15px;
+  border-radius: 16px;
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 800;
   background: var(--accent);
   color: var(--accent-ink);
   transition: transform 0.1s ease, background-color 0.2s ease, opacity 0.2s ease;
@@ -319,15 +318,13 @@ select {
 }
 
 .btn.secondary {
-  background: transparent;
-  color: var(--accent);
-  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text-main);
 }
 
 .btn.danger {
-  background: transparent;
+  background: rgba(248, 113, 113, 0.1);
   color: var(--negative);
-  border: 1px solid rgba(248, 113, 113, 0.4);
 }
 
 .btn.success {
@@ -351,7 +348,6 @@ select {
   gap: 6px;
   padding: 4px;
   background: var(--input-bg);
-  border: 1px solid var(--border);
   border-radius: 12px;
 }
 
@@ -590,8 +586,8 @@ select {
 }
 
 .notice.info {
-  background: rgba(239, 68, 68, 0.08);
-  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(255, 77, 77, 0.08);
+  border-color: rgba(255, 77, 77, 0.25);
   color: var(--accent);
 }
 
@@ -721,7 +717,7 @@ select {
 
 .disclosure {
   margin-top: 16px;
-  border-top: 1px solid rgba(71, 85, 105, 0.4);
+  border-top: 1px solid var(--border);
 }
 
 .disclosure-head {
@@ -939,7 +935,7 @@ select {
 }
 
 .muscle-rank-row + .muscle-rank-row {
-  border-top: 1px solid rgba(71, 85, 105, 0.25);
+  border-top: 1px solid var(--border);
 }
 
 .muscle-rank-row .name {
@@ -1030,7 +1026,7 @@ select {
 }
 
 .muscle-table tbody tr + tr td {
-  border-top: 1px solid rgba(71, 85, 105, 0.2);
+  border-top: 1px solid var(--border);
 }
 
 .muscle-table tbody td {
@@ -1250,7 +1246,7 @@ select {
 }
 
 .exercise-row + .exercise-row {
-  border-top: 1px solid rgba(71, 85, 105, 0.25);
+  border-top: 1px solid var(--border);
 }
 
 .exercise-row-main {
@@ -1363,7 +1359,7 @@ select {
   justify-content: space-between;
   gap: 8px;
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(71, 85, 105, 0.5);
+  border-bottom: 1px solid var(--border);
 }
 
 .day-card-head .name {
@@ -1403,7 +1399,7 @@ select {
 }
 
 .plan-exercise-row + .plan-exercise-row {
-  border-top: 1px solid rgba(71, 85, 105, 0.25);
+  border-top: 1px solid var(--border);
 }
 
 .plan-exercise-row .info {
@@ -1428,14 +1424,14 @@ select {
 }
 
 .superset-group {
-  border-top: 1px solid rgba(71, 85, 105, 0.25);
+  border-top: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  background: rgba(239, 68, 68, 0.05);
+  background: rgba(255, 77, 77, 0.05);
   padding-top: 2px;
 }
 
 .superset-group + .plan-exercise-row {
-  border-top: 1px solid rgba(71, 85, 105, 0.25);
+  border-top: 1px solid var(--border);
 }
 
 .superset-group-label {
@@ -1456,7 +1452,7 @@ select {
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--accent);
-  border-top: 1px solid rgba(71, 85, 105, 0.25);
+  border-top: 1px solid var(--border);
 }
 
 /* ---------- S'entraîner : séance en cours ---------- */
@@ -1473,7 +1469,7 @@ select {
   flex-direction: column;
   gap: 10px;
   padding: 12px;
-  background: rgba(239, 68, 68, 0.05);
+  background: rgba(255, 77, 77, 0.05);
   border: 1px solid var(--border);
   border-left: 3px solid var(--accent);
   border-radius: var(--radius);
@@ -1495,7 +1491,7 @@ select {
 }
 
 .session-exercise.expanded .session-exercise-head {
-  border-bottom: 1px solid rgba(71, 85, 105, 0.5);
+  border-bottom: 1px solid var(--border);
 }
 
 .disclosure-trigger {
@@ -1536,7 +1532,7 @@ select {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(71, 85, 105, 0.25);
+  border-bottom: 1px solid var(--border);
 }
 
 .rest-control .rest-control-label {
@@ -1582,7 +1578,7 @@ select {
 }
 
 .set-row + .set-row {
-  border-top: 1px solid rgba(71, 85, 105, 0.25);
+  border-top: 1px solid var(--border);
 }
 
 .set-row .idx {
@@ -1629,7 +1625,7 @@ select {
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--accent);
-  border-top: 1px solid rgba(71, 85, 105, 0.25);
+  border-top: 1px solid var(--border);
 }
 
 .set-add-row {
@@ -1643,7 +1639,7 @@ select {
 
 .set-add-row .set-add.accent {
   color: var(--positive);
-  border-left: 1px solid rgba(71, 85, 105, 0.25);
+  border-left: 1px solid var(--border);
 }
 
 .set-add-row .set-add:disabled {
@@ -1792,9 +1788,9 @@ select {
   margin: 10px 16px 0;
   display: flex;
   align-items: stretch;
-  background: rgba(22, 34, 60, 0.96);
+  background: rgba(11, 13, 16, 0.96);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
@@ -1838,7 +1834,7 @@ select {
   width: 44px;
   flex: none;
   color: var(--text-sub);
-  border-left: 1px solid rgba(71, 85, 105, 0.35);
+  border-left: 1px solid var(--border);
 }
 
 .rest-timer-banner-skip:active {
@@ -2032,7 +2028,7 @@ select {
 }
 
 .pr-row + .pr-row {
-  border-top: 1px solid rgba(71, 85, 105, 0.25);
+  border-top: 1px solid var(--border);
 }
 
 .pr-row .info {
@@ -2076,7 +2072,7 @@ select {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   padding: 10px 0;
-  border-bottom: 1px solid rgba(71, 85, 105, 0.5);
+  border-bottom: 1px solid var(--border);
 }
 
 .calendar-weekdays span {
@@ -2091,7 +2087,7 @@ select {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 1px;
-  background: rgba(71, 85, 105, 0.3);
+  background: var(--border);
 }
 
 .calendar-day {
@@ -2122,7 +2118,7 @@ select {
 }
 
 .calendar-day.outside {
-  background-color: rgba(15, 23, 42, 0.6);
+  background-color: rgba(11, 13, 16, 0.55);
 }
 
 /* Week-end (samedi/dimanche) : hachures diagonales discrètes pour les repérer d'un coup d'œil. */
@@ -2193,12 +2189,12 @@ select {
 }
 
 .calendar-day.trained {
-  background-color: rgba(239, 68, 68, 0.14);
+  background-color: rgba(255, 77, 77, 0.14);
 }
 
 /* Force + cardio le même jour : le rectangle bascule au vert plutôt qu'au rouge habituel. */
 .calendar-day.trained.mixed {
-  background-color: rgba(52, 211, 153, 0.2);
+  background-color: rgba(61, 220, 151, 0.2);
 }
 
 .calendar-day.selected {
@@ -2281,7 +2277,7 @@ select {
 }
 
 .day-session-card + .day-session-card {
-  border-top: 1px solid rgba(71, 85, 105, 0.25);
+  border-top: 1px solid var(--border);
 }
 
 /* ---------- Lecteur Spotify ---------- */
@@ -2587,4 +2583,401 @@ select {
   color: var(--text-sub);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* ---------- Typographie d'affichage ---------- */
+
+h1,
+h2,
+.stat .value,
+.day-nav .label {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Refonte « sombre épuré » ---------- */
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.eyebrow {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-sub);
+}
+
+.eyebrow.accent {
+  color: var(--accent);
+}
+
+.screen-title {
+  margin-top: 2px;
+  font-size: 1.45rem;
+}
+
+.app-header {
+  border-bottom: none;
+}
+
+.tabbar {
+  border-top: 1px solid var(--border);
+}
+
+.tabbar button {
+  color: var(--text-faint);
+}
+
+.tabbar button.primary {
+  color: var(--text-sub);
+}
+
+.tabbar button.primary.active {
+  color: var(--text-main);
+}
+
+.tabbar button.primary.active .icon-wrap {
+  background: var(--accent);
+}
+
+/* Accueil S'entraîner */
+
+.plan-card-head .name.big {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+
+.week-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.week-strip span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+}
+
+.week-strip b {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin: 6px auto 0;
+  border-radius: 50%;
+  background: var(--input-bg);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.week-strip b.planned {
+  box-shadow: inset 0 0 0 1.5px var(--text-sub);
+}
+
+.week-strip b.did {
+  background: var(--positive);
+  color: #06281a;
+}
+
+.week-strip b.today {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.mini-stat .value {
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mini-stat .value small {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+
+/* Séance en cours */
+
+.session-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-track {
+  flex: 1;
+  height: 5px;
+  border-radius: 99px;
+  background: var(--input-bg);
+  overflow: hidden;
+}
+
+.progress-track i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.session-exercise {
+  background: var(--card-bg);
+  border: none;
+  border-radius: 18px;
+}
+
+.session-exercise.complete {
+  background: transparent;
+}
+
+.session-exercise.complete .session-exercise-head {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.session-exercise.complete .name {
+  color: var(--text-sub);
+}
+
+.session-exercise-head {
+  padding: 14px 8px 14px 16px;
+}
+
+.session-exercise.expanded .session-exercise-head {
+  border-bottom: none;
+}
+
+.disclosure-trigger {
+  justify-content: flex-start;
+}
+
+.disclosure-trigger .info {
+  flex: 1;
+}
+
+.session-exercise-head .name {
+  font-size: 0.98rem;
+}
+
+.set-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+  max-width: 76px;
+  flex: none;
+}
+
+.set-dots i {
+  width: 16px;
+  height: 5px;
+  border-radius: 99px;
+  background: var(--input-bg);
+}
+
+.set-dots i.on {
+  background: var(--positive);
+}
+
+.rest-control {
+  border-bottom: none;
+  padding-top: 4px;
+}
+
+.set-row {
+  grid-template-columns: 22px 1fr 1fr 44px 28px;
+  gap: 8px;
+  padding: 5px 16px;
+}
+
+.set-row.hold {
+  grid-template-columns: 22px 1fr 34px 44px 28px;
+}
+
+.set-row.cardio {
+  grid-template-columns: 22px 1fr 44px 28px;
+}
+
+.set-row + .set-row {
+  border-top: none;
+}
+
+.set-row input {
+  padding: 11px 10px;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.set-row .done-toggle {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: var(--input-bg);
+  color: var(--text-faint);
+}
+
+.set-row.done .done-toggle {
+  background: var(--positive);
+  color: #06281a;
+}
+
+.set-add,
+.set-add-row .set-add.accent {
+  border: none;
+}
+
+.set-add {
+  color: var(--text-sub);
+}
+
+.superset-block {
+  border: none;
+  background: transparent;
+  padding: 0 0 0 10px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0;
+}
+
+/* Menu d'actions (feuille) */
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--input-bg);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.menu-row svg {
+  flex: none;
+  color: var(--text-sub);
+}
+
+.menu-row:disabled {
+  opacity: 0.35;
+}
+
+.menu-row.danger,
+.menu-row.danger svg {
+  color: var(--negative);
+}
+
+/* Bandeau du minuteur de repos : flottant au-dessus de la barre d'onglets */
+
+.rest-timer-banner {
+  position: fixed;
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 12px);
+  z-index: 9;
+  width: calc(100% - 32px);
+  max-width: 488px;
+  margin: 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 0 0;
+  background: var(--text-main);
+  border: none;
+  border-radius: 18px;
+  backdrop-filter: none;
+}
+
+.rest-timer-banner-main {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 9px 16px 11px;
+  color: #0b0d10;
+}
+
+.rest-timer-banner-label {
+  flex: none;
+  font-size: 0.64rem;
+  color: #5b616b;
+}
+
+.rest-timer-banner-digits {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: #0b0d10;
+}
+
+.rest-timer-banner-pill {
+  flex: none;
+  padding: 8px 12px;
+  border-radius: 99px;
+  background: rgba(11, 13, 16, 0.08);
+  color: #0b0d10;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.rest-timer-banner-bar {
+  background: var(--accent);
+}
+
+/* Calendrier */
+
+.calendar {
+  border: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.calendar-weekdays {
+  border-bottom: none;
+}
+
+.calendar-grid {
+  gap: 4px;
+  background: transparent;
+}
+
+.calendar-day {
+  border-radius: 12px;
+  background-color: var(--card-bg);
+}
+
+.calendar-day.outside {
+  background-color: transparent;
+}
+
+.calendar-day.today {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.calendar-day.weekend {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.035) 0px,
+    rgba(255, 255, 255, 0.035) 4px,
+    transparent 4px,
+    transparent 10px
+  );
 }

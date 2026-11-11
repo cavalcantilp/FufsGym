@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { IconClose } from './icons'
 
 interface SheetProps {
@@ -25,7 +26,8 @@ export function Sheet({ title, subtitle, onClose, children, centered = false }: 
     }
   }, [onClose])
 
-  return (
+  // Portail : une feuille ouverte depuis une autre feuille ne doit pas hériter de son cadre.
+  return createPortal(
     <div
       className={`sheet-backdrop${centered ? ' centered' : ''}`}
       role="presentation"
@@ -45,6 +47,7 @@ export function Sheet({ title, subtitle, onClose, children, centered = false }: 
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

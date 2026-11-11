@@ -11,7 +11,7 @@ import type { TranslationKey } from '../i18n/translations'
 import type { Exercise } from '../lib/types'
 
 /** Bouton "i" ouvrant le schéma d'activation musculaire et/ou des photos d'exécution ; masqué si aucun n'existe pour cet exercice. */
-export function ExerciseInfoButton({ exercise }: { exercise?: Exercise }) {
+export function ExerciseInfoButton({ exercise, label }: { exercise?: Exercise; label?: string }) {
   const { t } = useApp()
   const [open, setOpen] = useState(false)
   const images = exercise ? exerciseMediaImages(exercise.id) : null
@@ -20,6 +20,7 @@ export function ExerciseInfoButton({ exercise }: { exercise?: Exercise }) {
   // Toujours réserver la largeur du bouton, même sans schéma ni photo : sinon les icônes
   // suivantes (réordonner, supprimer) se décalent d'une carte à l'autre selon les exercices.
   if (!exercise || (!images && !activation)) {
+    if (label) return null
     return <span className="icon-btn" aria-hidden="true" style={{ visibility: 'hidden' }} />
   }
   const colorFor = (muscleId: string) => {
@@ -29,9 +30,16 @@ export function ExerciseInfoButton({ exercise }: { exercise?: Exercise }) {
 
   return (
     <>
-      <button type="button" className="icon-btn" onClick={() => setOpen(true)} aria-label={t('exerciseInfo.aria')}>
-        <IconInfo size={17} />
-      </button>
+      {label ? (
+        <button type="button" className="menu-row" onClick={() => setOpen(true)}>
+          <IconInfo size={18} />
+          {label}
+        </button>
+      ) : (
+        <button type="button" className="icon-btn" onClick={() => setOpen(true)} aria-label={t('exerciseInfo.aria')}>
+          <IconInfo size={17} />
+        </button>
+      )}
       {open ? (
         <Sheet title={exerciseName(exercise, t)} onClose={() => setOpen(false)} centered>
           {activation ? (

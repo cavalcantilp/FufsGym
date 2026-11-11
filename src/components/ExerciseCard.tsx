@@ -5,11 +5,12 @@ import { HoldTimer } from './HoldTimer'
 import { ExerciseInfoButton } from './ExerciseInfoButton'
 import { ExerciseNoteHistory } from './ExerciseNoteHistory'
 import { MuscleDiagram } from './MuscleDiagram'
+import { Sheet } from './Sheet'
 import {
   IconArrowDown,
   IconArrowUp,
   IconCheck,
-  IconChevronDown,
+  IconMore,
   IconPlay,
   IconPlus,
   IconTimer,
@@ -35,6 +36,8 @@ interface ExerciseCardProps {
   showReorder?: boolean
   canMoveUp?: boolean
   canMoveDown?: boolean
+  /** Ouvre la carte dès l'affichage (exercice en cours de la séance). */
+  defaultExpanded?: boolean
 }
 
 /** Carte repliable d'un exercice en séance : nom + résumé, détail (dernière fois, repos, séries) sur demande. */
@@ -47,6 +50,7 @@ export function ExerciseCard({
   showReorder = false,
   canMoveUp = false,
   canMoveDown = false,
+  defaultExpanded = false,
 }: ExerciseCardProps) {
   const {
     t,
@@ -61,7 +65,8 @@ export function ExerciseCard({
     updateSessionExerciseRest,
     updateSessionExerciseCardioUnit,
   } = useApp()
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(defaultExpanded)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [timingSetId, setTimingSetId] = useState<string | null>(null)
   const [noteHistoryOpen, setNoteHistoryOpen] = useState(false)
   const info = exerciseById(sessionExercise.exerciseId)
@@ -88,64 +93,83 @@ export function ExerciseCard({
   }
 
   return (
-    <div className={`session-exercise${expanded ? ' expanded' : ''}`}>
+    <div className={`session-exercise${expanded ? ' expanded' : ''}${allSetsDone && !expanded ? ' complete' : ''}`}>
       <div className="session-exercise-head">
         <button type="button" className="disclosure-trigger" onClick={() => setExpanded((current) => !current)}>
+          {allSetsDone ? (
+            <span className="exercise-complete-badge" aria-label={t('train.exerciseComplete')}>
+              <IconCheck size={13} />
+            </span>
+          ) : null}
           <span className="info">
             <span className="name">{info ? exerciseName(info, t) : ''}</span>
             <span className="last">
               {doneCount}/{sessionExercise.sets.length} {t('unit.set')} · {formatRestTime(restSec)}
             </span>
           </span>
-          <IconChevronDown open={expanded} size={16} />
+          {allSetsDone ? null : (
+            <span className="set-dots" aria-hidden="true">
+              {sessionExercise.sets.map((set) => (
+                <i key={set.id} className={set.done ? 'on' : ''} />
+              ))}
+            </span>
+          )}
         </button>
-        {allSetsDone ? (
-          <span className="exercise-complete-badge" aria-label={t('train.exerciseComplete')}>
-            <IconCheck size={13} />
-          </span>
-        ) : null}
-        <ExerciseInfoButton exercise={info} />
-        {expanded ? (
-          <button
-            type="button"
-            className="icon-btn"
-            onClick={() => setNoteHistoryOpen(true)}
-            aria-label={t('train.exerciseNoteAria')}
-          >
-            <IconTimer size={16} />
-          </button>
-        ) : null}
-        {showReorder ? (
-          <span className="reorder-btns">
-            <button
-              type="button"
-              className="icon-btn"
-              disabled={!canMoveUp}
-              onClick={() => moveSessionExercise(session.id, sessionExercise.id, 'up')}
-              aria-label={t('day.moveUpAria')}
-            >
-              <IconArrowUp size={14} />
-            </button>
-            <button
-              type="button"
-              className="icon-btn"
-              disabled={!canMoveDown}
-              onClick={() => moveSessionExercise(session.id, sessionExercise.id, 'down')}
-              aria-label={t('day.moveDownAria')}
-            >
-              <IconArrowDown size={14} />
-            </button>
-          </span>
-        ) : null}
-        <button
-          type="button"
-          className="icon-btn danger"
-          onClick={() => removeSessionExercise(session.id, sessionExercise.id)}
-          aria-label={t('train.removeExerciseAria')}
-        >
-          <IconTrash size={16} />
+        <button type="button" className="icon-btn" onClick={() => setMenuOpen(true)} aria-label={t('train.menuAria')}>
+          <IconMore size={20} />
         </button>
       </div>
+
+      {menuOpen ? (
+        <Sheet title={info ? exerciseName(info, t) : ''} onClose={() => setMenuOpen(false)}>
+          <div className="menu-list">
+            <ExerciseInfoButton exercise={info} label={t('exerciseInfo.aria')} />
+            {info ? (
+              <button
+                type="button"
+                className="menu-row"
+                onClick={() => {
+                  setMenuOpen(false)
+                  setNoteHistoryOpen(true)
+                }}
+              >
+                <IconTimer size={18} />
+                {t('train.exerciseNoteAria')}
+              </button>
+            ) : null}
+            {showReorder ? (
+              <>
+                <button
+                  type="button"
+                  className="menu-row"
+                  disabled={!canMoveUp}
+                  onClick={() => moveSessionExercise(session.id, sessionExercise.id, 'up')}
+                >
+                  <IconArrowUp size={18} />
+                  {t('day.moveUpAria')}
+                </button>
+                <button
+                  type="button"
+                  className="menu-row"
+                  disabled={!canMoveDown}
+                  onClick={() => moveSessionExercise(session.id, sessionExercise.id, 'down')}
+                >
+                  <IconArrowDown size={18} />
+                  {t('day.moveDownAria')}
+                </button>
+              </>
+            ) : null}
+            <button
+              type="button"
+              className="menu-row danger"
+              onClick={() => removeSessionExercise(session.id, sessionExercise.id)}
+            >
+              <IconTrash size={18} />
+              {t('train.removeExerciseAria')}
+            </button>
+          </div>
+        </Sheet>
+      ) : null}
 
       {expanded ? (
         <>
