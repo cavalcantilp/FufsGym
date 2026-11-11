@@ -11,7 +11,8 @@ export type WizardMode = 'single' | 'program'
 export type WizardGoal = 'weightLoss' | 'fatLoss' | 'hypertrophy' | 'strength'
 export type WizardInjury = 'shoulders' | 'lowerBack' | 'knees' | 'elbows' | 'hips'
 export type WizardTemplate = 'full' | 'upper' | 'lower' | 'push' | 'pull' | 'legs'
-export type FocusGroup = Exclude<MuscleGroup, 'cardio'>
+/** Groupes que l'on peut demander à renforcer : ceux de la bibliothèque, plus les fessiers (sous-ensemble des jambes). */
+export type FocusGroup = Exclude<MuscleGroup, 'cardio'> | 'glutes'
 
 export interface WizardAnswers {
   mode: WizardMode
@@ -46,12 +47,14 @@ export interface WizardHistory {
 export const WIZARD_MINUTES = [30, 45, 60, 75, 90]
 export const WIZARD_GOALS: WizardGoal[] = ['hypertrophy', 'fatLoss', 'weightLoss', 'strength']
 export const WIZARD_INJURIES: WizardInjury[] = ['shoulders', 'lowerBack', 'knees', 'elbows', 'hips']
-export const WIZARD_FOCUS: FocusGroup[] = ['chest', 'back', 'legs', 'shoulders', 'arms', 'core']
+export const WIZARD_FOCUS: FocusGroup[] = ['chest', 'back', 'legs', 'glutes', 'shoulders', 'arms', 'core']
 export const WIZARD_TEMPLATES: WizardTemplate[] = ['full', 'upper', 'lower', 'push', 'pull', 'legs']
 
 interface Slot {
   group: MuscleGroup
   compound: boolean
+  /** Mouvement qui travaille surtout les fessiers. */
+  glutes?: boolean
   /** Exercices candidats, du plus courant au moins courant. */
   ids: string[]
 }
@@ -62,12 +65,13 @@ const SLOTS = {
   chestFly: { group: 'chest', compound: false, ids: ['chest-cable-crossover', 'chest-pec-deck', 'chest-flye'] },
   vertPull: { group: 'back', compound: true, ids: ['back-lat-pulldown', 'back-pullup', 'back-assisted-pullup', 'back-iso-lateral-high-row', 'back-lat-pulldown-life-fitness'] },
   horizPull: { group: 'back', compound: true, ids: ['back-seated-row', 'back-dumbbell-row', 'back-barbell-row', 'back-iso-lateral-low-row', 'back-seated-row-life-fitness'] },
-  hinge: { group: 'legs', compound: true, ids: ['legs-romanian-deadlift', 'back-deadlift', 'legs-hip-thrust-machine', 'back-hyperextension', 'back-45-degree-back-extension-hammer-strength'] },
+  hinge: { group: 'legs', compound: true, glutes: true, ids: ['legs-romanian-deadlift', 'back-deadlift', 'legs-hip-thrust-machine', 'back-hyperextension', 'back-45-degree-back-extension-hammer-strength'] },
   squat: { group: 'legs', compound: true, ids: ['legs-squat', 'legs-leg-press', 'legs-hack-squat', 'legs-front-squat'] },
-  legSingle: { group: 'legs', compound: true, ids: ['legs-lunge', 'legs-leg-press', 'legs-iso-lateral-leg-press'] },
+  legSingle: { group: 'legs', compound: true, glutes: true, ids: ['legs-lunge', 'legs-leg-press', 'legs-iso-lateral-leg-press'] },
   quadIso: { group: 'legs', compound: false, ids: ['legs-leg-extension', 'legs-leg-extension-life-fitness'] },
   hamIso: { group: 'legs', compound: false, ids: ['legs-leg-curl', 'legs-iso-lateral-leg-curl', 'legs-seated-leg-curl-life-fitness'] },
-  glute: { group: 'legs', compound: false, ids: ['legs-hip-thrust', 'legs-hip-thrust-machine', 'legs-hip-abduction', 'legs-hip-adduction'] },
+  glute: { group: 'legs', compound: false, glutes: true, ids: ['legs-hip-thrust', 'legs-hip-thrust-machine', 'legs-hip-abduction', 'legs-hip-adduction'] },
+  glute2: { group: 'legs', compound: false, glutes: true, ids: ['legs-hip-abduction', 'back-hyperextension', 'back-45-degree-back-extension-hammer-strength'] },
   calves: { group: 'legs', compound: false, ids: ['legs-calf-raise'] },
   shoulderPress: { group: 'shoulders', compound: true, ids: ['shoulders-dumbbell-press', 'shoulders-military-press', 'shoulders-machine-press', 'shoulders-arnold-press', 'shoulders-iso-lateral-press'] },
   lateral: { group: 'shoulders', compound: false, ids: ['shoulders-lateral-raise', 'shoulders-cable-lateral-raise', 'shoulders-lateral-raise-machine', 'shoulders-chest-supported-lateral-raise', 'shoulders-lateral-raise-machine-life-fitness', 'shoulders-lateral-raise-machine-hammer-strength'] },
@@ -94,13 +98,18 @@ const TEMPLATE_SLOTS: Record<WizardTemplate, SlotKey[]> = {
 }
 
 /** Créneau ajouté quand un groupe est à renforcer et que la séance le travaille déjà (ou est un full body). */
-const FOCUS_EXTRA: Record<FocusGroup, SlotKey> = {
-  chest: 'chestFly',
-  back: 'horizPull',
-  legs: 'legSingle',
-  shoulders: 'lateral',
-  arms: 'biceps2',
-  core: 'core2',
+const FOCUS_EXTRA: Record<FocusGroup, SlotKey[]> = {
+  chest: ['chestFly'],
+  back: ['horizPull'],
+  legs: ['legSingle'],
+  glutes: ['glute', 'glute2'],
+  shoulders: ['lateral'],
+  arms: ['biceps2'],
+  core: ['core2'],
+}
+
+function slotMatches(slot: Slot, group: FocusGroup): boolean {
+  return group === 'glutes' ? Boolean(slot.glutes) : slot.group === group
 }
 
 /** Exercices à écarter selon la zone sensible : ceux qui la chargent le plus directement. */
@@ -236,17 +245,17 @@ function buildWorkout(
     history ? [...ids].sort((a, b) => (history.usage[b] ?? 0) - (history.usage[a] ?? 0)) : ids
   const params = GOAL_PARAMS[answers.goal]
   const excluded = new Set(answers.injuries.flatMap((injury) => INJURY_EXCLUDES[injury]))
-  const focus = new Set<MuscleGroup>(answers.focus)
+  const isFocus = (slot: Slot) => answers.focus.some((group) => slotMatches(slot, group))
 
   const slots: SlotKey[] = [...TEMPLATE_SLOTS[template]]
   for (const group of answers.focus) {
-    const extra = FOCUS_EXTRA[group]
-    const relevant = template === 'full' || slots.some((key) => SLOTS[key].group === group)
-    if (relevant && !slots.includes(extra)) slots.push(extra)
+    const relevant = template === 'full' || slots.some((key) => slotMatches(SLOTS[key], group))
+    const extra = FOCUS_EXTRA[group].find((key) => !slots.includes(key))
+    if (relevant && extra) slots.push(extra)
   }
 
   // Priorité : les trois mouvements de base du modèle, puis les groupes à renforcer, puis le reste.
-  const rank = (key: SlotKey, index: number) => (index < 3 ? 0 : focus.has(SLOTS[key].group) ? 1 : 2)
+  const rank = (key: SlotKey, index: number) => (index < 3 ? 0 : isFocus(SLOTS[key]) ? 1 : 2)
   const prioritized = slots
     .map((key, index) => ({ key, index }))
     .sort((a, b) => rank(a.key, a.index) - rank(b.key, b.index) || a.index - b.index)
@@ -269,7 +278,7 @@ function buildWorkout(
         const targetWeight = suggestWeight(history?.lastSets[exerciseId], base.reps)
         return {
           exerciseId,
-          sets: base.sets + (focus.has(slot.group) ? 1 : 0),
+          sets: base.sets + (isFocus(slot) ? 1 : 0),
           reps: base.reps,
           restSec: base.restSec,
           ...(targetWeight ? { targetWeight, targetWeightDate: history!.today } : {}),
@@ -288,8 +297,10 @@ function buildWorkout(
 
   // On retire les créneaux les moins prioritaires tant que la séance dépasse la durée voulue.
   const kept = [...picked]
-  while (kept.length > 3 && estimateMinutes([...kept.map((p) => p.entry), ...cardio]) > answers.minutes) kept.pop()
-  // Encore trop long avec trois exercices (séance courte, longs repos) : on retire une série partout.
+  // Plancher : les trois mouvements de base, plus un exercice pour un groupe à renforcer s'il y en a un.
+  const floor = 3 + (kept.slice(3).some((p) => isFocus(SLOTS[p.key])) ? 1 : 0)
+  while (kept.length > floor && estimateMinutes([...kept.map((p) => p.entry), ...cardio]) > answers.minutes) kept.pop()
+  // Encore trop long au plancher (séance courte, longs repos) : on retire une série partout.
   while (estimateMinutes([...kept.map((p) => p.entry), ...cardio]) > answers.minutes && kept.some((p) => p.entry.sets > 2)) {
     for (const p of kept) if (p.entry.sets > 2) p.entry.sets -= 1
   }

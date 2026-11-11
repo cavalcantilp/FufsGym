@@ -229,7 +229,7 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
       body = (
         <div className="stack">
           {WIZARD_FOCUS.map((group) =>
-            option(group, answers.focus.includes(group), muscleLabel(group, t), null, () => patch({ focus: toggle(answers.focus, group) })),
+            option(group, answers.focus.includes(group), group === 'glutes' ? t('wizard.focus.glutes') : muscleLabel(group, t), null, () => patch({ focus: toggle(answers.focus, group) })),
           )}
         </div>
       )

@@ -143,6 +143,7 @@ const fr = {
   'day.session.noteSave': 'Enregistrer la note',
 
   'workout.title': 'Entraînements',
+  'wizard.focus.glutes': "Fessiers",
   'planEx.targetWeight': "Charge cible ({unit}, facultatif)",
   'wizard.prefilled': "Prérempli d'après votre historique.",
   'wizard.proposal.loadsHint': "Charges proposées d'après votre dernière séance : un peu plus lourd si vous aviez atteint le haut de la fourchette de répétitions.",
@@ -748,6 +749,7 @@ const pt: Dict = {
   'day.session.noteSave': 'Guardar a nota',
 
   'workout.title': 'Treinos',
+  'wizard.focus.glutes': "Glúteos",
   'planEx.targetWeight': "Carga alvo ({unit}, opcional)",
   'wizard.prefilled': "Preenchido a partir do seu histórico.",
   'wizard.proposal.loadsHint': "Cargas propostas a partir da sua última sessão: um pouco mais pesado se atingiu o topo do intervalo de repetições.",
@@ -1350,6 +1352,7 @@ const es: Dict = {
   'day.session.noteSave': 'Guardar la nota',
 
   'workout.title': 'Entrenamientos',
+  'wizard.focus.glutes': "Glúteos",
   'planEx.targetWeight': "Carga objetivo ({unit}, opcional)",
   'wizard.prefilled': "Rellenado según tu historial.",
   'wizard.proposal.loadsHint': "Cargas propuestas según tu última sesión: algo más pesado si alcanzaste el tope del rango de repeticiones.",
@@ -1952,6 +1955,7 @@ const en: Dict = {
   'day.session.noteSave': 'Save note',
 
   'workout.title': 'Workouts',
+  'wizard.focus.glutes': "Glutes",
   'planEx.targetWeight': "Target load ({unit}, optional)",
   'wizard.prefilled': "Pre-filled from your history.",
   'wizard.proposal.loadsHint': "Loads suggested from your last session: slightly heavier if you reached the top of the rep range.",
@@ -2554,6 +2558,7 @@ const it: Dict = {
   'day.session.noteSave': 'Salva la nota',
 
   'workout.title': 'Allenamenti',
+  'wizard.focus.glutes': "Glutei",
   'planEx.targetWeight': "Carico obiettivo ({unit}, facoltativo)",
   'wizard.prefilled': "Precompilato in base al tuo storico.",
   'wizard.proposal.loadsHint': "Carichi proposti in base all'ultima seduta: un po' più pesante se avevi raggiunto il massimo dell'intervallo di ripetizioni.",
