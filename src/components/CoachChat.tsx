@@ -7,7 +7,7 @@ import { exerciseName, MUSCLE_GROUPS } from '../lib/exercises'
 import { load, save, STORAGE_KEYS } from '../lib/storage'
 import { todayKey } from '../lib/date'
 import { IconClose, IconCoach, IconSend, IconTrash } from './icons'
-import type { Equipment, MuscleGroup, PlanExercise, Weekday } from '../lib/types'
+import type { Equipment, MuscleGroup, PlanExercise, SessionExercise, Weekday } from '../lib/types'
 import type { TranslationKey } from '../i18n/translations'
 
 interface ViewMessage {
@@ -20,9 +20,17 @@ interface StoredChat {
   api: Anthropic.MessageParam[]
   view: ViewMessage[]
   costUsd: number
+  /** Horodatage du dernier message : au-delà du délai d'inactivité, on repart d'une conversation neuve. */
+  lastAt: number
 }
 
-const EMPTY: StoredChat = { api: [], view: [], costUsd: 0 }
+const EMPTY: StoredChat = { api: [], view: [], costUsd: 0, lastAt: 0 }
+/**
+ * Tout l'historique est refacturé à chaque message. Le coach relit le programme dans l'appli,
+ * il n'a donc pas besoin d'une conversation de la veille : passé ce délai, elle est remise à zéro.
+ */
+const IDLE_RESET_MS = 3 * 60 * 60 * 1000
+const fresh = (chat: StoredChat): StoredChat => (chat.view.length > 0 && Date.now() - chat.lastAt > IDLE_RESET_MS ? EMPTY : chat)
 const WEEKDAYS: Weekday[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')
 /** Laisse React appliquer une modification avant de relire l'état. */
@@ -39,7 +47,7 @@ export function CoachChat() {
   const [aiKey, setAiKey] = useState(loadAiKey)
   const [model, setModel] = useState<AiModel>(loadAiModel)
   const [open, setOpen] = useState(false)
-  const [chat, setChat] = useState<StoredChat>(() => ({ ...EMPTY, ...load<Partial<StoredChat>>(STORAGE_KEYS.coachChat, {}) }))
+  const [chat, setChat] = useState<StoredChat>(() => fresh({ ...EMPTY, ...load<Partial<StoredChat>>(STORAGE_KEYS.coachChat, {}) }))
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [pendingActions, setPendingActions] = useState<ViewMessage[]>([])
@@ -96,18 +104,17 @@ export function CoachChat() {
       }
       return entries
     }
+    const describeSets = (exercises: SessionExercise[]) =>
+      exercises.map((entry) => ({
+        exerciseId: entry.exerciseId,
+        name: nameOf(entry.exerciseId),
+        sets: entry.sets.map((set) => `${set.weight}kg x ${set.reps}${set.done ? '' : ' (à faire)'}`),
+      }))
     const weekdaysOf = (raw: unknown) => (Array.isArray(raw) ? WEEKDAYS.filter((day) => raw.includes(day)) : [])
 
     switch (name) {
-      case 'get_overview': {
-        const finished = state.sessions.filter((session) => session.finishedAt).sort((a, b) => b.date.localeCompare(a.date))
+      case 'get_program': {
         const session = activeSession()
-        const describe = (exercises: typeof finished[number]['exercises']) =>
-          exercises.map((entry) => ({
-            exerciseId: entry.exerciseId,
-            name: nameOf(entry.exerciseId),
-            sets: entry.sets.map((set) => `${set.weight}kg x ${set.reps}${set.done ? '' : ' (à faire)'}`),
-          }))
         return {
           ok: true,
           result: {
@@ -131,9 +138,19 @@ export function CoachChat() {
                 })),
               }
             }),
-            activeSession: session ? { name: session.workoutName ?? null, startedAt: session.startedAt, exercises: describe(session.exercises) } : null,
-            finishedSessionsTotal: finished.length,
-            recentSessions: finished.slice(0, 8).map((entry) => ({ date: entry.date, name: entry.workoutName ?? null, exercises: describe(entry.exercises) })),
+            activeSession: session ? { name: session.workoutName ?? null, startedAt: session.startedAt, exercises: describeSets(session.exercises) } : null,
+            finishedSessionsTotal: state.sessions.filter((entry) => entry.finishedAt).length,
+          },
+        }
+      }
+      case 'get_recent_sessions': {
+        const limit = Math.min(10, Math.max(1, Math.round(Number(input.limit) || 3)))
+        const finished = state.sessions.filter((session) => session.finishedAt).sort((a, b) => b.date.localeCompare(a.date))
+        return {
+          ok: true,
+          result: {
+            total: finished.length,
+            sessions: finished.slice(0, limit).map((entry) => ({ date: entry.date, name: entry.workoutName ?? null, exercises: describeSets(entry.exercises) })),
           },
         }
       }
@@ -181,7 +198,7 @@ export function CoachChat() {
       }
       case 'update_workout': {
         const workout = state.workouts.find((entry) => entry.id === input.workoutId)
-        if (!workout) return fail('Entraînement introuvable. Appelle get_overview pour obtenir les identifiants.')
+        if (!workout) return fail('Entraînement introuvable. Appelle get_program pour obtenir les identifiants.')
         if (input.exercises !== undefined) {
           const entries = planEntries(input.exercises)
           if (typeof entries === 'string') return fail(entries)
@@ -300,8 +317,8 @@ export function CoachChat() {
     setBusy(true)
     setPendingActions([])
     const actions: ViewMessage[] = []
-    const base = chat
-    setChat({ ...base, view: [...base.view, { role: 'user', text }] })
+    const base = fresh(chat)
+    setChat({ ...base, view: [...base.view, { role: 'user', text }], lastAt: Date.now() })
     const controller = new AbortController()
     abortRef.current = controller
     try {
@@ -326,12 +343,12 @@ export function CoachChat() {
       if (result.text) view.push({ role: 'coach', text: result.text })
       if (note) view.push({ role: 'error', text: note })
       // Un tour refusé ou interrompu ne rejoint pas l'historique envoyé : on repart du dernier état sain.
-      setChat({ api: result.stopped === 'done' ? result.messages : base.api, view, costUsd: base.costUsd + result.costUsd })
+      setChat({ api: result.stopped === 'done' ? result.messages : base.api, view, costUsd: base.costUsd + result.costUsd, lastAt: Date.now() })
     } catch (error) {
       const aborted = controller.signal.aborted
       const status = (error as { status?: number })?.status
       const message = aborted ? t('coach.stopped') : status === 401 ? t('ai.invalid') : status === 429 || status === 529 ? t('coach.busy') : t('coach.failed')
-      setChat({ ...base, view: [...base.view, { role: 'user', text }, ...actions, { role: 'error', text: message }] })
+      setChat({ ...base, view: [...base.view, { role: 'user', text }, ...actions, { role: 'error', text: message }], lastAt: Date.now() })
     } finally {
       setConfirm((current) => {
         current?.resolve(false)
@@ -345,7 +362,13 @@ export function CoachChat() {
 
   if (!open) {
     return (
-      <button type="button" className="coach-fab" onClick={() => setOpen(true)} aria-label={t('coach.open')}>
+      <button
+        type="button"
+        className="coach-fab"
+        onClick={() => {
+          setChat(fresh)
+          setOpen(true)
+        }} aria-label={t('coach.open')}>
         <IconCoach size={24} />
       </button>
     )

@@ -256,11 +256,16 @@ export function IconSort({ size = 18 }: IconProps) {
   )
 }
 
+/** Sifflet d'entraîneur : embout à droite, anneau du cordon en haut, bille au centre. */
 export function IconCoach({ size = 22 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M20 11.5a7.5 7.5 0 0 1-11 6.6L4 19.5l1.5-4.3A7.5 7.5 0 1 1 20 11.5Z" />
-      <path d="M9 11.5h.01M12.5 11.5h.01M16 11.5h.01" />
+      <path d="M9.5 9H21v4.2h-5.6" />
+      <circle cx="9.5" cy="14.5" r="5.5" />
+      <circle cx="9.5" cy="14.5" r="1.4" fill="currentColor" stroke="none" />
+      <path d="M9.5 9V6.2" />
+      <circle cx="9.5" cy="4.4" r="1.8" />
+      <path d="M17.5 4.5l1-1.6M20.3 5.8l1.6-1" />
     </svg>
   )
 }

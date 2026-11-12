@@ -8,13 +8,15 @@ import { AI_MODEL_INFO, createAiClient, type AiModel } from './wizardAi'
 
 const MAX_ROUNDS = 10
 const MAX_TOKENS = 8000
+/** Écrire dans le cache d'une heure coûte le double du tarif d'entrée ; le relire, un dixième. */
+const CACHE_WRITE_1H = 2
 
 const exerciseItem = {
   type: 'object',
   additionalProperties: false,
   required: ['exerciseId', 'sets', 'reps'],
   properties: {
-    exerciseId: { type: 'string', description: "Identifiant d'exercice issu de search_exercises ou get_overview." },
+    exerciseId: { type: 'string', description: "Identifiant d'exercice issu de search_exercises ou get_program." },
     sets: { type: 'integer', description: 'Nombre de séries (1 pour le cardio).' },
     reps: { type: 'string', description: 'Répétitions visées, texte libre : "8-10", "12", ou "12 min" pour le cardio.' },
     restSec: { type: 'integer', description: 'Repos entre séries, en secondes.' },
@@ -30,7 +32,12 @@ const tool = (name: string, description: string, properties: Record<string, unkn
 })
 
 export const COACH_TOOLS: Anthropic.Tool[] = [
-  tool('get_overview', "Lit l'état de l'appli : date du jour, entraînements (avec leurs exercices et jours programmés), séance en cours, et dernières séances terminées. À appeler avant de modifier quoi que ce soit, ou pour répondre sur le programme et l'historique."),
+  tool('get_program', "Lit le programme : date du jour, entraînements (exercices, jours programmés, objectif) et séance en cours s'il y en a une. À appeler avant de modifier quoi que ce soit ou de parler du programme."),
+  tool(
+    'get_recent_sessions',
+    "Renvoie les dernières séances terminées, avec les séries faites. À appeler seulement quand la question porte sur l'historique ou la progression.",
+    { limit: { type: 'integer', description: 'Nombre de séances, de 1 à 10. Par défaut 3.' } },
+  ),
   tool(
     'search_exercises',
     "Cherche dans la bibliothèque d'exercices. Renvoie identifiant, nom, groupe musculaire et matériel. Appelle-le pour obtenir les identifiants avant de créer ou modifier un entraînement.",
@@ -88,8 +95,8 @@ Ton rôle : conseiller (programme, technique, charges, récupération) et agir d
 
 Façon de faire :
 - Réponds dans la langue de l'utilisateur (langue de l'appli : ${lang}). Reste bref : quelques phrases, sans titres ni mise en forme Markdown, car le chat affiche du texte brut.
-- Avant de modifier quelque chose ou de parler de son programme ou de ses performances, lis l'état réel avec get_overview ou get_exercise_history plutôt que de supposer.
-- Les identifiants d'exercices viennent toujours de search_exercises ou get_overview ; ne les invente pas.
+- Avant de modifier quelque chose ou de parler de son programme ou de ses performances, lis l'état réel plutôt que de supposer : get_program pour le programme et la séance en cours, get_recent_sessions ou get_exercise_history pour l'historique. Ne lis que ce dont la question a besoin.
+- Les identifiants d'exercices viennent toujours de search_exercises ou get_program ; ne les invente pas.
 - Quand la demande est claire, agis directement puis dis en une phrase ce que tu as fait. Quand elle est ambiguë sur un point qui change le résultat (quel entraînement, quels jours), pose une seule question.
 - N'agis que sur ce qui est demandé : un conseil demandé n'est pas une autorisation de modifier le programme.
 - Les charges sont en kilogrammes dans les outils.
@@ -130,7 +137,8 @@ export async function runCoachTurn(options: {
         model: info.id,
         max_tokens: MAX_TOKENS,
         // Le préfixe (outils + consignes + historique) est identique d'un appel à l'autre : mis en cache.
-        cache_control: { type: 'ephemeral' },
+        // Une heure plutôt que cinq minutes : les messages s'espacent souvent de plusieurs séries.
+        cache_control: { type: 'ephemeral', ttl: '1h' },
         system: options.system,
         tools: COACH_TOOLS,
         messages,
@@ -139,7 +147,7 @@ export async function runCoachTurn(options: {
     )
     const usage = response.usage
     costUsd +=
-      ((usage.input_tokens + (usage.cache_creation_input_tokens ?? 0) * 1.25 + (usage.cache_read_input_tokens ?? 0) * 0.1) / 1_000_000) * info.input +
+      ((usage.input_tokens + (usage.cache_creation_input_tokens ?? 0) * CACHE_WRITE_1H + (usage.cache_read_input_tokens ?? 0) * 0.1) / 1_000_000) * info.input +
       (usage.output_tokens / 1_000_000) * info.output
 
     // Le contenu repart tel quel : les blocs de réflexion doivent rester intacts d'un appel à l'autre.
