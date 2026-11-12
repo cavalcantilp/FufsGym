@@ -2312,12 +2312,34 @@ select {
 
 /* Identité Spotify : fond noir de marque, vert #1ED760 pour le logo et les accents.
    Replié par défaut (juste le nom du morceau) : la flèche du header l'ouvre. */
+/* Lecteur Spotify : la pochette, floutée, sert de fond et donne sa couleur à la carte. */
+.spotify-player,
+.spotify-mini {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #14171c;
+  color: #fff;
+}
+
+.spotify-backdrop {
+  position: absolute;
+  inset: -40px;
+  width: calc(100% + 80px);
+  height: calc(100% + 80px);
+  object-fit: cover;
+  filter: blur(36px) saturate(1.5) brightness(0.5);
+  z-index: -1;
+  pointer-events: none;
+}
+
 .spotify-player {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  background: #121212;
-  border: 1px solid #1ed760;
+  gap: 16px;
+  padding: 16px 18px 18px;
+  border-radius: 24px;
+  touch-action: pan-y;
 }
 
 .spotify-header-row {
@@ -2329,209 +2351,336 @@ select {
 .spotify-brand-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   width: fit-content;
   color: #1ed760;
   font-weight: 800;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-decoration: none;
 }
 
-.spotify-toggle {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* Replié : ligne discrète sans habillage de carte, pour ne pas peser sur l'écran de séance. */
-.spotify-collapsed-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 4px 2px;
-  color: var(--text-sub);
-}
-
-.spotify-collapsed-track {
-  flex: 1;
-  min-width: 0;
-  font-size: 0.82rem;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.spotify-player .hint {
-  color: rgba(255, 255, 255, 0.55);
+.spotify-round-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
 }
 
 .spotify-player .hint.danger {
-  color: var(--negative);
+  color: #ffb4b4;
 }
 
-/* Carrousel façon iTunes : pochette précédente/suivante en aperçu de part et
-   d'autre de la pochette actuelle, cliquables ou glissables pour changer de piste. */
-.spotify-carousel {
+.spotify-now {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  touch-action: pan-y;
+  gap: 16px;
 }
 
-.spotify-carousel-side {
-  flex: none;
-  opacity: 0.4;
-  transition: opacity 0.15s ease;
-}
-
-.spotify-carousel-side:active {
-  opacity: 0.7;
-}
-
-.spotify-carousel-side img,
-.spotify-carousel-side .spotify-art.placeholder.small {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius);
-  object-fit: cover;
-  display: block;
-}
-
-.spotify-carousel-center {
-  flex: none;
-  overflow: hidden;
-}
-
-/* Feuilletage entre deux morceaux : la pochette entre en glissant depuis le
-   côté vers lequel on a navigué (suivant/précédent), comme une vraie page qui tourne. */
 @keyframes spotify-slide-next {
-  from {
-    transform: translateX(28px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateX(22px) scale(0.94); }
+  to { opacity: 1; transform: none; }
 }
 
 @keyframes spotify-slide-prev {
-  from {
-    transform: translateX(-28px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateX(-22px) scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+
+.spotify-art-wrap {
+  flex: none;
+  width: 104px;
+  height: 104px;
+  border-radius: 16px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+  transition: scale 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  scale: 0.92;
+}
+
+.spotify-art-wrap.playing {
+  scale: 1;
 }
 
 .spotify-art-wrap.slide-next {
-  animation: spotify-slide-next 0.22s ease;
+  animation: spotify-slide-next 0.3s ease;
 }
 
 .spotify-art-wrap.slide-prev {
-  animation: spotify-slide-prev 0.22s ease;
+  animation: spotify-slide-prev 0.3s ease;
 }
 
 .spotify-art {
-  width: 96px;
-  height: 96px;
-  border-radius: var(--radius-lg);
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  flex: none;
-  background: #1a1a1a;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
 }
 
-.spotify-art.placeholder {
-  border: 1px dashed rgba(255, 255, 255, 0.25);
+.spotify-art.placeholder,
+.spotify-mini-art.placeholder {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .spotify-track-info {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.spotify-track-info.center {
-  align-items: center;
-  text-align: center;
+  gap: 4px;
 }
 
 .spotify-track-info .name {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
   font-weight: 700;
-  color: #fff;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.spotify-track-info .artist {
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.72);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
+}
+
+.spotify-track-info .spotify-eq {
+  margin-top: 6px;
+}
+
+/* Égaliseur : trois barres qui dansent pendant la lecture, figées en pause. */
+@keyframes spotify-eq {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+
+.spotify-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+  flex: none;
+}
+
+.spotify-eq i {
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: #1ed760;
+  transform: scaleY(0.3);
+  transform-origin: bottom;
+}
+
+.spotify-eq.playing i {
+  animation: spotify-eq 0.9s ease-in-out infinite;
+}
+
+.spotify-eq.playing i:nth-child(2) {
+  animation-duration: 0.7s;
+  animation-delay: -0.3s;
+}
+
+.spotify-eq.playing i:nth-child(3) {
+  animation-duration: 1.1s;
+  animation-delay: -0.6s;
 }
 
 .spotify-seek {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .spotify-seek-input {
-  width: 100%;
-  height: 16px;
-  margin: 0;
   appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  padding: 0;
   background: transparent;
-  cursor: pointer;
+  border: 0;
 }
 
 .spotify-seek-input::-webkit-slider-runnable-track {
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
+  height: 5px;
+  border-radius: 99px;
+  background: linear-gradient(to right, #fff var(--fill, 0%), rgba(255, 255, 255, 0.22) var(--fill, 0%));
 }
 
 .spotify-seek-input::-moz-range-track {
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
+  height: 5px;
+  border-radius: 99px;
+  background: linear-gradient(to right, #fff var(--fill, 0%), rgba(255, 255, 255, 0.22) var(--fill, 0%));
 }
 
 .spotify-seek-input::-webkit-slider-thumb {
-  appearance: none;
-  width: 12px;
-  height: 12px;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -4.5px;
   border-radius: 50%;
-  background: #1ed760;
-  margin-top: -4px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .spotify-seek-input::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
-  border: none;
+  width: 14px;
+  height: 14px;
+  border: 0;
   border-radius: 50%;
-  background: #1ed760;
+  background: #fff;
 }
 
 .spotify-seek-times {
   display: flex;
   justify-content: space-between;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.72rem;
   font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .spotify-controls {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 26px;
 }
 
-.spotify-controls .icon-btn.accent {
-  color: #1ed760;
+.spotify-ctrl {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: #fff;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.spotify-ctrl:active {
+  transform: scale(0.9);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.spotify-ctrl.play {
+  width: 60px;
+  height: 60px;
+  background: #fff;
+  color: #0b0d10;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+
+.spotify-ctrl.play:active {
+  background: #e6e6e6;
+}
+
+.spotify-ctrl:disabled,
+.spotify-mini-btn:disabled {
+  opacity: 0.4;
+}
+
+/* Replié : barre compacte, toujours pilotable. */
+.spotify-mini {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px 10px 8px;
+  border-radius: 18px;
+}
+
+.spotify-mini-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  color: inherit;
+}
+
+.spotify-mini-art {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+.spotify-mini-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.spotify-mini-text .name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spotify-mini-text .artist {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.spotify-mini-btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  transition: transform 0.12s ease;
+}
+
+.spotify-mini-btn:active {
+  transform: scale(0.88);
+}
+
+.spotify-mini-btn.primary {
+  background: #fff;
+  color: #0b0d10;
+}
+
+.spotify-mini-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background: #1ed760;
+  transform-origin: left;
+  transition: transform 0.25s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spotify-eq.playing i,
+  .spotify-art-wrap.slide-next,
+  .spotify-art-wrap.slide-prev {
+    animation: none;
+  }
+  .spotify-art-wrap {
+    transition: none;
+  }
 }
 
 /* ---------- Connexion / compte ---------- */
@@ -2898,10 +3047,10 @@ h2,
 
 .rest-timer-banner {
   position: fixed;
-  top: auto;
   left: 0;
   right: 0;
-  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + 12px);
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  bottom: auto;
   z-index: 9;
   width: calc(100% - 32px);
   max-width: 488px;
@@ -3161,3 +3310,6 @@ h2,
 .reorder-row .name { font-weight: 600; font-size: 0.9rem; }
 .reorder-row .sub { font-size: 0.75rem; color: var(--text-sub); }
 .reorder-list { border-radius: 16px; overflow: hidden; }
+
+/* Minuteur réduit : fixé en haut ; l'en-tête s'agrandit pour que rien ne passe dessous au repos. */
+body.has-rest-banner .app-header { height: calc(env(safe-area-inset-top, 0px) + 76px); }

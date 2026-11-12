@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useApp } from '../state/AppContext'
 import { formatRestDigits } from './RestTimer'
 
@@ -10,9 +11,15 @@ interface RestTimerBannerProps {
   onSkip: () => void
 }
 
-/** Bandeau réduit du minuteur de repos, flottant au-dessus de la barre d'onglets : le décompte continue même en changeant d'onglet. */
+/** Bandeau réduit du minuteur de repos, fixé en haut de l'écran : le décompte continue même en changeant d'onglet. */
 export function RestTimerBanner({ remainingMs, progress, label, onExpand, onAdd, onSkip }: RestTimerBannerProps) {
   const { t } = useApp()
+  // Réserve la place du bandeau en haut de page tant qu'il est affiché.
+  useEffect(() => {
+    document.body.classList.add('has-rest-banner')
+    return () => document.body.classList.remove('has-rest-banner')
+  }, [])
+
   const displayLabel = label ?? t('train.restTimerLabel')
 
   return (

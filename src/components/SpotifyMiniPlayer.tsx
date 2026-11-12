@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { useSpotify } from '../state/SpotifyContext'
-import { IconChevronDown, IconPause, IconPlay, IconSpotifyLogo } from './icons'
+import { IconChevronDown, IconPause, IconPlay, IconSkipBack, IconSkipForward, IconSpotifyLogo } from './icons'
 import { formatRestTime } from '../lib/rest'
 
 /** Distance de glissement (px) à partir de laquelle un swipe change de piste. */
@@ -9,8 +9,8 @@ const SWIPE_THRESHOLD = 40
 
 /**
  * Mini-lecteur affiché pendant une séance active, une fois Spotify connecté
- * (connexion configurée dans Réglages). Replié par défaut en simple ligne
- * discrète (sans habillage de carte) : la ligne entière ouvre le lecteur complet.
+ * (connexion configurée dans Réglages). Replié par défaut en barre compacte
+ * (pochette, titre, lecture, suivant) ; un appui sur le titre ouvre le lecteur complet.
  */
 export function SpotifyMiniPlayer() {
   const { t } = useApp()
@@ -64,22 +64,66 @@ export function SpotifyMiniPlayer() {
     else if (delta < -SWIPE_THRESHOLD) goNext()
   }
 
+  const shownPosition = dragPosition ?? displayPosition
+  const ratio = track?.duration ? Math.min(1, shownPosition / track.duration) : 0
+  const playing = Boolean(track && !track.isPaused)
+  const title = track?.name ?? (playerReady ? t('train.spotifyNoTrack') : t('train.spotifyConnecting'))
+
+  const art = (className: string) =>
+    track?.albumArt ? <img src={track.albumArt} alt="" className={className} /> : <span className={`${className} placeholder`} />
+  const equalizer = (
+    <span className={`spotify-eq${playing ? ' playing' : ''}`} aria-hidden="true">
+      <i />
+      <i />
+      <i />
+    </span>
+  )
+  const playButton = (size: number, className: string) => (
+    <button
+      type="button"
+      className={className}
+      onClick={togglePlay}
+      disabled={!track}
+      aria-label={playing ? t('train.spotifyPauseAria') : t('train.spotifyPlayAria')}
+    >
+      {playing ? <IconPause size={size} /> : <IconPlay size={size} />}
+    </button>
+  )
+
   if (!open) {
     return (
-      <button type="button" className="spotify-collapsed-bar" onClick={() => setOpen(true)}>
-        <IconSpotifyLogo size={14} />
-        <span className="spotify-collapsed-track">
-          {track ? `${track.name} — ${track.artist}` : t('train.spotifyConnecting')}
-        </span>
-        <IconChevronDown size={14} />
-      </button>
+      <div className="spotify-mini">
+        {track?.albumArt ? <img src={track.albumArt} alt="" className="spotify-backdrop" aria-hidden="true" /> : null}
+        <button type="button" className="spotify-mini-main" onClick={() => setOpen(true)} aria-label={t('train.spotifyExpandAria')}>
+          {art('spotify-mini-art')}
+          <span className="spotify-mini-text">
+            <span className="name">{title}</span>
+            <span className="artist">
+              {equalizer}
+              {track?.artist ?? 'Spotify'}
+            </span>
+          </span>
+        </button>
+        {playButton(18, 'spotify-mini-btn primary')}
+        <button type="button" className="spotify-mini-btn" onClick={goNext} disabled={!track} aria-label={t('train.spotifyNextAria')}>
+          <IconSkipForward size={18} />
+        </button>
+        <span className="spotify-mini-progress" style={{ transform: `scaleX(${ratio})` }} />
+      </div>
     )
   }
 
-  const shownPosition = dragPosition ?? displayPosition
-
   return (
-    <div className="card spotify-player">
+    <div
+      className="spotify-player"
+      onPointerDown={(event) => {
+        // Le curseur de position garde son propre glissement.
+        if (!(event.target as HTMLElement).closest('input, button, a')) onSwipeStart(event.clientX)
+      }}
+      onPointerUp={(event) => onSwipeEnd(event.clientX)}
+    >
+      {track?.albumArt ? <img src={track.albumArt} alt="" className="spotify-backdrop" aria-hidden="true" /> : null}
+
       <div className="spotify-header-row">
         <a
           className="spotify-brand-header"
@@ -88,15 +132,10 @@ export function SpotifyMiniPlayer() {
           rel="noreferrer"
           aria-label={t('train.spotifyOpenAria')}
         >
-          <IconSpotifyLogo size={20} />
+          <IconSpotifyLogo size={18} />
           <span>Spotify</span>
         </a>
-        <button
-          type="button"
-          className="icon-btn spotify-toggle"
-          onClick={() => setOpen(false)}
-          aria-label={t('train.spotifyMinimizeAria')}
-        >
+        <button type="button" className="spotify-round-btn" onClick={() => setOpen(false)} aria-label={t('train.spotifyMinimizeAria')}>
           <IconChevronDown open size={16} />
         </button>
       </div>
@@ -107,37 +146,22 @@ export function SpotifyMiniPlayer() {
         <p className="hint danger">{t('train.spotifyGenericError')}</p>
       ) : null}
 
-      <div
-        className="spotify-carousel"
-        onPointerDown={(event) => onSwipeStart(event.clientX)}
-        onPointerUp={(event) => onSwipeEnd(event.clientX)}
-      >
-        <button type="button" className="spotify-carousel-side" onClick={goPrevious} aria-label={t('train.spotifyPreviousAria')}>
-          {track?.previousArt ? <img src={track.previousArt} alt="" /> : <span className="spotify-art placeholder small" />}
-        </button>
-        <div className="spotify-carousel-center">
-          <div key={track?.url ?? 'none'} className={`spotify-art-wrap slide-${directionRef.current}`}>
-            {track?.albumArt ? (
-              <img src={track.albumArt} alt="" className="spotify-art" />
-            ) : (
-              <div className="spotify-art placeholder" />
-            )}
-          </div>
+      <div className="spotify-now">
+        <div key={track?.url ?? 'none'} className={`spotify-art-wrap slide-${directionRef.current}${playing ? ' playing' : ''}`}>
+          {art('spotify-art')}
         </div>
-        <button type="button" className="spotify-carousel-side" onClick={goNext} aria-label={t('train.spotifyNextAria')}>
-          {track?.nextArt ? <img src={track.nextArt} alt="" /> : <span className="spotify-art placeholder small" />}
-        </button>
-      </div>
-
-      <div className="spotify-track-info center">
-        <span className="name">{track?.name ?? (playerReady ? t('train.spotifyNoTrack') : t('train.spotifyConnecting'))}</span>
-        {track ? <span className="hint">{track.artist}</span> : null}
+        <div className="spotify-track-info">
+          <span className="name">{title}</span>
+          <span className="artist">{track?.artist ?? ''}</span>
+          {equalizer}
+        </div>
       </div>
 
       <div className="spotify-seek">
         <input
           type="range"
           className="spotify-seek-input"
+          style={{ '--fill': `${ratio * 100}%` } as React.CSSProperties}
           min={0}
           max={track?.duration || 0}
           step={1000}
@@ -155,13 +179,12 @@ export function SpotifyMiniPlayer() {
       </div>
 
       <div className="spotify-controls">
-        <button
-          type="button"
-          className="icon-btn accent"
-          onClick={togglePlay}
-          aria-label={track?.isPaused ? t('train.spotifyPlayAria') : t('train.spotifyPauseAria')}
-        >
-          {track && !track.isPaused ? <IconPause size={22} /> : <IconPlay size={22} />}
+        <button type="button" className="spotify-ctrl" onClick={goPrevious} disabled={!track} aria-label={t('train.spotifyPreviousAria')}>
+          <IconSkipBack size={22} />
+        </button>
+        {playButton(24, 'spotify-ctrl play')}
+        <button type="button" className="spotify-ctrl" onClick={goNext} disabled={!track} aria-label={t('train.spotifyNextAria')}>
+          <IconSkipForward size={22} />
         </button>
       </div>
     </div>
