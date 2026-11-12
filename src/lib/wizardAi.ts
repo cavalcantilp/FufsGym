@@ -44,7 +44,14 @@ export function loadAiKey(): { key: string; valid: boolean } {
 export function saveAiKey(key: string, valid: boolean): void {
   save(STORAGE_KEYS.aiKey, key)
   save(STORAGE_KEYS.aiKeyValid, valid)
+  // Prévient le reste de l'appli (bouton du coach) sans passer par un contexte dédié.
+  window.dispatchEvent(new Event(AI_KEY_EVENT))
 }
+
+export const AI_KEY_EVENT = 'fg-ai-key'
+
+/** Client Anthropic pour un appel direct depuis le navigateur, avec la clé personnelle de l'utilisateur. */
+export const createAiClient = (apiKey: string) => createClient(apiKey)
 
 async function createClient(apiKey: string) {
   // Chargé à la demande : le SDK ne pèse sur l'appli que pour qui utilise l'IA.

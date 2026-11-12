@@ -47,4 +47,5 @@ export const STORAGE_KEYS = {
   aiKey: 'aiKey',
   aiKeyValid: 'aiKeyValid',
   aiModel: 'aiModel',
+  coachChat: 'coachChat',
 } as const

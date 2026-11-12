@@ -9,6 +9,7 @@ import { ProgressionScreen } from './pages/ProgressionScreen'
 import { SettingsScreen } from './pages/SettingsScreen'
 import { IconCalendar, IconClipboard, IconDumbbell, IconSettings, IconTrendingUp } from './components/icons'
 import { RestTimerHost } from './components/RestTimerHost'
+import { CoachChat } from './components/CoachChat'
 import { load, save, STORAGE_KEYS } from './lib/storage'
 import { SharedProgramScreen } from './pages/SharedProgramScreen'
 import { capturePendingShare, clearPendingShare, readPendingShare } from './lib/share'
@@ -94,6 +95,8 @@ export function App() {
         </>
       )}
       {sharedToast ? <div className="toast">{t('share.added')}</div> : null}
+
+      {sharedToken ? null : <CoachChat />}
 
       <nav className="tabbar">
         {tabs.map((entry) => (

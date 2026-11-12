@@ -256,6 +256,23 @@ export function IconSort({ size = 18 }: IconProps) {
   )
 }
 
+export function IconCoach({ size = 22 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 11.5a7.5 7.5 0 0 1-11 6.6L4 19.5l1.5-4.3A7.5 7.5 0 1 1 20 11.5Z" />
+      <path d="M9 11.5h.01M12.5 11.5h.01M16 11.5h.01" />
+    </svg>
+  )
+}
+
+export function IconSend({ size = 18 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" />
+    </svg>
+  )
+}
+
 export function IconMore({ size = 20 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
