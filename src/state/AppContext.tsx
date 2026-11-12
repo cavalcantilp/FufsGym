@@ -66,7 +66,7 @@ interface AppState {
   replaceWorkoutExercises: (workoutId: string, exercises: Omit<PlanExercise, 'id'>[]) => void
   /** Crée d'un coup plusieurs entraînements (assistant), chacun programmé sur ses jours s'il en a et qu'une lettre est libre. */
   addGeneratedWorkouts: (
-    items: { name: string; exercises: Omit<PlanExercise, 'id'>[]; weekdays: Weekday[] }[],
+    items: { name: string; exercises: Omit<PlanExercise, 'id'>[]; weekdays: Weekday[]; objective?: string }[],
     options?: { objective?: string; endDate?: string },
   ) => void
   updateExercise: (workoutId: string, entryId: string, patch: Partial<PlanExercise>) => void
@@ -353,7 +353,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addGeneratedWorkouts = useCallback(
     (
-      items: { name: string; exercises: Omit<PlanExercise, 'id'>[]; weekdays: Weekday[] }[],
+      items: { name: string; exercises: Omit<PlanExercise, 'id'>[]; weekdays: Weekday[]; objective?: string }[],
       options?: { objective?: string; endDate?: string },
     ) => {
       const created = items.map((item) => ({
@@ -362,7 +362,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           name: item.name,
           exercises: item.exercises.map((entry) => ({ ...entry, id: newId() })),
           createdAt: new Date().toISOString(),
-          ...(options?.objective ? { objective: options.objective } : {}),
+          ...((item.objective ?? options?.objective) ? { objective: item.objective ?? options?.objective } : {}),
         } satisfies Workout,
         weekdays: item.weekdays,
       }))

@@ -10,12 +10,27 @@ import { SettingsScreen } from './pages/SettingsScreen'
 import { IconCalendar, IconClipboard, IconDumbbell, IconSettings, IconTrendingUp } from './components/icons'
 import { RestTimerHost } from './components/RestTimerHost'
 import { load, save, STORAGE_KEYS } from './lib/storage'
+import { SharedProgramScreen } from './pages/SharedProgramScreen'
+import { capturePendingShare, clearPendingShare, readPendingShare } from './lib/share'
 
 type Tab = 'calendar' | 'plan' | 'train' | 'progress' | 'settings'
 
 export function App() {
   const { t, onboarded } = useApp()
   const [tab, setTab] = useState<Tab>(() => load(STORAGE_KEYS.ui, { tab: 'train' as Tab }).tab)
+
+  const [sharedToken, setSharedToken] = useState<string | null>(readPendingShare)
+  const [sharedToast, setSharedToast] = useState(false)
+
+  // Lien de partage ouvert alors que l'appli tourne déjà (même onglet ou appli installée).
+  useEffect(() => {
+    const onHash = () => {
+      capturePendingShare()
+      setSharedToken(readPendingShare())
+    }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
 
   const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW()
 
@@ -56,11 +71,29 @@ export function App() {
         </div>
       ) : null}
 
-      {tab === 'calendar' ? <CalendarScreen /> : null}
-      {tab === 'plan' ? <PlanificationScreen /> : null}
-      {tab === 'train' ? <TrainScreen /> : null}
-      {tab === 'progress' ? <ProgressionScreen /> : null}
-      {tab === 'settings' ? <SettingsScreen /> : null}
+      {sharedToken ? (
+        <SharedProgramScreen
+          token={sharedToken}
+          onDone={(accepted) => {
+            clearPendingShare()
+            setSharedToken(null)
+            if (accepted) {
+              setTab('plan')
+              setSharedToast(true)
+              setTimeout(() => setSharedToast(false), 2500)
+            }
+          }}
+        />
+      ) : (
+        <>
+          {tab === 'calendar' ? <CalendarScreen /> : null}
+          {tab === 'plan' ? <PlanificationScreen /> : null}
+          {tab === 'train' ? <TrainScreen /> : null}
+          {tab === 'progress' ? <ProgressionScreen /> : null}
+          {tab === 'settings' ? <SettingsScreen /> : null}
+        </>
+      )}
+      {sharedToast ? <div className="toast">{t('share.added')}</div> : null}
 
       <nav className="tabbar">
         {tabs.map((entry) => (

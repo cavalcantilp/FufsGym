@@ -1,3 +1,5 @@
+// En premier : met de côté un éventuel lien de partage avant que quoi que ce soit ne lise l'URL.
+import './lib/share'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { AppProvider } from './state/AppContext'

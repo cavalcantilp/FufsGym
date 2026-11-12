@@ -15,6 +15,7 @@ import { groupBySuperset } from '../lib/superset'
 import { LETTER_COLOR } from '../lib/schedule'
 import { formatShort } from '../lib/date'
 import { formatWeight } from '../lib/weightUnit'
+import { ShareButton } from '../components/ShareButton'
 import { IconArrowDown, IconArrowUp, IconCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
 import type { TranslationKey } from '../i18n/translations'
 import type { DaySchedule, Exercise, Lang, PlanExercise, Workout } from '../lib/types'
@@ -259,6 +260,8 @@ function WorkoutDetail({
           {hasSchedule ? t('schedule.edit') : t('workout.activate')}
         </button>
 
+        {workout.exercises.length > 0 ? <ShareButton workouts={[workout]} label={t('share.workout')} /> : null}
+
         <button type="button" className="btn success" onClick={handleBack}>
           {t('workout.save')}
         </button>
@@ -374,6 +377,10 @@ export function PlanificationScreen() {
         <IconPlus size={18} />
         {t('workout.new')}
       </button>
+
+      {workouts.some((w) => w.exercises.length > 0) ? (
+        <ShareButton workouts={workouts.filter((w) => w.exercises.length > 0)} label={t('share.program')} />
+      ) : null}
     </div>
   )
 }

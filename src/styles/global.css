@@ -3135,3 +3135,9 @@ h2,
 .wizard-chip.active { background: var(--accent); color: var(--accent-ink); }
 .wizard-advice { padding: 12px 14px; background: var(--card-bg); border-radius: 14px; color: var(--text); line-height: 1.45; }
 .wizard-ai input[type="checkbox"] { appearance: auto; -webkit-appearance: checkbox; padding: 0; border-radius: 4px; background: none; }
+
+/* Programme reçu par lien */
+.shared-name { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; }
+.shared-exercise { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; background: var(--input-bg); border-radius: 12px; }
+.shared-exercise .name { font-weight: 700; }
+.shared-exercise .target { font-size: 0.8rem; color: var(--text-sub); }
