@@ -248,6 +248,14 @@ export function IconShare({ size = 18 }: IconProps) {
   )
 }
 
+export function IconSort({ size = 18 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M8 5v14M8 5L4.5 8.5M8 5l3.5 3.5M16 19V5M16 19l-3.5-3.5M16 19l3.5-3.5" />
+    </svg>
+  )
+}
+
 export function IconMore({ size = 20 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

@@ -3141,3 +3141,23 @@ h2,
 .shared-exercise { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; background: var(--input-bg); border-radius: 12px; }
 .shared-exercise .name { font-weight: 700; }
 .shared-exercise .target { font-size: 0.8rem; color: var(--text-sub); }
+
+/* Liste réordonnable au doigt */
+.sortable-item { display: flex; align-items: stretch; position: relative; background: var(--card-bg); }
+.sortable.dragging .sortable-item { transition: transform 0.18s ease; }
+.sortable.dragging .sortable-item.active { transition: none; z-index: 5; border-radius: 14px; background: var(--input-bg); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5); }
+.sortable.dragging { user-select: none; -webkit-user-select: none; }
+.sortable-item + .sortable-item { border-top: 1px solid var(--border); }
+.sortable.dragging .sortable-item.active, .sortable.dragging .sortable-item.active + .sortable-item { border-top-color: transparent; }
+.sortable-content { flex: 1; min-width: 0; }
+.drag-handle { flex: none; display: flex; align-items: center; justify-content: center; width: 40px; margin: 0; padding: 0; border: 0; background: none; color: var(--text-faint); cursor: grab; touch-action: none; -webkit-touch-callout: none; }
+.drag-handle:active { cursor: grabbing; color: var(--text); }
+.drag-handle:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 8px; }
+.sortable .plan-exercise-row { padding-left: 0; }
+.sortable .plan-exercise-row + .plan-exercise-row, .sortable .superset-group { border-top: 0; }
+.sortable .superset-group .plan-exercise-row + .plan-exercise-row { border-top: 1px solid var(--border); }
+.sortable .superset-group .plan-exercise-row { padding-left: 12px; }
+.reorder-row { display: flex; flex-direction: column; gap: 2px; padding: 12px 12px 12px 0; }
+.reorder-row .name { font-weight: 600; font-size: 0.9rem; }
+.reorder-row .sub { font-size: 0.75rem; color: var(--text-sub); }
+.reorder-list { border-radius: 16px; overflow: hidden; }

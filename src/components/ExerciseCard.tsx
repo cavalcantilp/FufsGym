@@ -7,8 +7,7 @@ import { ExerciseNoteHistory } from './ExerciseNoteHistory'
 import { MuscleDiagram } from './MuscleDiagram'
 import { Sheet } from './Sheet'
 import {
-  IconArrowDown,
-  IconArrowUp,
+  IconSort,
   IconCheck,
   IconMore,
   IconPlay,
@@ -32,10 +31,8 @@ interface ExerciseCardProps {
   triggersRest?: boolean
   /** Faux pendant une séance active (S'entraîner) : le schéma musculaire n'y est affiché qu'en correction d'historique. */
   showMuscleDiagram?: boolean
-  /** Vrai pendant une séance active : affiche des flèches pour réordonner les exercices. */
-  showReorder?: boolean
-  canMoveUp?: boolean
-  canMoveDown?: boolean
+  /** Pendant une séance active : ouvre la liste de réorganisation des exercices. */
+  onReorder?: () => void
   /** Ouvre la carte dès l'affichage (exercice en cours de la séance). */
   defaultExpanded?: boolean
 }
@@ -47,9 +44,7 @@ export function ExerciseCard({
   onSetCompleted,
   triggersRest = false,
   showMuscleDiagram = true,
-  showReorder = false,
-  canMoveUp = false,
-  canMoveDown = false,
+  onReorder,
   defaultExpanded = false,
 }: ExerciseCardProps) {
   const {
@@ -61,7 +56,6 @@ export function ExerciseCard({
     updateSet,
     removeSet,
     removeSessionExercise,
-    moveSessionExercise,
     updateSessionExerciseRest,
     updateSessionExerciseCardioUnit,
   } = useApp()
@@ -137,27 +131,18 @@ export function ExerciseCard({
                 {t('train.exerciseNoteAria')}
               </button>
             ) : null}
-            {showReorder ? (
-              <>
-                <button
-                  type="button"
-                  className="menu-row"
-                  disabled={!canMoveUp}
-                  onClick={() => moveSessionExercise(session.id, sessionExercise.id, 'up')}
-                >
-                  <IconArrowUp size={18} />
-                  {t('day.moveUpAria')}
-                </button>
-                <button
-                  type="button"
-                  className="menu-row"
-                  disabled={!canMoveDown}
-                  onClick={() => moveSessionExercise(session.id, sessionExercise.id, 'down')}
-                >
-                  <IconArrowDown size={18} />
-                  {t('day.moveDownAria')}
-                </button>
-              </>
+            {onReorder ? (
+              <button
+                type="button"
+                className="menu-row"
+                onClick={() => {
+                  setMenuOpen(false)
+                  onReorder()
+                }}
+              >
+                <IconSort size={18} />
+                {t('reorder.open')}
+              </button>
             ) : null}
             <button
               type="button"

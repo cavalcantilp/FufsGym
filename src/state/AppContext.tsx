@@ -11,7 +11,7 @@ import {
 import { BUILTIN_EXERCISES, targetRepsFromPlan } from '../lib/exercises'
 import { load, save, clearAll, STORAGE_KEYS } from '../lib/storage'
 import { nextFreeLetter } from '../lib/schedule'
-import { moveGroup } from '../lib/superset'
+import { reorderGroups } from '../lib/superset'
 import { todayKey } from '../lib/date'
 import { DEFAULT_REST_SEC } from '../lib/rest'
 import { detectLang, TRANSLATIONS, type TranslationKey } from '../i18n/translations'
@@ -72,7 +72,8 @@ interface AppState {
   updateExercise: (workoutId: string, entryId: string, patch: Partial<PlanExercise>) => void
   removeExercise: (workoutId: string, entryId: string) => void
   setSupersetLink: (workoutId: string, exerciseId: string, linked: boolean) => void
-  moveExercise: (workoutId: string, entryId: string, direction: 'up' | 'down') => void
+  /** Déplace un groupe (exercice seul ou superset) d'une position à une autre. */
+  reorderExercises: (workoutId: string, from: number, to: number) => void
 
   schedules: DaySchedule[]
   scheduleForWorkout: (workoutId: string) => DaySchedule | undefined
@@ -96,7 +97,7 @@ interface AppState {
   startSession: (date: string, workout?: Workout | null) => Session
   addSessionExercise: (sessionId: string, exerciseId: string) => void
   removeSessionExercise: (sessionId: string, sessionExerciseId: string) => void
-  moveSessionExercise: (sessionId: string, sessionExerciseId: string, direction: 'up' | 'down') => void
+  reorderSessionExercises: (sessionId: string, from: number, to: number) => void
   addSet: (sessionId: string, sessionExerciseId: string, set?: Partial<SetLog>) => void
   updateSet: (sessionId: string, sessionExerciseId: string, setId: string, patch: Partial<SetLog>) => void
   removeSet: (sessionId: string, sessionExerciseId: string, setId: string) => void
@@ -405,9 +406,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     )
   }, [])
 
-  const moveExercise = useCallback((workoutId: string, entryId: string, direction: 'up' | 'down') => {
+  const reorderExercises = useCallback((workoutId: string, from: number, to: number) => {
     setWorkouts((current) =>
-      current.map((w) => (w.id !== workoutId ? w : { ...w, exercises: moveGroup(w.exercises, entryId, direction) })),
+      current.map((w) => (w.id !== workoutId ? w : { ...w, exercises: reorderGroups(w.exercises, from, to) })),
     )
   }, [])
 
@@ -533,10 +534,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     )
   }, [])
 
-  const moveSessionExercise = useCallback((sessionId: string, sessionExerciseId: string, direction: 'up' | 'down') => {
+  const reorderSessionExercises = useCallback((sessionId: string, from: number, to: number) => {
     setSessions((current) =>
       current.map((s) =>
-        s.id !== sessionId ? s : { ...s, exercises: moveGroup(s.exercises, sessionExerciseId, direction) },
+        s.id !== sessionId ? s : { ...s, exercises: reorderGroups(s.exercises, from, to) },
       ),
     )
   }, [])
@@ -797,7 +798,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateExercise,
       removeExercise,
       setSupersetLink,
-      moveExercise,
+      reorderExercises,
       schedules,
       scheduleForWorkout,
       addSchedule,
@@ -812,7 +813,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       startSession,
       addSessionExercise,
       removeSessionExercise,
-      moveSessionExercise,
+      reorderSessionExercises,
       addSet,
       updateSet,
       removeSet,
@@ -856,7 +857,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateExercise,
       removeExercise,
       setSupersetLink,
-      moveExercise,
+      reorderExercises,
       schedules,
       scheduleForWorkout,
       addSchedule,
@@ -871,7 +872,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       startSession,
       addSessionExercise,
       removeSessionExercise,
-      moveSessionExercise,
+      reorderSessionExercises,
       addSet,
       updateSet,
       removeSet,

@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext'
 import { FormPage } from '../components/FormPage'
 import { Sheet } from '../components/Sheet'
@@ -15,8 +15,9 @@ import { groupBySuperset } from '../lib/superset'
 import { LETTER_COLOR } from '../lib/schedule'
 import { formatShort } from '../lib/date'
 import { formatWeight } from '../lib/weightUnit'
+import { SortableList } from '../components/SortableList'
 import { ShareButton } from '../components/ShareButton'
-import { IconArrowDown, IconArrowUp, IconCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
+import { IconCheck, IconEdit, IconPlus, IconTrash } from '../components/icons'
 import type { TranslationKey } from '../i18n/translations'
 import type { DaySchedule, Exercise, Lang, PlanExercise, Workout } from '../lib/types'
 
@@ -61,7 +62,7 @@ function WorkoutDetail({
     addExercise,
     updateExercise,
     removeExercise,
-    moveExercise,
+    reorderExercises,
     exerciseById,
   } = useApp()
 
@@ -168,9 +169,10 @@ function WorkoutDetail({
           {workout.exercises.length === 0 ? (
             <p className="empty">{t('workout.noExercises')}</p>
           ) : (
-            groupBySuperset(workout.exercises).map((group, groupIndex, groups) => {
-              const isFirstGroup = groupIndex === 0
-              const isLastGroup = groupIndex === groups.length - 1
+            <SortableList
+              handleLabel={t('reorder.handle')}
+              onReorder={(from, to) => reorderExercises(workout.id, from, to)}
+              items={groupBySuperset(workout.exercises).map((group) => {
               const rows = group.map((entry) => {
                 const info = exerciseById(entry.exerciseId)
                 return (
@@ -184,26 +186,6 @@ function WorkoutDetail({
                         {formatRestTime(entry.restSec ?? DEFAULT_REST_SEC)}
                         {entry.note ? ` · ${entry.note}` : ''}
                       </span>
-                    </span>
-                    <span className="reorder-btns">
-                      <button
-                        type="button"
-                        className="icon-btn"
-                        disabled={isFirstGroup}
-                        onClick={() => moveExercise(workout.id, entry.id, 'up')}
-                        aria-label={t('day.moveUpAria')}
-                      >
-                        <IconArrowUp size={14} />
-                      </button>
-                      <button
-                        type="button"
-                        className="icon-btn"
-                        disabled={isLastGroup}
-                        onClick={() => moveExercise(workout.id, entry.id, 'down')}
-                        aria-label={t('day.moveDownAria')}
-                      >
-                        <IconArrowDown size={14} />
-                      </button>
                     </span>
                     <button
                       type="button"
@@ -225,15 +207,20 @@ function WorkoutDetail({
                 )
               })
 
-              if (group.length === 1) return <Fragment key={group[0].id}>{rows}</Fragment>
-
-              return (
-                <div className="superset-group" key={group[0].id}>
-                  <div className="superset-group-label">{t('train.supersetLabel', { count: group.length })}</div>
-                  {rows}
-                </div>
-              )
-            })
+              return {
+                id: group[0].id,
+                content:
+                  group.length === 1 ? (
+                    rows
+                  ) : (
+                    <div className="superset-group">
+                      <div className="superset-group-label">{t('train.supersetLabel', { count: group.length })}</div>
+                      {rows}
+                    </div>
+                  ),
+              }
+            })}
+            />
           )}
 
           <button type="button" className="day-add" onClick={() => setPickerOpen(true)}>

@@ -4,6 +4,8 @@ import { ExercisePicker } from '../components/ExercisePicker'
 import { ExerciseCard } from '../components/ExerciseCard'
 import { MuscleDiagram } from '../components/MuscleDiagram'
 import { Sheet } from '../components/Sheet'
+import { SortableList } from '../components/SortableList'
+import { exerciseName } from '../lib/exercises'
 import { SpotifyMiniPlayer } from '../components/SpotifyMiniPlayer'
 import { IconCheck, IconChevronDown, IconDumbbell, IconFlame, IconPlus, IconTimer } from '../components/icons'
 import { fromKey, localeOf, shiftDay, todayKey, formatDay } from '../lib/date'
@@ -311,6 +313,7 @@ function ActiveSessionView({
     workouts,
     exerciseById,
     addSessionExercise,
+    reorderSessionExercises,
     finishSession,
     deleteSession,
     renameSession,
@@ -320,6 +323,7 @@ function ActiveSessionView({
     startRestTimer,
   } = useApp()
   const [picking, setPicking] = useState(false)
+  const [reordering, setReordering] = useState(false)
   const [confirmEnd, setConfirmEnd] = useState(false)
   const isFreeSession = !session.workoutId
   const currentName = session.workoutName ?? t('train.freeSession')
@@ -459,9 +463,7 @@ function ActiveSessionView({
 
       <SpotifyMiniPlayer />
 
-      {groupBySuperset(session.exercises).map((group, groupIndex, groups) => {
-        const canMoveUp = groupIndex > 0
-        const canMoveDown = groupIndex < groups.length - 1
+      {groupBySuperset(session.exercises).map((group) => {
         return group.length > 1 ? (
           <div className="superset-block" key={group[0].id}>
             <div className="superset-block-label">{t('train.supersetLabel', { count: group.length })}</div>
@@ -473,10 +475,8 @@ function ActiveSessionView({
                 onSetCompleted={handleSetCompleted}
                 triggersRest={index === group.length - 1}
                 showMuscleDiagram={false}
-                showReorder
+                onReorder={() => setReordering(true)}
                 defaultExpanded={sessionExercise.id === firstPendingId}
-                canMoveUp={canMoveUp}
-                canMoveDown={canMoveDown}
               />
             ))}
           </div>
@@ -488,13 +488,44 @@ function ActiveSessionView({
             onSetCompleted={handleSetCompleted}
             triggersRest
             showMuscleDiagram={false}
-            showReorder
+            onReorder={() => setReordering(true)}
             defaultExpanded={group[0].id === firstPendingId}
-            canMoveUp={canMoveUp}
-            canMoveDown={canMoveDown}
           />
         )
       })}
+
+      {reordering ? (
+        <Sheet title={t('reorder.title')} subtitle={t('reorder.hint')} onClose={() => setReordering(false)}>
+          <SortableList
+            className="reorder-list"
+            handleLabel={t('reorder.handle')}
+            onReorder={(from, to) => reorderSessionExercises(session.id, from, to)}
+            items={groupBySuperset(session.exercises).map((group) => ({
+              id: group[0].id,
+              content: (
+                <div className="reorder-row">
+                  {group.map((entry) => {
+                    const info = exerciseById(entry.exerciseId)
+                    return (
+                      <span className="name" key={entry.id}>
+                        {info ? exerciseName(info, t) : t('exercise.unknown')}
+                      </span>
+                    )
+                  })}
+                  <span className="sub">
+                    {group.length > 1 ? `${t('train.supersetLabel', { count: group.length })} · ` : ''}
+                    {group.reduce((sum, entry) => sum + entry.sets.filter((set) => set.done).length, 0)}/
+                    {group.reduce((sum, entry) => sum + entry.sets.length, 0)} {t('reorder.setsDone')}
+                  </span>
+                </div>
+              ),
+            }))}
+          />
+          <button type="button" className="btn" style={{ marginTop: 14 }} onClick={() => setReordering(false)}>
+            {t('reorder.done')}
+          </button>
+        </Sheet>
+      ) : null}
 
       <button type="button" className="btn secondary" onClick={() => setPicking(true)}>
         <IconPlus size={18} />
