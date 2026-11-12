@@ -23,6 +23,7 @@ import {
   type ProposedWorkout,
   type WizardAnswers,
 } from '../lib/workoutWizard'
+import { generateWorkoutsWithAi, loadAiKey } from '../lib/wizardAi'
 import type { TranslationKey } from '../i18n/translations'
 import type { PlanExercise } from '../lib/types'
 
@@ -49,7 +50,12 @@ function toggle<T>(list: T[], value: T): T[] {
 
 /** Assistant de création : quelques questions, puis une proposition d'entraînement(s) modifiable avant validation. */
 export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCancel: () => void }) {
-  const { t, units, workouts, sessions, exerciseById, addGeneratedWorkouts } = useApp()
+  const { t, units, workouts, sessions, exercises, exerciseById, addGeneratedWorkouts } = useApp()
+  const aiKey = useMemo(loadAiKey, [])
+  const [useAi, setUseAi] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  /** Résultat de la dernière génération par IA : coût estimé, ou échec (retour aux règles fixes). */
+  const [aiResult, setAiResult] = useState<{ costUsd: number } | 'failed' | null>(null)
   const prefilled = useMemo(() => suggestAnswers(sessions, todayKey()), [sessions])
   const [answers, setAnswers] = useState<WizardAnswers>(() => ({ ...DEFAULT_ANSWERS, ...prefilled }))
   const [stepIndex, setStepIndex] = useState(0)
@@ -64,11 +70,27 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
   const updateDraft = (index: number, change: (draft: Draft) => Draft) =>
     setDrafts((current) => current.map((draft, i) => (i === index ? change(draft) : draft)))
 
-  const next = () => {
+  const next = async () => {
     if (steps[stepIndex + 1] === 'proposal') {
+      const history = buildWizardHistory(sessions, todayKey())
+      let proposals = generateWorkouts(answers, history)
+      setAiResult(null)
+      if (useAi && aiKey.valid) {
+        setGenerating(true)
+        try {
+          // Catalogue en français : les identifiants suffisent au modèle, les noms l'aident à s'y retrouver.
+          const result = await generateWorkoutsWithAi(aiKey.key, answers, history, exercises)
+          proposals = result.workouts
+          setAiResult({ costUsd: result.costUsd })
+        } catch {
+          setAiResult('failed')
+        } finally {
+          setGenerating(false)
+        }
+      }
       const taken = new Set(workouts.map((w) => w.name.trim().toLowerCase()))
       setDrafts(
-        generateWorkouts(answers, buildWizardHistory(sessions, todayKey())).map((proposal) => {
+        proposals.map((proposal) => {
           const base = `${t(`wizard.name.${proposal.template}` as TranslationKey)}${proposal.variant ? ` ${proposal.variant}` : ''}`
           let name = base
           for (let n = 2; taken.has(name.toLowerCase()); n++) name = `${base} (${n})`
@@ -341,6 +363,11 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
         {hint ? <p className="hint" style={{ marginTop: 6 }}>{hint}</p> : null}
       </div>
 
+      {step === 'proposal' && aiResult === 'failed' ? <p className="hint danger">{t('wizard.ai.failed')}</p> : null}
+      {step === 'proposal' && aiResult && aiResult !== 'failed' ? (
+        <p className="hint">{t('wizard.ai.done', { cost: aiResult.costUsd < 0.001 ? '< 0.001' : aiResult.costUsd.toFixed(3) })}</p>
+      ) : null}
+
       {body}
 
       {step === 'proposal' ? (
@@ -357,9 +384,20 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
           {drafts.length > 1 ? t('wizard.accept.program', { count: drafts.length }) : t('wizard.accept.single')}
         </button>
       ) : (
-        <button type="button" className="btn" onClick={next}>
-          {steps[stepIndex + 1] === 'proposal' ? t('wizard.generate') : t('wizard.next')}
-        </button>
+        <>
+          {steps[stepIndex + 1] === 'proposal' && aiKey.valid ? (
+            <label className="wizard-ai">
+              <input type="checkbox" checked={useAi} onChange={(event) => setUseAi(event.target.checked)} />
+              <span>
+                <span className="title">{t('wizard.ai.use')}</span>
+                <span className="desc">{t('wizard.ai.cost')}</span>
+              </span>
+            </label>
+          ) : null}
+          <button type="button" className="btn" disabled={generating} onClick={() => void next()}>
+            {generating ? t('wizard.ai.generating') : steps[stepIndex + 1] === 'proposal' ? t('wizard.generate') : t('wizard.next')}
+          </button>
+        </>
       )}
     </FormPage>
   )

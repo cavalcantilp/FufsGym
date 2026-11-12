@@ -3123,3 +3123,10 @@ h2,
 .plan-exercise-row .target {
   display: block;
 }
+
+/* Assistant : option IA (visible seulement avec une clé Anthropic valide) */
+.wizard-ai { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; cursor: pointer; }
+.wizard-ai input { flex: none; width: 20px; height: 20px; margin-top: 2px; accent-color: var(--accent); }
+.wizard-ai .title { display: block; font-weight: 700; }
+.wizard-ai .desc { display: block; margin-top: 3px; font-size: 0.82rem; color: var(--text-sub); line-height: 1.4; }
+.hint.positive { color: var(--positive); }

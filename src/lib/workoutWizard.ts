@@ -118,7 +118,7 @@ function slotMatches(slot: Slot, group: FocusGroup): boolean {
 }
 
 /** Exercices à écarter selon la zone sensible : ceux qui la chargent le plus directement. */
-const INJURY_EXCLUDES: Record<WizardInjury, string[]> = {
+export const INJURY_EXCLUDES: Record<WizardInjury, string[]> = {
   shoulders: [
     'chest-bench-press', 'chest-incline-bench', 'chest-dips', 'back-pullup', 'arms-triceps-dip',
     'shoulders-military-press', 'shoulders-arnold-press', 'shoulders-dumbbell-press', 'shoulders-machine-press', 'shoulders-upright-row',
@@ -152,7 +152,7 @@ const CARDIO_MINUTES = 12
 const WORK_SEC = 40
 const SETUP_SEC = 60
 
-const WEEKDAYS_BY_COUNT: Record<number, Weekday[]> = {
+export const WEEKDAYS_BY_COUNT: Record<number, Weekday[]> = {
   1: ['mon'],
   2: ['mon', 'thu'],
   3: ['mon', 'wed', 'fri'],
