@@ -14,7 +14,7 @@ const SWIPE_THRESHOLD = 40
  */
 export function SpotifyMiniPlayer() {
   const { t } = useApp()
-  const { connected, playerReady, track, error, togglePlay, nextTrack, previousTrack, seek } = useSpotify()
+  const { connected, switching, playerReady, track, error, togglePlay, nextTrack, previousTrack, seek } = useSpotify()
   const [open, setOpen] = useState(false)
   const [displayPosition, setDisplayPosition] = useState(0)
   const [dragPosition, setDragPosition] = useState<number | null>(null)
@@ -66,7 +66,8 @@ export function SpotifyMiniPlayer() {
 
   const shownPosition = dragPosition ?? displayPosition
   const ratio = track?.duration ? Math.min(1, shownPosition / track.duration) : 0
-  const playing = Boolean(track && !track.isPaused)
+  // Pendant un changement de morceau, les commandes restent en « lecture » : seul le contenu s'estompe.
+  const playing = Boolean(track && (!track.isPaused || switching))
   const title = track?.name ?? (playerReady ? t('train.spotifyNoTrack') : t('train.spotifyConnecting'))
 
   const art = (className: string) =>
@@ -92,7 +93,7 @@ export function SpotifyMiniPlayer() {
 
   if (!open) {
     return (
-      <div className="spotify-mini">
+      <div className={`spotify-mini${switching ? ' switching' : ''}`}>
         {track?.albumArt ? <img src={track.albumArt} alt="" className="spotify-backdrop" aria-hidden="true" /> : null}
         <button type="button" className="spotify-mini-main" onClick={() => setOpen(true)} aria-label={t('train.spotifyExpandAria')}>
           {art('spotify-mini-art')}
@@ -115,7 +116,7 @@ export function SpotifyMiniPlayer() {
 
   return (
     <div
-      className="spotify-player"
+      className={`spotify-player${switching ? ' switching' : ''}`}
       onPointerDown={(event) => {
         // Le curseur de position garde son propre glissement.
         if (!(event.target as HTMLElement).closest('input, button, a')) onSwipeStart(event.clientX)

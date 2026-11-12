@@ -36,6 +36,8 @@ interface SpotifyState {
   setClientId: (id: string) => void
   /** Tokens présents et valides : ne veut pas dire qu'on a déjà une lecture en cours à afficher. */
   connected: boolean
+  /** Changement de morceau demandé, nouveau morceau pas encore reçu. */
+  switching: boolean
   connecting: boolean
   /** Première lecture de l'état de lecture effectuée (peut n'y avoir aucun morceau en cours). */
   playerReady: boolean
@@ -95,6 +97,21 @@ export function SpotifyProvider({ children }: { children: ReactNode }) {
   tokensRef.current = tokens
   const trackRef = useRef(track)
   trackRef.current = track
+  /** Vrai entre l'appui sur suivant/précédent et l'arrivée du nouveau morceau. */
+  const [switching, setSwitching] = useState(false)
+  const pollRef = useRef<() => Promise<void>>(async () => {})
+  /**
+   * Après une commande, Spotify met un instant à refléter le nouvel état : on affiche tout de suite
+   * l'état attendu et on écarte les lectures qui le contredisent, jusqu'à `until` au plus tard.
+   */
+  const holdRef = useRef<{ until: number; fromUrl?: string | null; issuedAt: number } | null>(null)
+  const timersRef = useRef<number[]>([])
+
+  const pollSoon = useCallback((delays: number[]) => {
+    timersRef.current.forEach((timer) => window.clearTimeout(timer))
+    timersRef.current = delays.map((delay) => window.setTimeout(() => void pollRef.current(), delay))
+  }, [])
+  useEffect(() => () => timersRef.current.forEach((timer) => window.clearTimeout(timer)), [])
 
   const setClientId = useCallback((id: string) => {
     setClientIdState(id)
@@ -154,18 +171,38 @@ export function SpotifyProvider({ children }: { children: ReactNode }) {
     let cancelled = false
 
     const poll = async () => {
+      const startedAt = Date.now()
       const token = await getValidAccessToken()
       if (cancelled || !token) return
+      // Vrai si cette lecture ne doit pas remplacer l'état affiché de façon optimiste.
+      const heldBack = (next: SpotifyTrackInfo | null) => {
+        const hold = holdRef.current
+        if (!hold) return false
+        if (Date.now() >= hold.until) {
+          holdRef.current = null
+          setSwitching(false)
+          return false
+        }
+        // Réponse partie avant la commande : forcément périmée.
+        if (startedAt < hold.issuedAt) return true
+        if (hold.fromUrl === undefined) return true
+        // Changement de piste : on attend que le morceau ait réellement changé.
+        if (next && next.url === hold.fromUrl) return true
+        holdRef.current = null
+        setSwitching(false)
+        return false
+      }
       try {
         const response = await fetch('https://api.spotify.com/v1/me/player', {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (cancelled) return
         if (response.status === 204) {
-          setTrack(null)
+          if (!heldBack(null)) setTrack(null)
           setError(null)
         } else if (response.ok) {
-          setTrack(trackFromApiState(await response.json()))
+          const next = trackFromApiState(await response.json())
+          if (!heldBack(next)) setTrack(next)
           setError(null)
         } else if (response.status !== 401) {
           setError('generic')
@@ -176,6 +213,7 @@ export function SpotifyProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    pollRef.current = poll
     void poll()
     const interval = setInterval(() => void poll(), POLL_INTERVAL_MS)
     return () => {
@@ -212,26 +250,59 @@ export function SpotifyProvider({ children }: { children: ReactNode }) {
     [getValidAccessToken],
   )
 
+  /** Position réelle à l'instant, d'après le dernier état connu. */
+  const currentPosition = (current: SpotifyTrackInfo) =>
+    Math.min(current.duration, current.position + (current.isPaused ? 0 : Date.now() - current.positionUpdatedAt))
+
   const togglePlay = useCallback(() => {
-    void callPlaybackEndpoint(trackRef.current?.isPaused ? '/play' : '/pause', 'PUT')
-  }, [callPlaybackEndpoint])
-  const nextTrack = useCallback(() => {
-    void callPlaybackEndpoint('/next', 'POST')
-  }, [callPlaybackEndpoint])
-  const previousTrack = useCallback(() => {
-    void callPlaybackEndpoint('/previous', 'POST')
-  }, [callPlaybackEndpoint])
+    const current = trackRef.current
+    if (!current) return
+    const now = Date.now()
+    // Réponse immédiate à l'écran ; Spotify confirme juste après.
+    setTrack({ ...current, isPaused: !current.isPaused, position: currentPosition(current), positionUpdatedAt: now })
+    holdRef.current = { until: now + 1200, issuedAt: now }
+    void callPlaybackEndpoint(current.isPaused ? '/play' : '/pause', 'PUT')
+    pollSoon([1300, 2500])
+  }, [callPlaybackEndpoint, pollSoon])
+
+  const changeTrack = useCallback(
+    (path: '/next' | '/previous') => {
+      const current = trackRef.current
+      const now = Date.now()
+      if (current) {
+        // La barre repart de zéro et se fige en attendant le nouveau morceau.
+        setTrack({ ...current, position: 0, positionUpdatedAt: now, isPaused: true })
+        setSwitching(true)
+        // « Précédent » peut simplement relancer le même morceau : on n'attend pas longtemps un changement.
+        holdRef.current = { until: now + (path === '/previous' ? 1500 : 4000), fromUrl: current.url, issuedAt: now }
+      }
+      void callPlaybackEndpoint(path, 'POST').then(() => pollRef.current())
+      pollSoon([350, 700, 1100, 1600, 2300, 3200, 4100])
+    },
+    [callPlaybackEndpoint, pollSoon],
+  )
+  const nextTrack = useCallback(() => changeTrack('/next'), [changeTrack])
+  const previousTrack = useCallback(() => changeTrack('/previous'), [changeTrack])
+
   const seek = useCallback(
     (positionMs: number) => {
+      const current = trackRef.current
+      const now = Date.now()
+      if (current) {
+        setTrack({ ...current, position: positionMs, positionUpdatedAt: now })
+        holdRef.current = { until: now + 1200, issuedAt: now }
+      }
       void callPlaybackEndpoint(`/seek?position_ms=${Math.round(positionMs)}`, 'PUT')
+      pollSoon([1300, 2500])
     },
-    [callPlaybackEndpoint],
+    [callPlaybackEndpoint, pollSoon],
   )
 
   const value: SpotifyState = {
     clientId,
     setClientId,
     connected: Boolean(tokens),
+    switching,
     connecting,
     playerReady,
     track,

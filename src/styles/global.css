@@ -3313,3 +3313,10 @@ h2,
 
 /* Minuteur réduit : fixé en haut ; l'en-tête s'agrandit pour que rien ne passe dessous au repos. */
 body.has-rest-banner .app-header { height: calc(env(safe-area-inset-top, 0px) + 76px); }
+
+/* Changement de morceau en cours : l'ancien s'estompe aussitôt, la barre repart de zéro. */
+.spotify-now, .spotify-mini-main { transition: opacity 0.15s ease; }
+.switching .spotify-now, .switching .spotify-mini-main { opacity: 0.45; }
+.switching .spotify-art-wrap { scale: 0.92; }
+@keyframes spotify-loading { from { transform: translateX(-100%); } to { transform: translateX(350%); } }
+.spotify-mini.switching .spotify-mini-progress { width: 30%; transform: none !important; transition: none; animation: spotify-loading 0.9s ease-in-out infinite; }
