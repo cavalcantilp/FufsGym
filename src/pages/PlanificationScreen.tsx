@@ -358,6 +358,7 @@ export function PlanificationScreen() {
                   {workout.exercises.length} {t('unit.exercise')}
                 </span>
                 {schedule ? <span className="days-sub">{scheduleSummary(schedule, t, lang)}</span> : null}
+                {workout.objective ? <span className="days-sub">{t('wizard.target.label', { target: workout.objective })}</span> : null}
               </button>
             )
           })}

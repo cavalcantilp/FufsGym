@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../state/AppContext'
-import { loadAiKey, saveAiKey, validateAiKey } from '../lib/wizardAi'
+import { AI_MODELS, AI_MODEL_INFO, loadAiKey, loadAiModel, saveAiKey, saveAiModel, validateAiKey } from '../lib/wizardAi'
 
 type Status = 'idle' | 'checking' | 'valid' | 'invalid' | 'network'
 
@@ -10,6 +10,7 @@ export function AiSettings() {
   const [saved, setSaved] = useState(loadAiKey)
   const [draft, setDraft] = useState(saved.key)
   const [status, setStatus] = useState<Status>(saved.valid ? 'valid' : 'idle')
+  const [model, setModel] = useState(loadAiModel)
   const trimmed = draft.trim()
 
   const verify = async () => {
@@ -52,6 +53,27 @@ export function AiSettings() {
       {status === 'valid' ? <p className="hint positive">{t('ai.valid')}</p> : null}
       {status === 'invalid' ? <p className="hint danger">{t('ai.invalid')}</p> : null}
       {status === 'network' ? <p className="hint danger">{t('ai.network')}</p> : null}
+      {status === 'valid' ? (
+        <div className="field" style={{ marginTop: 12 }}>
+          <label htmlFor="ai-model">{t('ai.modelLabel')}</label>
+          <select
+            id="ai-model"
+            value={model}
+            onChange={(event) => {
+              const next = event.target.value as typeof model
+              setModel(next)
+              saveAiModel(next)
+            }}
+          >
+            {AI_MODELS.map((key) => (
+              <option key={key} value={key}>
+                {AI_MODEL_INFO[key].label} — {t('ai.modelCost', { cost: String(AI_MODEL_INFO[key].typicalUsd) })}
+              </option>
+            ))}
+          </select>
+          <p className="hint">{t(`ai.model.${model}`)}</p>
+        </div>
+      ) : null}
       <div className="stack" style={{ marginTop: 12 }}>
         {trimmed && status !== 'valid' ? (
           <button type="button" className="btn secondary" disabled={status === 'checking'} onClick={() => void verify()}>

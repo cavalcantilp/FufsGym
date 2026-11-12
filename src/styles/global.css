@@ -3130,3 +3130,8 @@ h2,
 .wizard-ai .title { display: block; font-weight: 700; }
 .wizard-ai .desc { display: block; margin-top: 3px; font-size: 0.82rem; color: var(--text-sub); line-height: 1.4; }
 .hint.positive { color: var(--positive); }
+.wizard-chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.wizard-chip { padding: 18px 8px; border-radius: 16px; background: var(--card-bg); color: var(--text); font-family: var(--font-display); font-weight: 700; font-size: 1rem; border: 0; cursor: pointer; }
+.wizard-chip.active { background: var(--accent); color: var(--accent-ink); }
+.wizard-advice { padding: 12px 14px; background: var(--card-bg); border-radius: 14px; color: var(--text); line-height: 1.45; }
+.wizard-ai input[type="checkbox"] { appearance: auto; -webkit-appearance: checkbox; padding: 0; border-radius: 4px; background: none; }

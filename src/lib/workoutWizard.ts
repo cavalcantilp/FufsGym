@@ -28,6 +28,10 @@ export interface WizardAnswers {
   level: WizardLevel
   injuries: WizardInjury[]
   focus: FocusGroup[]
+  /** Durée globale du programme, en semaines. */
+  durationWeeks: number
+  /** Objectif visé sur cette durée : suggestion chiffrée, ou texte libre avec l'IA. Vide = aucun. */
+  target: string
 }
 
 export interface ProposedWorkout {
@@ -228,6 +232,37 @@ export function suggestWeight(lastSets: { weight: number; reps: number }[] | und
 }
 
 /** Réponses préremplies d'après l'historique : fréquence réelle et durée habituelle des séances. */
+/** Durées globales proposées : 1 et 2 semaines, puis 1, 2, 3 et 6 mois. */
+export const WIZARD_DURATIONS = [1, 2, 4, 8, 12, 26]
+
+export type TargetKind = 'sessions' | 'loseWeight' | 'loseFat' | 'gainMuscle' | 'addLoad'
+export interface TargetSuggestion {
+  kind: TargetKind
+  n: number
+}
+
+/** Rythmes hebdomadaires prudent / moyen / ambitieux, par objectif (kg par semaine). */
+const TARGET_RATES: Record<WizardGoal, { kind: TargetKind; perWeek: number[] }[]> = {
+  weightLoss: [{ kind: 'loseWeight', perWeek: [0.25, 0.5, 0.75] }],
+  fatLoss: [{ kind: 'loseFat', perWeek: [0.2, 0.35, 0.5] }],
+  hypertrophy: [
+    { kind: 'gainMuscle', perWeek: [0.06, 0.12, 0.2] },
+    { kind: 'addLoad', perWeek: [0.6, 1] },
+  ],
+  strength: [{ kind: 'addLoad', perWeek: [0.6, 1.25, 2] }],
+}
+
+/** Objectifs chiffrés (nombres entiers) cohérents avec l'objectif et la durée choisis. */
+export function suggestTargets(answers: Pick<WizardAnswers, 'mode' | 'sessionsPerWeek' | 'goal' | 'durationWeeks'>): TargetSuggestion[] {
+  const suggestions: TargetSuggestion[] = []
+  if (answers.mode === 'program') suggestions.push({ kind: 'sessions', n: answers.sessionsPerWeek * answers.durationWeeks })
+  for (const { kind, perWeek } of TARGET_RATES[answers.goal]) {
+    const values = new Set(perWeek.map((rate) => Math.round(rate * answers.durationWeeks)).filter((n) => n >= 1))
+    for (const n of values) suggestions.push({ kind, n })
+  }
+  return suggestions
+}
+
 export function suggestAnswers(sessions: Session[], today: string): Partial<Pick<WizardAnswers, 'sessionsPerWeek' | 'minutes'>> {
   const finished = sessions.filter((session) => session.finishedAt)
   const suggestion: Partial<Pick<WizardAnswers, 'sessionsPerWeek' | 'minutes'>> = {}

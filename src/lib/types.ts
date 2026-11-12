@@ -46,6 +46,8 @@ export interface Workout {
   name: string
   exercises: PlanExercise[]
   createdAt: string
+  /** Objectif visé sur la durée du programme (texte libre ou suggestion de l'assistant). */
+  objective?: string
 }
 
 export type Weekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'

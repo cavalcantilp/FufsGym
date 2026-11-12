@@ -65,7 +65,10 @@ interface AppState {
   /** Remplace intégralement les exercices d'un entraînement existant, en conservant son id (et donc sa programmation). */
   replaceWorkoutExercises: (workoutId: string, exercises: Omit<PlanExercise, 'id'>[]) => void
   /** Crée d'un coup plusieurs entraînements (assistant), chacun programmé sur ses jours s'il en a et qu'une lettre est libre. */
-  addGeneratedWorkouts: (items: { name: string; exercises: Omit<PlanExercise, 'id'>[]; weekdays: Weekday[] }[]) => void
+  addGeneratedWorkouts: (
+    items: { name: string; exercises: Omit<PlanExercise, 'id'>[]; weekdays: Weekday[] }[],
+    options?: { objective?: string; endDate?: string },
+  ) => void
   updateExercise: (workoutId: string, entryId: string, patch: Partial<PlanExercise>) => void
   removeExercise: (workoutId: string, entryId: string) => void
   setSupersetLink: (workoutId: string, exerciseId: string, linked: boolean) => void
@@ -349,13 +352,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const addGeneratedWorkouts = useCallback(
-    (items: { name: string; exercises: Omit<PlanExercise, 'id'>[]; weekdays: Weekday[] }[]) => {
+    (
+      items: { name: string; exercises: Omit<PlanExercise, 'id'>[]; weekdays: Weekday[] }[],
+      options?: { objective?: string; endDate?: string },
+    ) => {
       const created = items.map((item) => ({
         workout: {
           id: newId(),
           name: item.name,
           exercises: item.exercises.map((entry) => ({ ...entry, id: newId() })),
           createdAt: new Date().toISOString(),
+          ...(options?.objective ? { objective: options.objective } : {}),
         } satisfies Workout,
         weekdays: item.weekdays,
       }))
@@ -366,7 +373,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (!entry.weekdays.length) continue
           const letter = nextFreeLetter(next)
           if (!letter) break
-          next.push({ id: newId(), workoutId: entry.workout.id, letter, weekdays: entry.weekdays, createdAt: todayKey() })
+          next.push({ id: newId(), workoutId: entry.workout.id, letter, weekdays: entry.weekdays, createdAt: todayKey(), ...(options?.endDate ? { endDate: options.endDate } : {}) })
         }
         return next
       })

@@ -46,4 +46,5 @@ export const STORAGE_KEYS = {
   exerciseNotes: 'exerciseNotes',
   aiKey: 'aiKey',
   aiKeyValid: 'aiKeyValid',
+  aiModel: 'aiModel',
 } as const

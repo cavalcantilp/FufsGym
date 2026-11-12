@@ -7,9 +7,10 @@ import { WeekdayPicker } from '../components/WeekdayPicker'
 import { IconCheck, IconPlus, IconTrash } from '../components/icons'
 import { exerciseName, muscleLabel } from '../lib/exercises'
 import { DEFAULT_REST_SEC, formatRestTime } from '../lib/rest'
-import { todayKey } from '../lib/date'
+import { formatNumeric, shiftDay, todayKey } from '../lib/date'
 import { formatWeight } from '../lib/weightUnit'
 import {
+  WIZARD_DURATIONS,
   WIZARD_FOCUS,
   WIZARD_GOALS,
   WIZARD_INJURIES,
@@ -20,14 +21,15 @@ import {
   estimateMinutes,
   generateWorkouts,
   suggestAnswers,
+  suggestTargets,
   type ProposedWorkout,
   type WizardAnswers,
 } from '../lib/workoutWizard'
-import { generateWorkoutsWithAi, loadAiKey } from '../lib/wizardAi'
+import { AI_MODEL_INFO, generateWorkoutsWithAi, loadAiKey, loadAiModel } from '../lib/wizardAi'
 import type { TranslationKey } from '../i18n/translations'
 import type { PlanExercise } from '../lib/types'
 
-type Step = 'mode' | 'sessions' | 'template' | 'minutes' | 'goal' | 'level' | 'injuries' | 'focus' | 'proposal'
+type Step = 'mode' | 'sessions' | 'template' | 'minutes' | 'goal' | 'level' | 'injuries' | 'focus' | 'duration' | 'target' | 'proposal'
 
 interface Draft extends ProposedWorkout {
   name: string
@@ -42,6 +44,8 @@ const DEFAULT_ANSWERS: WizardAnswers = {
   level: 'regular',
   injuries: [],
   focus: [],
+  durationWeeks: 8,
+  target: '',
 }
 
 function toggle<T>(list: T[], value: T): T[] {
@@ -50,12 +54,13 @@ function toggle<T>(list: T[], value: T): T[] {
 
 /** Assistant de création : quelques questions, puis une proposition d'entraînement(s) modifiable avant validation. */
 export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCancel: () => void }) {
-  const { t, units, workouts, sessions, exercises, exerciseById, addGeneratedWorkouts } = useApp()
+  const { t, lang, units, workouts, sessions, exercises, exerciseById, addGeneratedWorkouts } = useApp()
   const aiKey = useMemo(loadAiKey, [])
+  const aiModel = useMemo(loadAiModel, [])
   const [useAi, setUseAi] = useState(false)
   const [generating, setGenerating] = useState(false)
   /** Résultat de la dernière génération par IA : coût estimé, ou échec (retour aux règles fixes). */
-  const [aiResult, setAiResult] = useState<{ costUsd: number } | 'failed' | null>(null)
+  const [aiResult, setAiResult] = useState<{ costUsd: number; advice: string } | 'failed' | null>(null)
   const prefilled = useMemo(() => suggestAnswers(sessions, todayKey()), [sessions])
   const [answers, setAnswers] = useState<WizardAnswers>(() => ({ ...DEFAULT_ANSWERS, ...prefilled }))
   const [stepIndex, setStepIndex] = useState(0)
@@ -63,7 +68,7 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
   const [editing, setEditing] = useState<{ workout: number; entry: number } | null>(null)
   const [pickingFor, setPickingFor] = useState<number | null>(null)
 
-  const steps: Step[] = ['mode', answers.mode === 'program' ? 'sessions' : 'template', 'minutes', 'goal', 'level', 'injuries', 'focus', 'proposal']
+  const steps: Step[] = ['mode', answers.mode === 'program' ? 'sessions' : 'template', 'minutes', 'goal', 'level', 'injuries', 'focus', 'duration', 'target', 'proposal']
   const step = steps[stepIndex]
   const patch = (changes: Partial<WizardAnswers>) => setAnswers((current) => ({ ...current, ...changes }))
 
@@ -79,9 +84,9 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
         setGenerating(true)
         try {
           // Catalogue en français : les identifiants suffisent au modèle, les noms l'aident à s'y retrouver.
-          const result = await generateWorkoutsWithAi(aiKey.key, answers, history, exercises)
+          const result = await generateWorkoutsWithAi(aiKey.key, answers, history, exercises, aiModel, lang)
           proposals = result.workouts
-          setAiResult({ costUsd: result.costUsd })
+          setAiResult({ costUsd: result.costUsd, advice: result.advice })
         } catch {
           setAiResult('failed')
         } finally {
@@ -274,6 +279,74 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
         </div>
       )
       break
+    case 'duration':
+      question = t('wizard.duration.q')
+      hint = t('wizard.duration.hint')
+      body = (
+        <div className="wizard-chip-grid">
+          {WIZARD_DURATIONS.map((weeks) => (
+            <button
+              key={weeks}
+              type="button"
+              className={`wizard-chip${answers.durationWeeks === weeks ? ' active' : ''}`}
+              onClick={() => patch({ durationWeeks: weeks, target: useAi ? answers.target : '' })}
+            >
+              {t(`wizard.duration.${weeks}` as TranslationKey)}
+            </button>
+          ))}
+        </div>
+      )
+      break
+    case 'target': {
+      const durationLabel = t(`wizard.duration.${answers.durationWeeks}` as TranslationKey)
+      question = t('wizard.target.q', { duration: durationLabel })
+      hint = useAi ? t('wizard.target.hintAi') : t('wizard.target.hint')
+      const none = t('wizard.target.none')
+      body = (
+        <>
+          {aiKey.valid ? (
+            <label className="wizard-ai">
+              <input
+                type="checkbox"
+                checked={useAi}
+                onChange={(event) => {
+                  setUseAi(event.target.checked)
+                  patch({ target: '' })
+                }}
+              />
+              <span>
+                <span className="title">{t('wizard.ai.use')}</span>
+                <span className="desc">
+                  {t('wizard.ai.cost', { model: AI_MODEL_INFO[aiModel].label, cost: String(AI_MODEL_INFO[aiModel].typicalUsd) })}
+                </span>
+              </span>
+            </label>
+          ) : null}
+          {useAi ? (
+            <div className="field">
+              <label htmlFor="wizard-target">{t('wizard.target.textLabel')}</label>
+              <textarea
+                id="wizard-target"
+                rows={3}
+                maxLength={300}
+                value={answers.target}
+                onChange={(event) => patch({ target: event.target.value })}
+                placeholder={t('wizard.target.placeholder')}
+              />
+            </div>
+          ) : (
+            <div className="stack">
+              {suggestTargets(answers).map(({ kind, n }) => {
+                const text = t(`wizard.target.${kind}` as TranslationKey, { n })
+                return option(`${kind}-${n}`, answers.target === text, text, null, () => patch({ target: answers.target === text ? '' : text }))
+              })}
+              {option('none', answers.target === '', none, null, () => patch({ target: '' }))}
+            </div>
+          )}
+        </>
+      )
+      break
+    }
     case 'proposal':
       question = t('wizard.proposal.title')
       hint = t('wizard.proposal.hint')
@@ -350,6 +423,8 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
       break
   }
 
+  const endDate = shiftDay(todayKey(), answers.durationWeeks * 7 - 1)
+  const objective = answers.target.trim()
   const valid = drafts.length > 0 && drafts.every((draft) => draft.name.trim() && draft.exercises.length > 0)
 
   return (
@@ -364,6 +439,13 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
       </div>
 
       {step === 'proposal' && aiResult === 'failed' ? <p className="hint danger">{t('wizard.ai.failed')}</p> : null}
+      {step === 'proposal' ? (
+        <p className="hint">
+          {t('wizard.proposal.until', { duration: t(`wizard.duration.${answers.durationWeeks}` as TranslationKey), date: formatNumeric(endDate, lang) })}
+          {objective ? ` · ${t('wizard.target.label', { target: objective })}` : ''}
+        </p>
+      ) : null}
+      {step === 'proposal' && aiResult && aiResult !== 'failed' && aiResult.advice ? <p className="hint wizard-advice">{aiResult.advice}</p> : null}
       {step === 'proposal' && aiResult && aiResult !== 'failed' ? (
         <p className="hint">{t('wizard.ai.done', { cost: aiResult.costUsd < 0.001 ? '< 0.001' : aiResult.costUsd.toFixed(3) })}</p>
       ) : null}
@@ -376,7 +458,7 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
           className="btn"
           disabled={!valid}
           onClick={() => {
-            addGeneratedWorkouts(drafts.map((draft) => ({ name: draft.name.trim(), exercises: draft.exercises, weekdays: draft.weekdays })))
+            addGeneratedWorkouts(drafts.map((draft) => ({ name: draft.name.trim(), exercises: draft.exercises, weekdays: draft.weekdays })), { objective, endDate })
             onDone()
           }}
         >
@@ -385,15 +467,6 @@ export function WorkoutWizard({ onDone, onCancel }: { onDone: () => void; onCanc
         </button>
       ) : (
         <>
-          {steps[stepIndex + 1] === 'proposal' && aiKey.valid ? (
-            <label className="wizard-ai">
-              <input type="checkbox" checked={useAi} onChange={(event) => setUseAi(event.target.checked)} />
-              <span>
-                <span className="title">{t('wizard.ai.use')}</span>
-                <span className="desc">{t('wizard.ai.cost')}</span>
-              </span>
-            </label>
-          ) : null}
           <button type="button" className="btn" disabled={generating} onClick={() => void next()}>
             {generating ? t('wizard.ai.generating') : steps[stepIndex + 1] === 'proposal' ? t('wizard.generate') : t('wizard.next')}
           </button>
