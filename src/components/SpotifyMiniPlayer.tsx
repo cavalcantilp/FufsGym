@@ -94,7 +94,6 @@ export function SpotifyMiniPlayer() {
   if (!open) {
     return (
       <div className={`spotify-mini${switching ? ' switching' : ''}`}>
-        {track?.albumArt ? <img src={track.albumArt} alt="" className="spotify-backdrop" aria-hidden="true" /> : null}
         <button type="button" className="spotify-mini-main" onClick={() => setOpen(true)} aria-label={t('train.spotifyExpandAria')}>
           {art('spotify-mini-art')}
           <span className="spotify-mini-text">
@@ -105,9 +104,9 @@ export function SpotifyMiniPlayer() {
             </span>
           </span>
         </button>
-        {playButton(18, 'spotify-mini-btn primary')}
+        {playButton(16, 'spotify-mini-btn')}
         <button type="button" className="spotify-mini-btn" onClick={goNext} disabled={!track} aria-label={t('train.spotifyNextAria')}>
-          <IconSkipForward size={18} />
+          <IconSkipForward size={16} />
         </button>
         <span className="spotify-mini-progress" style={{ transform: `scaleX(${ratio})` }} />
       </div>

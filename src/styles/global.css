@@ -3356,3 +3356,15 @@ body.has-rest-banner .app-header { height: calc(env(safe-area-inset-top, 0px) + 
 .coach-send:disabled { opacity: 0.35; }
 .coach-send.stop { background: var(--input-bg); color: var(--text-main); }
 @media (prefers-reduced-motion: reduce) { .coach-msg.thinking i { animation: none; opacity: 0.6; } }
+
+/* Replié : une ligne discrète, sans fond coloré ni pochette en vedette — rien qui ressemble à une publicité. */
+.spotify-mini { background: transparent; color: var(--text-sub); padding: 2px 0 6px; border-radius: 0; overflow: visible; }
+.spotify-mini-main { gap: 10px; color: var(--text-sub); }
+.spotify-mini-art { width: 26px; height: 26px; border-radius: 6px; box-shadow: none; opacity: 0.75; filter: saturate(0.6); }
+.spotify-mini-text { flex-direction: row; align-items: center; gap: 8px; }
+.spotify-mini-text .name { flex: 0 1 auto; font-size: 0.8rem; font-weight: 600; color: var(--text-sub); }
+.spotify-mini-text .artist { flex: 1; min-width: 0; font-size: 0.76rem; color: var(--text-faint); }
+.spotify-mini-text .artist .spotify-eq { display: none; }
+.spotify-mini-btn { width: 32px; height: 32px; color: var(--text-sub); background: none; }
+.spotify-mini-btn:active { background: var(--input-bg); }
+.spotify-mini-progress { height: 2px; background: var(--text-faint); border-radius: 2px; }
